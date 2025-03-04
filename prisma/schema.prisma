@@ -1,0 +1,154 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// 유저 모델
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  recipes       Recipe[]
+  tasteNotes    TasteNote[]
+  comments      Comment[]
+  likes         Like[]
+  reports       Report[]
+}
+
+// NextAuth 계정 모델
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+// NextAuth 세션 모델
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// 레시피 모델
+model Recipe {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  isPublic    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  userId      String
+  coffeeType  String?
+  roastLevel  String?
+  grindSize   String?
+  waterTemp   Int?
+
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  steps       Step[]
+  tasteNotes  TasteNote[]
+  comments    Comment[]
+  likes       Like[]
+}
+
+// 레시피 단계 모델
+model Step {
+  id          String   @id @default(cuid())
+  recipeId    String
+  order       Int
+  time        Int      // 초 단위 시간
+  waterAmount Int      // 물의 양 (ml)
+  description String?
+  isSwitch    Boolean  @default(false) // 하리오 스위치와 같은 드리퍼의 스위칭 여부
+
+  recipe      Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+}
+
+// 맛 노트 모델
+model TasteNote {
+  id                String   @id @default(cuid())
+  recipeId          String
+  userId            String
+  acidity           Int?     // 산미 (1-10)
+  sweetness         Int?     // 단맛 (1-10)
+  body              Int?     // 바디감 (1-10)
+  bitterness        Int?     // 쓴맛 (1-10)
+  balance           Int?     // 밸런스 (1-10)
+  aftertaste        Int?     // 후미 (1-10)
+  flavorNotes       String?  // 맛 노트 (쉼표로 구분)
+  overallImpression Int?     // 종합 평가 (1-10)
+  comments          String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  recipe            Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// 댓글 모델
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  recipeId  String
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reports   Report[]
+}
+
+// 좋아요 모델
+model Like {
+  id        String   @id @default(cuid())
+  recipeId  String
+  userId    String
+  createdAt DateTime @default(now())
+
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([recipeId, userId])
+}
+
+// 신고 모델
+model Report {
+  id        String   @id @default(cuid())
+  reason    String
+  commentId String
+  userId    String
+  createdAt DateTime @default(now())
+  
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+} 
