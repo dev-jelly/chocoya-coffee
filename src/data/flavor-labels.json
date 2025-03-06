@@ -1,0 +1,196 @@
+{
+  "flavorLabels": [
+    {
+      "id": "berry",
+      "name": "베리류",
+      "englishName": "Berry",
+      "color": "#9E2B5E",
+      "category": "fruit",
+      "description": "블루베리, 라즈베리, 블랙베리 등의 베리류 향미"
+    },
+    {
+      "id": "dried-fruit",
+      "name": "건조 과일",
+      "englishName": "Dried Fruit",
+      "color": "#C76C46",
+      "category": "fruit",
+      "description": "건포도, 말린 살구 등의 건조 과일 향미"
+    },
+    {
+      "id": "citrus",
+      "name": "시트러스",
+      "englishName": "Citrus",
+      "color": "#F4AF2A",
+      "category": "fruit",
+      "description": "레몬, 라임, 오렌지, 자몽 등의 감귤류 향미"
+    },
+    {
+      "id": "stone-fruit",
+      "name": "핵과류",
+      "englishName": "Stone Fruit",
+      "color": "#F39664",
+      "category": "fruit",
+      "description": "복숭아, 살구, 자두 등의 핵과류 향미"
+    },
+    {
+      "id": "tropical",
+      "name": "열대 과일",
+      "englishName": "Tropical Fruit",
+      "color": "#F2C94C",
+      "category": "fruit",
+      "description": "파인애플, 망고, 패션프루트 등의 열대 과일 향미"
+    },
+    {
+      "id": "red-fruit",
+      "name": "붉은 과일",
+      "englishName": "Red Fruit",
+      "color": "#E5325C",
+      "category": "fruit",
+      "description": "딸기, 체리, 크랜베리 등의 붉은 과일 향미"
+    },
+    {
+      "id": "floral",
+      "name": "꽃",
+      "englishName": "Floral",
+      "color": "#F6BFCF",
+      "category": "floral",
+      "description": "재스민, 장미, 라일락 등의 꽃 향미"
+    },
+    {
+      "id": "perfume",
+      "name": "향수",
+      "englishName": "Perfumy",
+      "color": "#E790CB",
+      "category": "floral",
+      "description": "향수와 같은 강한 꽃향기"
+    },
+    {
+      "id": "vanilla",
+      "name": "바닐라",
+      "englishName": "Vanilla",
+      "color": "#F4E5C7",
+      "category": "sweet",
+      "description": "바닐라 향미"
+    },
+    {
+      "id": "brown-sugar",
+      "name": "흑설탕",
+      "englishName": "Brown Sugar",
+      "color": "#A56233",
+      "category": "sweet",
+      "description": "흑설탕, 캐러멜, 메이플 시럽 등의 달콤한 향미"
+    },
+    {
+      "id": "honey",
+      "name": "꿀",
+      "englishName": "Honey",
+      "color": "#E3B12D",
+      "category": "sweet",
+      "description": "꿀 향미"
+    },
+    {
+      "id": "caramel",
+      "name": "캐러멜",
+      "englishName": "Caramel",
+      "color": "#C26E2C",
+      "category": "sweet",
+      "description": "캐러멜, 토피 향미"
+    },
+    {
+      "id": "chocolate",
+      "name": "초콜릿",
+      "englishName": "Chocolate",
+      "color": "#6E411F",
+      "category": "sweet",
+      "description": "초콜릿, 코코아 향미"
+    },
+    {
+      "id": "nut",
+      "name": "견과류",
+      "englishName": "Nut",
+      "color": "#BD8355",
+      "category": "nutty",
+      "description": "아몬드, 호두, 헤이즐넛 등의 견과류 향미"
+    },
+    {
+      "id": "almond",
+      "name": "아몬드",
+      "englishName": "Almond",
+      "color": "#D6AA82",
+      "category": "nutty",
+      "description": "아몬드 특유의 향미"
+    },
+    {
+      "id": "spice",
+      "name": "향신료",
+      "englishName": "Spice",
+      "color": "#A34F3F",
+      "category": "spice",
+      "description": "계피, 정향, 카다몸 등의 향신료 향미"
+    },
+    {
+      "id": "cinnamon",
+      "name": "계피",
+      "englishName": "Cinnamon",
+      "color": "#9A4E36",
+      "category": "spice",
+      "description": "계피 향미"
+    },
+    {
+      "id": "clove",
+      "name": "정향",
+      "englishName": "Clove",
+      "color": "#8B3A2D",
+      "category": "spice",
+      "description": "정향 향미"
+    },
+    {
+      "id": "roasted",
+      "name": "로스팅",
+      "englishName": "Roasted",
+      "color": "#523329",
+      "category": "roasted",
+      "description": "로스팅된 향미"
+    },
+    {
+      "id": "smoky",
+      "name": "스모키",
+      "englishName": "Smoky",
+      "color": "#3D2A22",
+      "category": "roasted",
+      "description": "훈제된 듯한 스모키한 향미"
+    },
+    {
+      "id": "cereal",
+      "name": "곡물",
+      "englishName": "Cereal",
+      "color": "#D0B07F",
+      "category": "roasted",
+      "description": "곡물, 빵, 토스트 등의 향미"
+    },
+    {
+      "id": "earthy",
+      "name": "흙내음",
+      "englishName": "Earthy",
+      "color": "#707056",
+      "category": "other",
+      "description": "흙, 이끼 등의 대지 향미"
+    },
+    {
+      "id": "woody",
+      "name": "우디",
+      "englishName": "Woody",
+      "color": "#795C3B",
+      "category": "other",
+      "description": "나무, 참나무통 등의 우디한 향미"
+    },
+    {
+      "id": "herbal",
+      "name": "허브",
+      "englishName": "Herbal",
+      "color": "#779B6B",
+      "category": "other",
+      "description": "허브, 차, 민트 등의 향미"
+    }
+  ]
+} 

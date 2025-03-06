@@ -1,3 +1,5 @@
+"use client";
+
 // 이 파일은 shadcn/ui의 toast 컴포넌트를 기반으로 합니다.
 // https://ui.shadcn.com/docs/components/toast
 
