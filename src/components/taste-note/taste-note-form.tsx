@@ -3,15 +3,37 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Coffee, Save } from 'lucide-react';
+import { ArrowLeft, Coffee, Save, Bean } from 'lucide-react';
 import { FlavorWheelSelector } from '@/components/taste-note/flavor-wheel-selector';
 import { FlavorWheelImage } from '@/components/taste-note/flavor-wheel-image';
 import { flavorLabels, FlavorLabel } from '@/data/flavor-labels';
+import { createTasteNote } from '@/lib/actions/taste-note';
+import { getRecipes } from '@/lib/actions/recipe';
+import { useToast } from '@/components/ui/use-toast';
+import { getBeans } from '@/lib/actions/bean';
 
-export default function TasteNoteForm() {
+export default function TasteNoteForm({ userId }: { userId: string }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedLabelIds, setSelectedLabelIds] = useState<string[]>([]);
+  const [beans, setBeans] = useState<any[]>([]);
+  const [recipes, setRecipes] = useState<any[]>([]);
+  
+  // 원두 목록 가져오기
+  useEffect(() => {
+    const fetchData = async () => {
+      const beansData = await getBeans();
+      setBeans(beansData);
+      
+      // 레시피 목록도 가져오기
+      const recipesData = await getRecipes();
+      setRecipes(recipesData);
+    };
+    
+    fetchData();
+  }, []);
+  
   const [formData, setFormData] = useState({
     coffeeName: '',
     origin: '',
@@ -31,7 +53,33 @@ export default function TasteNoteForm() {
     bitterness: 5,
     notes: '',
     recipeId: '',
+    beanId: '', // 원두 ID 추가
   });
+  
+  // 원두 선택 처리
+  const handleBeanSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const beanId = e.target.value;
+    if (beanId) {
+      const selectedBean = beans.find(bean => bean.id === beanId);
+      if (selectedBean) {
+        setFormData(prev => ({
+          ...prev,
+          beanId,
+          coffeeName: selectedBean.name,
+          origin: selectedBean.origin || prev.origin,
+          roastLevel: selectedBean.roastLevel || prev.roastLevel,
+          roaster: selectedBean.roaster || prev.roaster,
+        }));
+      }
+    } else {
+      // 원두를 선택하지 않은 경우
+      setFormData(prev => ({
+        ...prev,
+        beanId: '',
+        // 다른 필드는 유지
+      }));
+    }
+  };
   
   // 선택된 라벨 ID를 기반으로 라벨 객체 목록 반환
   const getSelectedLabels = (): FlavorLabel[] => {
@@ -59,21 +107,50 @@ export default function TasteNoteForm() {
     
     try {
       // 맛 노트 데이터 준비
-      const flavorColors = getSelectedLabels().map(label => label.color);
-      const primaryColor = flavorColors.length > 0 ? flavorColors[0] : undefined;
+      const selectedLabels = getSelectedLabels();
+      const flavorColors = selectedLabels.map(label => label.color).join(',');
+      const primaryColor = selectedLabels.length > 0 ? selectedLabels[0].color : undefined;
       
-      // API 호출 또는 서버 액션 호출 로직 추가
-      // 성공 시 맛 노트 목록 페이지로 이동
-      console.log('Form submitted', {
-        ...formData,
-        flavorLabels: selectedLabelIds,
-        flavorColors,
-        primaryColor,
+      // 폼 데이터 생성
+      const formDataObj = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          formDataObj.append(key, value.toString());
+        }
       });
       
-      router.push('/taste-notes');
+      // 맛 노트 레이블 데이터 추가
+      formDataObj.append('flavorLabels', selectedLabelIds.join(','));
+      formDataObj.append('flavorColors', flavorColors);
+      if (primaryColor) {
+        formDataObj.append('primaryColor', primaryColor);
+      }
+      
+      // 서버 액션 호출
+      const result = await createTasteNote(userId, {}, formDataObj);
+      
+      if (result.errors) {
+        // 오류 처리
+        toast({
+          title: '맛 노트 저장 실패',
+          description: result.message || '맛 노트를 저장하는 중 오류가 발생했습니다.',
+          variant: 'destructive',
+        });
+      } else {
+        // 성공 시
+        toast({
+          title: '맛 노트 저장 성공',
+          description: '맛 노트가 성공적으로 저장되었습니다.',
+        });
+        router.push('/taste-notes');
+      }
     } catch (error) {
       console.error('Error submitting form:', error);
+      toast({
+        title: '맛 노트 저장 실패',
+        description: '서버 오류가 발생했습니다. 다시 시도해주세요.',
+        variant: 'destructive',
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -85,6 +162,66 @@ export default function TasteNoteForm() {
       <div>
         <h2 className="text-xl font-semibold mb-4">기본 정보</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="beanId" className="block text-sm font-medium mb-1">
+              등록된 원두 선택 (선택사항)
+            </label>
+            <div className="flex items-center gap-2">
+              <select
+                id="beanId"
+                name="beanId"
+                value={formData.beanId}
+                onChange={handleBeanSelect}
+                className="w-full p-3 rounded-md border border-input bg-background"
+              >
+                <option value="">원두 선택...</option>
+                {beans.map((bean) => (
+                  <option key={bean.id} value={bean.id}>
+                    {bean.name} {bean.origin ? `(${bean.origin})` : ''}
+                  </option>
+                ))}
+              </select>
+              <Link 
+                href="/beans/create" 
+                className="whitespace-nowrap px-3 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 text-sm"
+              >
+                <Bean className="w-4 h-4" />
+              </Link>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              등록된 원두를 선택하면 관련 정보가 자동으로 채워집니다.
+            </p>
+          </div>
+          <div>
+            <label htmlFor="recipeId" className="block text-sm font-medium mb-1">
+              관련 레시피 선택 (선택사항)
+            </label>
+            <div className="flex items-center gap-2">
+              <select
+                id="recipeId"
+                name="recipeId"
+                value={formData.recipeId}
+                onChange={handleInputChange}
+                className="w-full p-3 rounded-md border border-input bg-background"
+              >
+                <option value="">레시피 선택...</option>
+                {recipes.map((recipe) => (
+                  <option key={recipe.id} value={recipe.id}>
+                    {recipe.title} ({recipe.brewingMethod})
+                  </option>
+                ))}
+              </select>
+              <Link 
+                href="/recipes/create" 
+                className="whitespace-nowrap px-3 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 text-sm"
+              >
+                <Coffee className="w-4 h-4" />
+              </Link>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              이 맛 노트와 관련된 레시피가 있다면 선택하세요.
+            </p>
+          </div>
           <div>
             <label htmlFor="coffeeName" className="block text-sm font-medium mb-1">
               커피 이름 <span className="text-red-500">*</span>

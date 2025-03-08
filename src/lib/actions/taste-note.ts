@@ -23,8 +23,12 @@ const tasteNoteSchema = z.object({
   body: z.coerce.number().min(1).max(10).optional(),
   bitterness: z.coerce.number().min(1).max(10).optional(),
   flavorNotes: z.string().optional(),
+  flavorLabels: z.string().optional(),
+  flavorColors: z.string().optional(),
+  primaryColor: z.string().optional(),
   notes: z.string().optional(),
-  recipeId: z.string().optional(),
+  recipeId: z.string().optional().nullable(),
+  beanId: z.string().optional().nullable(),
 });
 
 export type TasteNoteFormState = {
@@ -46,8 +50,12 @@ export type TasteNoteFormState = {
     body?: string[];
     bitterness?: string[];
     flavorNotes?: string[];
+    flavorLabels?: string[];
+    flavorColors?: string[];
+    primaryColor?: string[];
     notes?: string[];
     recipeId?: string[];
+    beanId?: string[];
     _form?: string[];
   };
   message?: string | null;
@@ -78,8 +86,12 @@ export async function createTasteNote(
     body: formData.get('body'),
     bitterness: formData.get('bitterness'),
     flavorNotes: formData.get('flavorNotes'),
+    flavorLabels: formData.get('flavorLabels'),
+    flavorColors: formData.get('flavorColors'),
+    primaryColor: formData.get('primaryColor'),
     notes: formData.get('notes'),
     recipeId: formData.get('recipeId'),
+    beanId: formData.get('beanId'),
   });
 
   // 유효성 검사 실패 시
@@ -94,7 +106,8 @@ export async function createTasteNote(
     coffeeName, origin, roastLevel, roaster, brewingMethod,
     grindSize, beanAmount, waterAmount, waterTemp, brewTime, ratio,
     overallRating, acidity, sweetness, body, bitterness,
-    flavorNotes, notes, recipeId
+    flavorNotes, flavorLabels, flavorColors, primaryColor,
+    notes, recipeId, beanId
   } = validatedFields.data;
 
   try {
@@ -118,8 +131,12 @@ export async function createTasteNote(
         body,
         bitterness,
         flavorNotes,
+        flavorLabels,
+        flavorColors,
+        primaryColor,
         notes,
         recipeId,
+        beanId,
         userId,
       },
     });
@@ -221,8 +238,12 @@ export async function updateTasteNote(
     body: formData.get('body'),
     bitterness: formData.get('bitterness'),
     flavorNotes: formData.get('flavorNotes'),
+    flavorLabels: formData.get('flavorLabels'),
+    flavorColors: formData.get('flavorColors'),
+    primaryColor: formData.get('primaryColor'),
     notes: formData.get('notes'),
     recipeId: formData.get('recipeId'),
+    beanId: formData.get('beanId'),
   });
 
   // 유효성 검사 실패 시
@@ -251,7 +272,8 @@ export async function updateTasteNote(
     coffeeName, origin, roastLevel, roaster, brewingMethod,
     grindSize, beanAmount, waterAmount, waterTemp, brewTime, ratio,
     overallRating, acidity, sweetness, body, bitterness,
-    flavorNotes, notes, recipeId
+    flavorNotes, flavorLabels, flavorColors, primaryColor,
+    notes, recipeId, beanId
   } = validatedFields.data;
 
   try {
@@ -276,8 +298,12 @@ export async function updateTasteNote(
         body,
         bitterness,
         flavorNotes,
+        flavorLabels,
+        flavorColors,
+        primaryColor,
         notes,
         recipeId,
+        beanId,
       },
     });
 

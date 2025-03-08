@@ -10,12 +10,16 @@ export const metadata = {
 };
 
 export default async function RecipesPage({
-  searchParams,
+  searchParams = {},
 }: {
-  searchParams?: { method?: string };
+  searchParams?: Record<string, string | string[] | undefined>;
 }) {
+  // searchParams는 await 없이 직접 접근하지 않고 변수로 추출
+  const methodParam = searchParams?.method;
+  const method = typeof methodParam === 'string' ? methodParam : undefined;
+  
   // 데이터베이스에서 레시피 가져오기
-  const recipes = await getRecipes(searchParams?.method);
+  const recipes = await getRecipes(method);
 
   return (
     <div className="container px-4 md:px-6 py-6 md:py-10">

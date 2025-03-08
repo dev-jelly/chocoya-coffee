@@ -31,6 +31,7 @@ model User {
   reports       Report[]
   favorites     Favorite[]
   recipeLikes   RecipeLike[]
+  beans         Bean[]
 }
 
 // NextAuth 계정 모델
@@ -79,7 +80,7 @@ model Recipe {
   beanAmount      String?   // 원두량 (예: "15g")
   waterAmount     String?   // 물 용량 (예: "250ml")
   waterTemp       String?   // 물 온도 (예: "90-92°C")
-  grindSize       String?   // 분쇄도 (예: "중간", "고운" 등)
+  grindSize        String?   // 분쇄도 (예: "중간", "고운" 등)
   tools           String?   // 필요한 도구 (쉼표로 구분)
   
   // 맛 프로필 관련 필드
@@ -87,6 +88,10 @@ model Recipe {
   sweetness       String?   // 단맛 (예: "중간")
   body            String?   // 바디감 (예: "가벼움-중간")
   recommendedBeans String?  // 추천 원두 (예: "에티오피아, 케냐 등 산미가 강한 싱글 오리진")
+  
+  // 원두 관계 필드 추가
+  beanId         String?
+  bean           Bean?   @relation(fields: [beanId], references: [id], onDelete: SetNull)
   
   // 관계
   user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -131,6 +136,33 @@ model BrewingTip {
   recipe      Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
 }
 
+// 원두 모델
+model Bean {
+  id          String    @id @default(cuid())
+  name        String    // 원두 이름
+  origin      String?   // 원산지
+  region      String?   // 지역
+  farm        String?   // 농장명
+  altitude    String?   // 고도
+  process     String?   // 프로세스 (워시드, 내추럴 등)
+  variety     String?   // 품종 (게이샤, 부르봉, 카투라 등)
+  roastLevel  String?   // 로스팅 단계
+  roaster     String?   // 로스터리
+  roastDate   DateTime? // 로스팅 날짜
+  description String?   // 설명
+  isPublic    Boolean   @default(true) // 공개 여부
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  userId      String    // 작성자 ID
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // 관계
+  tasteNotes  TasteNote[]
+  recipes     Recipe[]  // 이 원두를 사용한 레시피
+}
+
 // 맛 노트 모델
 model TasteNote {
   id                String   @id @default(cuid())
@@ -166,6 +198,10 @@ model TasteNote {
   flavorLabels      String?  // 분류 레이블 (쉼표로 구분, 예: "과일,견과류,초콜릿")
   flavorColors      String?  // 각 맛 노트에 해당하는 색상 (쉼표로 구분, 예: "#FF5733,#3D9970,#8B4513")
   primaryColor      String?  // 주요 맛 색상 (예: "#FF5733")
+  
+  // 원두 관계 필드 추가
+  beanId           String?
+  bean             Bean?   @relation(fields: [beanId], references: [id], onDelete: SetNull)
   
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt

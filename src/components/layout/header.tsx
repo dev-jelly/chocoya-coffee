@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { Coffee, BookOpen, Droplet, FileText, Home } from "lucide-react";
 import { MobileNavClient } from "./mobile-nav-client";
+import { CatCoffeeLogo } from "@/components/ui/cat-coffee-logo";
 
 export async function Header() {
   const session = await getServerSession(authOptions);
@@ -12,12 +13,12 @@ export async function Header() {
   
   return (
     <header className="border-b sticky top-0 bg-background z-10">
-      <div className="container flex h-16 items-center justify-between px-4 md:px-6">
+      <div className="container flex h-16 items-center px-4 md:px-6 justify-between">
         <div className="flex items-center gap-4 md:gap-6">
           <MobileNavClient isLoggedIn={isLoggedIn} />
           
           <Link href="/" className="text-xl font-bold flex items-center">
-            <Coffee className="mr-2" size={24} />
+            <CatCoffeeLogo className="mr-2 text-primary" size={28} />
             <span>초코야 커피</span>
           </Link>
           <nav className="hidden md:flex gap-4 md:gap-6">
@@ -64,7 +65,7 @@ export async function Header() {
               <UserNav user={session.user} />
             </div>
           ) : (
-            <div className="hidden md:flex gap-2">
+            <div className="flex gap-2">
               <Button asChild variant="outline" size="sm">
                 <Link href="/auth/login">로그인</Link>
               </Button>

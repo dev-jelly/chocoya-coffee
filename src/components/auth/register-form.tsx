@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Icons } from "@/components/ui/icons";
 import { toast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
+import { api } from "@/lib/api-client";
 
 const registerSchema = z.object({
   name: z.string().min(2, {
@@ -26,6 +28,7 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export function RegisterForm() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const router = useRouter();
 
   const {
     register,
@@ -40,32 +43,36 @@ export function RegisterForm() {
     },
   });
 
-  async function onSubmit(data: RegisterFormValues) {
+  const onSubmit = async (values: z.infer<typeof registerSchema>) => {
     setIsLoading(true);
 
     try {
-      // 여기에 회원가입 API 호출 로직 추가
-      // 예: const response = await fetch("/api/auth/register", { ... })
-      
-      // 성공 시 토스트 메시지 표시
-      toast({
-        title: "회원가입 성공!",
-        description: "로그인 페이지로 이동합니다.",
+      const response = await api.post('/api/auth/register', values, {
+        showSuccessToast: false,
+        showErrorToast: true,
+        errorMessageOverride: {
+          409: '이미 등록된 이메일입니다. 다른 이메일을 사용하거나 로그인해 주세요.',
+          400: '입력한 정보가 유효하지 않습니다. 다시 확인해주세요.',
+          500: '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
+        },
       });
-      
-      // 로그인 페이지로 리다이렉트 (실제 구현 시 추가)
-      // router.push("/auth/login");
+
+      if (response.success) {
+        toast({
+          title: "성공",
+          description: "회원가입이 완료되었습니다!",
+        });
+        
+        setTimeout(() => {
+          router.push('/auth/login');
+        }, 1500);
+      }
     } catch (error) {
-      // 에러 처리
-      toast({
-        title: "회원가입 실패",
-        description: "회원가입 중 오류가 발생했습니다. 다시 시도해주세요.",
-        variant: "destructive",
-      });
+      console.error('Register error:', error);
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="grid gap-6">

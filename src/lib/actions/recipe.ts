@@ -8,26 +8,34 @@ import { auth } from '@/lib/auth';
 // 레시피 스키마 정의
 const recipeSchema = z.object({
   title: z.string().min(1, '레시피 이름은 필수입니다'),
-  method: z.string().min(1, '추출 방식은 필수입니다'),
+  brewingMethod: z.string().min(1, '추출 방식은 필수입니다'),
   difficulty: z.string().optional(),
   preparationTime: z.string().min(1, '소요 시간은 필수입니다'),
   beanAmount: z.string().min(1, '원두량은 필수입니다'),
   waterAmount: z.string().min(1, '물 용량은 필수입니다'),
+  waterTemp: z.string().optional(),
   grindSize: z.string().min(1, '분쇄도는 필수입니다'),
+  tools: z.string().optional(),
+  acidity: z.string().optional(),
+  sweetness: z.string().optional(),
+  body: z.string().optional(),
+  recommendedBeans: z.string().optional(),
   description: z.string().optional(),
-  equipment: z.string().optional(),
   notes: z.string().optional(),
   steps: z.string().optional(),
+  isPublic: z.boolean().default(true),
+  beanId: z.string().optional().nullable(),
 });
 
 export type RecipeFormState = {
   errors?: {
     title?: string[];
-    method?: string[];
+    brewingMethod?: string[];
     difficulty?: string[];
     preparationTime?: string[];
     beanAmount?: string[];
     waterAmount?: string[];
+    waterTemp?: string[];
     grindSize?: string[];
     tools?: string[];
     acidity?: string[];
@@ -35,6 +43,7 @@ export type RecipeFormState = {
     body?: string[];
     recommendedBeans?: string[];
     isPublic?: string[];
+    beanId?: string[];
     _form?: string[];
   };
   message?: string | null;
@@ -63,6 +72,7 @@ export async function createRecipe(
     body: formData.get('body'),
     recommendedBeans: formData.get('recommendedBeans'),
     isPublic: formData.get('isPublic') === 'true',
+    beanId: formData.get('beanId') || null,
   });
 
   // 유효성 검사 실패 시
@@ -76,7 +86,7 @@ export async function createRecipe(
   const { 
     title, description, brewingMethod, difficulty, preparationTime,
     beanAmount, waterAmount, waterTemp, grindSize, tools,
-    acidity, sweetness, body, recommendedBeans, isPublic
+    acidity, sweetness, body, recommendedBeans, isPublic, beanId
   } = validatedFields.data;
 
   try {
@@ -99,6 +109,7 @@ export async function createRecipe(
         recommendedBeans,
         isPublic,
         userId,
+        beanId: beanId || undefined,
       },
     });
 
@@ -270,6 +281,7 @@ export async function updateRecipe(
     body: formData.get('body'),
     recommendedBeans: formData.get('recommendedBeans'),
     isPublic: formData.get('isPublic') === 'true',
+    beanId: formData.get('beanId') || null,
   });
 
   // 유효성 검사 실패 시
@@ -297,7 +309,7 @@ export async function updateRecipe(
   const { 
     title, description, brewingMethod, difficulty, preparationTime,
     beanAmount, waterAmount, waterTemp, grindSize, tools,
-    acidity, sweetness, body, recommendedBeans, isPublic
+    acidity, sweetness, body, recommendedBeans, isPublic, beanId
   } = validatedFields.data;
 
   try {
@@ -320,6 +332,7 @@ export async function updateRecipe(
         body,
         recommendedBeans,
         isPublic,
+        beanId: beanId || undefined,
       },
     });
 

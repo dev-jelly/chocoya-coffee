@@ -1,10 +1,15 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { CatCoffeeLogo } from "@/components/ui/cat-coffee-logo";
 
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 md:p-24">
       <div className="z-10 max-w-5xl w-full items-center justify-center text-center">
+        <div className="flex flex-col items-center justify-center mb-6 relative">
+          <div className="absolute -inset-4 bg-primary/10 rounded-full blur-xl z-0"></div>
+          <CatCoffeeLogo size={180} className="text-primary mb-4 relative z-10" />
+        </div>
         <h1 className="text-4xl md:text-6xl font-bold mb-4">
           초코야 커피
         </h1>
