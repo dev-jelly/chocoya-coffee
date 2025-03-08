@@ -5,8 +5,8 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
-import { 
-  User, Edit, Bookmark, Coffee, FileText, 
+import {
+  User, Edit, Bookmark, Coffee, FileText,
   ChevronRight, Settings
 } from 'lucide-react';
 
@@ -18,11 +18,11 @@ export const metadata = {
 export default async function ProfilePage() {
   // 로그인 확인
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user?.id) {
     redirect('/auth/login?callbackUrl=/profile');
   }
-  
+
   // 사용자 정보 가져오기
   const user = await prisma.user.findUnique({
     where: {
@@ -55,16 +55,16 @@ export default async function ProfilePage() {
       },
     },
   });
-  
+
   if (!user) {
     return <div className="container py-8">사용자 정보를 불러올 수 없습니다.</div>;
   }
 
   return (
     <div className="container px-4 md:px-6 py-6 md:py-10">
-      <div className="flex flex-col md:flex-row gap-8">
+      <div className="flex flex-col gap-8">
         {/* 프로필 정보 */}
-        <div className="md:w-1/3">
+        <div className="w-full">
           <div className="bg-card border rounded-lg p-6">
             <div className="flex flex-col items-center mb-6">
               {user.image ? (
@@ -84,46 +84,46 @@ export default async function ProfilePage() {
               <h1 className="text-2xl font-bold">{user.name || '사용자'}</h1>
               <p className="text-muted-foreground">{user.email}</p>
             </div>
-            
-            <div className="space-y-2">
-              <Link 
-                href="/profile/edit" 
-                className="flex items-center justify-between p-3 hover:bg-muted rounded-md w-full transition"
+
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-4">
+              <Link
+                href="/profile/edit"
+                className="flex items-center justify-between p-3 hover:bg-muted rounded-md transition"
               >
                 <div className="flex items-center">
                   <Edit size={18} className="mr-2" />
                   <span>프로필 수정</span>
                 </div>
-                <ChevronRight size={16} />
+                <ChevronRight size={16} className="ml-2" />
               </Link>
-              
-              <Link 
-                href="/profile/favorites" 
-                className="flex items-center justify-between p-3 hover:bg-muted rounded-md w-full transition"
+
+              <Link
+                href="/profile/favorites"
+                className="flex items-center justify-between p-3 hover:bg-muted rounded-md transition"
               >
                 <div className="flex items-center">
                   <Bookmark size={18} className="mr-2" />
                   <span>즐겨찾기</span>
                 </div>
-                <ChevronRight size={16} />
+                <ChevronRight size={16} className="ml-2" />
               </Link>
-              
-              <Link 
-                href="/profile/settings" 
-                className="flex items-center justify-between p-3 hover:bg-muted rounded-md w-full transition"
+
+              <Link
+                href="/profile/settings"
+                className="flex items-center justify-between p-3 hover:bg-muted rounded-md transition"
               >
                 <div className="flex items-center">
                   <Settings size={18} className="mr-2" />
                   <span>계정 설정</span>
                 </div>
-                <ChevronRight size={16} />
+                <ChevronRight size={16} className="ml-2" />
               </Link>
             </div>
           </div>
         </div>
-        
+
         {/* 활동 내역 */}
-        <div className="md:w-2/3">
+        <div className="w-full">
           {/* 내 레시피 */}
           <div className="mb-8">
             <div className="flex justify-between items-center mb-4">
@@ -132,12 +132,12 @@ export default async function ProfilePage() {
                 새 레시피 작성
               </Link>
             </div>
-            
+
             {user.recipes.length === 0 ? (
               <div className="bg-card border rounded-lg p-4 text-center">
                 <p className="text-muted-foreground">아직 작성한 레시피가 없습니다.</p>
-                <Link 
-                  href="/recipes/create" 
+                <Link
+                  href="/recipes/create"
                   className="mt-2 inline-block text-primary hover:underline"
                 >
                   첫 번째 레시피 작성하기
@@ -160,10 +160,10 @@ export default async function ProfilePage() {
                     </div>
                   </Link>
                 ))}
-                
+
                 {user.recipes.length > 3 && (
-                  <Link 
-                    href="/profile/recipes" 
+                  <Link
+                    href="/profile/recipes"
                     className="text-center text-primary hover:underline py-2"
                   >
                     모든 레시피 보기
@@ -172,7 +172,7 @@ export default async function ProfilePage() {
               </div>
             )}
           </div>
-          
+
           {/* 내 맛 노트 */}
           <div className="mb-8">
             <div className="flex justify-between items-center mb-4">
@@ -181,12 +181,12 @@ export default async function ProfilePage() {
                 새 맛 노트 작성
               </Link>
             </div>
-            
+
             {user.tasteNotes.length === 0 ? (
               <div className="bg-card border rounded-lg p-4 text-center">
                 <p className="text-muted-foreground">아직 작성한 맛 노트가 없습니다.</p>
-                <Link 
-                  href="/taste-notes/create" 
+                <Link
+                  href="/taste-notes/create"
                   className="mt-2 inline-block text-primary hover:underline"
                 >
                   첫 번째 맛 노트 작성하기
@@ -210,10 +210,10 @@ export default async function ProfilePage() {
                     </div>
                   </Link>
                 ))}
-                
+
                 {user.tasteNotes.length > 3 && (
-                  <Link 
-                    href="/profile/taste-notes" 
+                  <Link
+                    href="/profile/taste-notes"
                     className="text-center text-primary hover:underline py-2"
                   >
                     모든 맛 노트 보기
@@ -222,7 +222,7 @@ export default async function ProfilePage() {
               </div>
             )}
           </div>
-          
+
           {/* 즐겨찾기 */}
           <div>
             <div className="flex justify-between items-center mb-4">
@@ -231,12 +231,12 @@ export default async function ProfilePage() {
                 모든 즐겨찾기 보기
               </Link>
             </div>
-            
+
             {user.favorites.length === 0 ? (
               <div className="bg-card border rounded-lg p-4 text-center">
                 <p className="text-muted-foreground">아직 즐겨찾기한 레시피가 없습니다.</p>
-                <Link 
-                  href="/recipes" 
+                <Link
+                  href="/recipes"
                   className="mt-2 inline-block text-primary hover:underline"
                 >
                   레시피 둘러보기
@@ -248,11 +248,11 @@ export default async function ProfilePage() {
                   <Link key={favorite.recipeId} href={`/recipes/${favorite.recipeId}`} passHref>
                     <div className="bg-card border rounded-lg p-4 hover:shadow-md transition">
                       <div className="flex items-start">
-                        <Bookmark className="mr-3 mt-1" />
+                        <Coffee className="mr-3 mt-1" />
                         <div>
-                          <h3 className="font-medium">{favorite.recipe.title}</h3>
+                          <h3 className="font-medium">{favorite.recipe?.title || '삭제된 레시피'}</h3>
                           <p className="text-sm text-muted-foreground line-clamp-1">
-                            {favorite.recipe.description || '설명 없음'}
+                            {favorite.recipe?.description || '설명 없음'}
                           </p>
                         </div>
                       </div>

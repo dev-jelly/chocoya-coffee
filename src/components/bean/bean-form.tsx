@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/ui/use-toast';
 import { createBean, updateBean } from '@/lib/actions/bean';
 import { Calendar } from 'lucide-react';
+import { getOrigins } from '@/data/origins';
 
 interface BeanFormProps {
   userId: string;
@@ -16,7 +17,10 @@ export default function BeanForm({ userId, bean, isEditing = false }: BeanFormPr
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
+  // 커피 원산지 목록 가져오기
+  const origins = getOrigins();
+
   const [formData, setFormData] = useState({
     name: bean?.name || '',
     origin: bean?.origin || '',
@@ -31,21 +35,21 @@ export default function BeanForm({ userId, bean, isEditing = false }: BeanFormPr
     description: bean?.description || '',
     isPublic: bean?.isPublic ?? true,
   });
-  
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
-  
+
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = e.target;
     setFormData(prev => ({ ...prev, [name]: checked }));
   };
-  
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     try {
       // 폼 데이터 생성
       const formDataObj = new FormData();
@@ -54,12 +58,12 @@ export default function BeanForm({ userId, bean, isEditing = false }: BeanFormPr
           formDataObj.append(key, value.toString());
         }
       });
-      
+
       // 서버 액션 호출
       const result = isEditing
         ? await updateBean(bean.id, userId, {}, formDataObj)
         : await createBean(userId, {}, formDataObj);
-      
+
       if (result.errors) {
         // 오류 처리
         toast({
@@ -86,7 +90,7 @@ export default function BeanForm({ userId, bean, isEditing = false }: BeanFormPr
       setIsSubmitting(false);
     }
   };
-  
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* 기본 정보 */}
@@ -108,22 +112,45 @@ export default function BeanForm({ userId, bean, isEditing = false }: BeanFormPr
               className="w-full p-3 rounded-md border border-input bg-background"
             />
           </div>
-          
+
           <div>
             <label htmlFor="origin" className="block text-sm font-medium mb-1">
               원산지
             </label>
-            <input
-              type="text"
+            <select
               id="origin"
               name="origin"
               value={formData.origin}
               onChange={handleInputChange}
-              placeholder="예: 에티오피아"
               className="w-full p-3 rounded-md border border-input bg-background"
-            />
+            >
+              <option value="">원산지 선택</option>
+              {/* 메이저 원산지 */}
+              <optgroup label="주요 커피 생산국">
+                {origins
+                  .filter(origin => origin.major)
+                  .map(origin => (
+                    <option key={origin.id} value={origin.id}>
+                      {origin.name}
+                    </option>
+                  ))
+                }
+              </optgroup>
+
+              {/* 마이너 원산지 */}
+              <optgroup label="기타 생산국">
+                {origins
+                  .filter(origin => !origin.major)
+                  .map(origin => (
+                    <option key={origin.id} value={origin.id}>
+                      {origin.name}
+                    </option>
+                  ))
+                }
+              </optgroup>
+            </select>
           </div>
-          
+
           <div>
             <label htmlFor="region" className="block text-sm font-medium mb-1">
               지역
@@ -138,7 +165,7 @@ export default function BeanForm({ userId, bean, isEditing = false }: BeanFormPr
               className="w-full p-3 rounded-md border border-input bg-background"
             />
           </div>
-          
+
           <div>
             <label htmlFor="farm" className="block text-sm font-medium mb-1">
               농장명
@@ -153,7 +180,7 @@ export default function BeanForm({ userId, bean, isEditing = false }: BeanFormPr
               className="w-full p-3 rounded-md border border-input bg-background"
             />
           </div>
-          
+
           <div>
             <label htmlFor="altitude" className="block text-sm font-medium mb-1">
               고도
@@ -168,7 +195,7 @@ export default function BeanForm({ userId, bean, isEditing = false }: BeanFormPr
               className="w-full p-3 rounded-md border border-input bg-background"
             />
           </div>
-          
+
           <div>
             <label htmlFor="process" className="block text-sm font-medium mb-1">
               프로세스
@@ -189,7 +216,7 @@ export default function BeanForm({ userId, bean, isEditing = false }: BeanFormPr
               <option value="기타">기타</option>
             </select>
           </div>
-          
+
           <div>
             <label htmlFor="variety" className="block text-sm font-medium mb-1">
               품종
@@ -204,7 +231,7 @@ export default function BeanForm({ userId, bean, isEditing = false }: BeanFormPr
               className="w-full p-3 rounded-md border border-input bg-background"
             />
           </div>
-          
+
           <div>
             <label htmlFor="roastLevel" className="block text-sm font-medium mb-1">
               로스팅 단계
@@ -224,7 +251,7 @@ export default function BeanForm({ userId, bean, isEditing = false }: BeanFormPr
               <option value="다크">다크 로스트</option>
             </select>
           </div>
-          
+
           <div>
             <label htmlFor="roaster" className="block text-sm font-medium mb-1">
               로스터리
@@ -239,7 +266,7 @@ export default function BeanForm({ userId, bean, isEditing = false }: BeanFormPr
               className="w-full p-3 rounded-md border border-input bg-background"
             />
           </div>
-          
+
           <div>
             <label htmlFor="roastDate" className="block text-sm font-medium mb-1">
               로스팅 날짜
@@ -260,7 +287,7 @@ export default function BeanForm({ userId, bean, isEditing = false }: BeanFormPr
           </div>
         </div>
       </div>
-      
+
       {/* 설명 */}
       <div>
         <h2 className="text-xl font-semibold mb-4">설명</h2>
@@ -274,7 +301,7 @@ export default function BeanForm({ userId, bean, isEditing = false }: BeanFormPr
           className="w-full p-3 rounded-md border border-input bg-background resize-none"
         ></textarea>
       </div>
-      
+
       {/* 공개 설정 */}
       <div className="flex items-center gap-2">
         <input
@@ -289,7 +316,7 @@ export default function BeanForm({ userId, bean, isEditing = false }: BeanFormPr
           이 원두 정보를 다른 사용자에게 공개합니다.
         </label>
       </div>
-      
+
       {/* 제출 버튼 */}
       <div className="flex justify-end gap-3 pt-4">
         <button

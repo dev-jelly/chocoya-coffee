@@ -19,21 +19,21 @@ export default function TasteNoteForm({ userId }: { userId: string }) {
   const [selectedLabelIds, setSelectedLabelIds] = useState<string[]>([]);
   const [beans, setBeans] = useState<any[]>([]);
   const [recipes, setRecipes] = useState<any[]>([]);
-  
+
   // 원두 목록 가져오기
   useEffect(() => {
     const fetchData = async () => {
       const beansData = await getBeans();
       setBeans(beansData);
-      
+
       // 레시피 목록도 가져오기
       const recipesData = await getRecipes();
       setRecipes(recipesData);
     };
-    
+
     fetchData();
   }, []);
-  
+
   const [formData, setFormData] = useState({
     coffeeName: '',
     origin: '',
@@ -55,7 +55,7 @@ export default function TasteNoteForm({ userId }: { userId: string }) {
     recipeId: '',
     beanId: '', // 원두 ID 추가
   });
-  
+
   // 원두 선택 처리
   const handleBeanSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const beanId = e.target.value;
@@ -80,37 +80,37 @@ export default function TasteNoteForm({ userId }: { userId: string }) {
       }));
     }
   };
-  
+
   // 선택된 라벨 ID를 기반으로 라벨 객체 목록 반환
   const getSelectedLabels = (): FlavorLabel[] => {
     return selectedLabelIds
       .map(id => flavorLabels.find(label => label.id === id))
       .filter((label): label is FlavorLabel => label !== undefined);
   };
-  
+
   // 폼 입력 처리
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
-  
+
   // 범위 슬라이더 값 변경 처리
   const handleRangeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: parseInt(value) }));
   };
-  
+
   // 폼 제출 처리
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     try {
       // 맛 노트 데이터 준비
       const selectedLabels = getSelectedLabels();
       const flavorColors = selectedLabels.map(label => label.color).join(',');
       const primaryColor = selectedLabels.length > 0 ? selectedLabels[0].color : undefined;
-      
+
       // 폼 데이터 생성
       const formDataObj = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
@@ -118,17 +118,17 @@ export default function TasteNoteForm({ userId }: { userId: string }) {
           formDataObj.append(key, value.toString());
         }
       });
-      
+
       // 맛 노트 레이블 데이터 추가
       formDataObj.append('flavorLabels', selectedLabelIds.join(','));
       formDataObj.append('flavorColors', flavorColors);
       if (primaryColor) {
         formDataObj.append('primaryColor', primaryColor);
       }
-      
+
       // 서버 액션 호출
       const result = await createTasteNote(userId, {}, formDataObj);
-      
+
       if (result.errors) {
         // 오류 처리
         toast({
@@ -155,7 +155,7 @@ export default function TasteNoteForm({ userId }: { userId: string }) {
       setIsSubmitting(false);
     }
   };
-  
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* 기본 정보 */}
@@ -181,8 +181,8 @@ export default function TasteNoteForm({ userId }: { userId: string }) {
                   </option>
                 ))}
               </select>
-              <Link 
-                href="/beans/create" 
+              <Link
+                href="/beans/create"
                 className="whitespace-nowrap px-3 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 text-sm"
               >
                 <Bean className="w-4 h-4" />
@@ -211,8 +211,8 @@ export default function TasteNoteForm({ userId }: { userId: string }) {
                   </option>
                 ))}
               </select>
-              <Link 
-                href="/recipes/create" 
+              <Link
+                href="/recipes/create"
                 className="whitespace-nowrap px-3 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 text-sm"
               >
                 <Coffee className="w-4 h-4" />
@@ -286,7 +286,7 @@ export default function TasteNoteForm({ userId }: { userId: string }) {
           </div>
         </div>
       </div>
-      
+
       {/* 추출 정보 */}
       <div>
         <h2 className="text-xl font-semibold mb-4">추출 정보</h2>
@@ -386,7 +386,7 @@ export default function TasteNoteForm({ userId }: { userId: string }) {
           </div>
         </div>
       </div>
-      
+
       {/* 맛 프로필 */}
       <div>
         <h2 className="text-xl font-semibold mb-4">맛 프로필</h2>
@@ -415,9 +415,11 @@ export default function TasteNoteForm({ userId }: { userId: string }) {
               <span>5</span>
             </div>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-6">
+
+          {/* 맛 특성 슬라이더 - 2칼럼 그리드로 변경 */}
+          <div className="space-y-6">
+            {/* 산미, 단맛 */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium mb-2">
                   산미 (Acidity)
@@ -437,7 +439,7 @@ export default function TasteNoteForm({ userId }: { userId: string }) {
                   <span>높음</span>
                 </div>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium mb-2">
                   단맛 (Sweetness)
@@ -457,7 +459,10 @@ export default function TasteNoteForm({ userId }: { userId: string }) {
                   <span>높음</span>
                 </div>
               </div>
-              
+            </div>
+
+            {/* 바디감, 쓴맛 */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium mb-2">
                   바디감 (Body)
@@ -477,7 +482,7 @@ export default function TasteNoteForm({ userId }: { userId: string }) {
                   <span>무거움</span>
                 </div>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium mb-2">
                   쓴맛 (Bitterness)
@@ -498,37 +503,34 @@ export default function TasteNoteForm({ userId }: { userId: string }) {
                 </div>
               </div>
             </div>
-            
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                맛 노트 (Flavor Notes)
-              </label>
-              <div className="grid grid-cols-1 gap-6">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    이 커피에서 느껴지는 맛과 향을 선택해주세요. 여러 개 선택 가능합니다.
-                  </p>
-                  <FlavorWheelSelector
-                    selectedLabels={selectedLabelIds}
-                    onChange={setSelectedLabelIds}
-                  />
-                </div>
-                <div className="flex flex-col items-center justify-center">
-                  <p className="text-sm text-muted-foreground mb-2">
-                    이 커피의 맛을 시각화한 이미지
-                  </p>
-                  <FlavorWheelImage
-                    selectedLabels={getSelectedLabels()}
-                    size={200}
-                    className="mt-4"
-                  />
-                </div>
-              </div>
+          </div>
+
+          {/* 맛 노트 */}
+          <div className="mt-8">
+            <label className="block text-sm font-medium mb-2">
+              맛 노트 (Flavor Notes)
+            </label>
+            <p className="text-sm text-muted-foreground mb-4">
+              이 커피에서 느껴지는 맛과 향을 선택해주세요. 여러 개 선택 가능합니다.
+            </p>
+            <FlavorWheelSelector
+              selectedLabels={selectedLabelIds}
+              onChange={setSelectedLabelIds}
+            />
+            <div className="flex flex-col items-center justify-center mt-6">
+              <p className="text-sm text-muted-foreground mb-2">
+                이 커피의 맛을 시각화한 이미지
+              </p>
+              <FlavorWheelImage
+                selectedLabels={getSelectedLabels()}
+                size={200}
+                className="mt-4"
+              />
             </div>
           </div>
         </div>
       </div>
-      
+
       {/* 노트 */}
       <div>
         <h2 className="text-xl font-semibold mb-4">노트</h2>
@@ -542,7 +544,7 @@ export default function TasteNoteForm({ userId }: { userId: string }) {
           className="w-full p-3 rounded-md border border-input bg-background resize-none"
         ></textarea>
       </div>
-      
+
       {/* 제출 버튼 */}
       <div className="flex justify-end gap-3 pt-4">
         <Link

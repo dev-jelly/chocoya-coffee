@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, X, Coffee, BookOpen, Droplet, FileText, Home, User, LogIn } from "lucide-react";
+import { Menu, X, Coffee, BookOpen, Droplet, FileText, Home, User, LogIn, CoffeeIcon } from "lucide-react";
 
 interface MobileNavClientProps {
   isLoggedIn: boolean;
@@ -24,8 +24,8 @@ export function MobileNavClient({ isLoggedIn }: MobileNavClientProps) {
       <SheetContent side="left" className="w-[280px] sm:w-[350px] p-0">
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between p-4 border-b">
-            <Link 
-              href="/" 
+            <Link
+              href="/"
               className="text-xl font-bold flex items-center"
               onClick={() => setIsOpen(false)}
             >
@@ -38,51 +38,69 @@ export function MobileNavClient({ isLoggedIn }: MobileNavClientProps) {
             </Button>
           </div>
           <nav className="flex flex-col gap-1 p-4 flex-1 overflow-y-auto">
-            <Link 
-              href="/" 
+            <Link
+              href="/"
               className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent"
               onClick={() => setIsOpen(false)}
             >
               <Home size={18} />
               <span>홈</span>
             </Link>
-            <Link 
-              href="/recipes" 
+            <Link
+              href="/recipes"
               className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent"
               onClick={() => setIsOpen(false)}
             >
               <FileText size={18} />
               <span>레시피</span>
             </Link>
-            <Link 
-              href="/brewing-guide" 
+            <Link
+              href="/beans"
+              className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent"
+              onClick={() => setIsOpen(false)}
+            >
+              <CoffeeIcon size={18} />
+              <span>원두 라이브러리</span>
+            </Link>
+            <Link
+              href="/brewing-guide"
               className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent"
               onClick={() => setIsOpen(false)}
             >
               <Droplet size={18} />
               <span>브루잉 가이드</span>
             </Link>
-            <Link 
-              href="/taste-notes/create" 
+            <Link
+              href="/taste-notes/create"
               className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent"
               onClick={() => setIsOpen(false)}
             >
               <BookOpen size={18} />
               <span>맛 노트</span>
             </Link>
-            <Link 
-              href="/recipes/create" 
+            <Link
+              href="/recipes/create"
               className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent"
               onClick={() => setIsOpen(false)}
             >
               <Coffee size={18} />
               <span>레시피 등록</span>
             </Link>
+            {isLoggedIn && (
+              <Link
+                href="/beans/create"
+                className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent"
+                onClick={() => setIsOpen(false)}
+              >
+                <CoffeeIcon size={18} />
+                <span>원두 등록</span>
+              </Link>
+            )}
           </nav>
           <div className="border-t p-4">
             {isLoggedIn ? (
-              <Link 
-                href="/auth/profile" 
+              <Link
+                href="/auth/profile"
                 className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent"
                 onClick={() => setIsOpen(false)}
               >
@@ -91,8 +109,8 @@ export function MobileNavClient({ isLoggedIn }: MobileNavClientProps) {
               </Link>
             ) : (
               <div className="flex flex-col gap-2">
-                <Link 
-                  href="/auth/login" 
+                <Link
+                  href="/auth/login"
                   className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent"
                   onClick={() => setIsOpen(false)}
                 >
@@ -100,7 +118,7 @@ export function MobileNavClient({ isLoggedIn }: MobileNavClientProps) {
                   <span>로그인</span>
                 </Link>
                 <Button asChild className="w-full mt-2">
-                  <Link 
+                  <Link
                     href="/auth/register"
                     onClick={() => setIsOpen(false)}
                   >

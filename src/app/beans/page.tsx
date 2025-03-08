@@ -4,6 +4,7 @@ import { Bean, Plus, Search, Filter } from 'lucide-react';
 import { getBeans } from '@/lib/actions/bean';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { getOriginNameById } from '@/data/origins';
 
 export const metadata = {
   title: '원두 라이브러리 | 초코야 커피',
@@ -17,10 +18,10 @@ export default async function BeansPage({
 }) {
   // 세션에서 사용자 정보 가져오기
   const session = await getServerSession(authOptions);
-  
+
   // 검색어 가져오기
   const search = searchParams?.search || '';
-  
+
   // 원두 목록 가져오기
   const beans = await getBeans(search);
 
@@ -31,7 +32,7 @@ export default async function BeansPage({
           <Bean className="mr-2" />
           원두 라이브러리
         </h1>
-        
+
         {session?.user && (
           <Link
             href="/beans/create"
@@ -42,7 +43,7 @@ export default async function BeansPage({
           </Link>
         )}
       </div>
-      
+
       {/* 검색바 */}
       <div className="mb-6">
         <form action="/beans" method="GET" className="flex gap-2">
@@ -66,7 +67,7 @@ export default async function BeansPage({
           </button>
         </form>
       </div>
-      
+
       {/* 원두 목록 */}
       {beans.length === 0 ? (
         <div className="bg-card border rounded-lg p-8 text-center">
@@ -93,20 +94,20 @@ export default async function BeansPage({
                     <Bean className="mr-2 h-5 w-5" />
                     {bean.name}
                   </h2>
-                  
+
                   <div className="flex flex-col space-y-1 text-sm text-muted-foreground mb-4">
-                    {bean.origin && <span>원산지: {bean.origin}</span>}
+                    {bean.origin && <span>원산지: {getOriginNameById(bean.origin)}</span>}
                     {bean.roastLevel && <span>로스팅: {bean.roastLevel}</span>}
                     {bean.roaster && <span>로스터리: {bean.roaster}</span>}
                     {bean.process && <span>프로세스: {bean.process}</span>}
                   </div>
-                  
+
                   {bean.description && (
                     <p className="text-sm text-muted-foreground line-clamp-2">
                       {bean.description}
                     </p>
                   )}
-                  
+
                   <div className="mt-4 flex justify-between items-center text-xs text-muted-foreground">
                     <span>작성자: {bean.user?.name || '익명'}</span>
                     <span>

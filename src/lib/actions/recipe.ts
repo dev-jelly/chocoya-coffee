@@ -4,6 +4,8 @@ import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
 import { auth } from '@/lib/auth';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 // 레시피 스키마 정의
 const recipeSchema = z.object({
@@ -55,23 +57,36 @@ export async function createRecipe(
   prevState: RecipeFormState,
   formData: FormData
 ): Promise<RecipeFormState> {
+  // 현재 로그인한 사용자 확인
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return {
+      errors: {
+        _form: ['로그인이 필요합니다.'],
+      },
+    };
+  }
+
+  // 실제 사용자 ID 사용
+  const actualUserId = session.user.id;
+
   // 폼 데이터 파싱
   const validatedFields = recipeSchema.safeParse({
     title: formData.get('title'),
     description: formData.get('description'),
-    brewingMethod: formData.get('brewingMethod'),
+    brewingMethod: formData.get('method'), // 필드명 수정
     difficulty: formData.get('difficulty'),
     preparationTime: formData.get('preparationTime'),
     beanAmount: formData.get('beanAmount'),
     waterAmount: formData.get('waterAmount'),
-    waterTemp: formData.get('waterTemp'),
+    waterTemp: formData.get('waterTemp') || formData.get('temperature'), // 필드명 대체 가능성
     grindSize: formData.get('grindSize'),
-    tools: formData.get('tools'),
-    acidity: formData.get('acidity'),
-    sweetness: formData.get('sweetness'),
-    body: formData.get('body'),
-    recommendedBeans: formData.get('recommendedBeans'),
-    isPublic: formData.get('isPublic') === 'true',
+    tools: formData.get('equipment'), // 필드명 수정
+    acidity: formData.get('acidity') || '중간',
+    sweetness: formData.get('sweetness') || '중간',
+    body: formData.get('body') || '중간',
+    recommendedBeans: formData.get('recommendedBeans') || '',
+    isPublic: formData.get('isPublic') === 'true' || true,
     beanId: formData.get('beanId') || null,
   });
 
@@ -83,7 +98,7 @@ export async function createRecipe(
     };
   }
 
-  const { 
+  const {
     title, description, brewingMethod, difficulty, preparationTime,
     beanAmount, waterAmount, waterTemp, grindSize, tools,
     acidity, sweetness, body, recommendedBeans, isPublic, beanId
@@ -108,7 +123,7 @@ export async function createRecipe(
         body,
         recommendedBeans,
         isPublic,
-        userId,
+        userId: actualUserId, // 실제 사용자 ID 사용
         beanId: beanId || undefined,
       },
     });
@@ -117,7 +132,7 @@ export async function createRecipe(
     const ingredientsStr = formData.get('ingredients') as string;
     if (ingredientsStr) {
       const ingredients = ingredientsStr.split(',').map(item => item.trim());
-      
+
       for (const ingredient of ingredients) {
         await prisma.ingredient.create({
           data: {
@@ -147,7 +162,7 @@ export async function createRecipe(
     const tipsStr = formData.get('brewingTips') as string;
     if (tipsStr) {
       const tips = tipsStr.split('\n').filter(tip => tip.trim() !== '');
-      
+
       for (const tip of tips) {
         await prisma.brewingTip.create({
           data: {
@@ -160,7 +175,7 @@ export async function createRecipe(
 
     // 캐시 갱신
     revalidatePath('/recipes');
-    
+
     return {
       message: '레시피가 성공적으로 생성되었습니다.',
     };
@@ -178,7 +193,7 @@ export async function createRecipe(
 export async function getRecipes(method?: string) {
   try {
     let recipes;
-    
+
     if (method) {
       recipes = await prisma.recipe.findMany({
         where: {
@@ -217,7 +232,7 @@ export async function getRecipes(method?: string) {
         },
       });
     }
-    
+
     return recipes;
   } catch (error) {
     console.error('레시피 조회 오류:', error);
@@ -249,7 +264,7 @@ export async function getRecipeById(id: string) {
         },
       },
     });
-    
+
     return recipe;
   } catch (error) {
     console.error('레시피 상세 조회 오류:', error);
@@ -306,7 +321,7 @@ export async function updateRecipe(
     };
   }
 
-  const { 
+  const {
     title, description, brewingMethod, difficulty, preparationTime,
     beanAmount, waterAmount, waterTemp, grindSize, tools,
     acidity, sweetness, body, recommendedBeans, isPublic, beanId
@@ -345,7 +360,7 @@ export async function updateRecipe(
     const ingredientsStr = formData.get('ingredients') as string;
     if (ingredientsStr) {
       const ingredients = ingredientsStr.split(',').map(item => item.trim());
-      
+
       for (const ingredient of ingredients) {
         await prisma.ingredient.create({
           data: {
@@ -385,7 +400,7 @@ export async function updateRecipe(
     const tipsStr = formData.get('brewingTips') as string;
     if (tipsStr) {
       const tips = tipsStr.split('\n').filter(tip => tip.trim() !== '');
-      
+
       for (const tip of tips) {
         await prisma.brewingTip.create({
           data: {
@@ -399,7 +414,7 @@ export async function updateRecipe(
     // 캐시 갱신
     revalidatePath(`/recipes/${id}`);
     revalidatePath('/recipes');
-    
+
     return {
       message: '레시피가 성공적으로 수정되었습니다.',
     };
@@ -436,7 +451,7 @@ export async function deleteRecipe(id: string, userId: string) {
 
     // 캐시 갱신
     revalidatePath('/recipes');
-    
+
     return {
       success: true,
       message: '레시피가 성공적으로 삭제되었습니다.',
@@ -447,5 +462,33 @@ export async function deleteRecipe(id: string, userId: string) {
       success: false,
       message: '레시피 삭제 중 오류가 발생했습니다. 다시 시도해주세요.',
     };
+  }
+}
+
+// 작성자별 레시피 목록 조회 액션
+export async function getRecipesByAuthor(userId: string) {
+  try {
+    const recipes = await prisma.recipe.findMany({
+      where: {
+        userId: userId,
+      },
+      include: {
+        ingredients: true,
+        steps: {
+          orderBy: {
+            order: 'asc',
+          },
+        },
+        brewingTips: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return recipes;
+  } catch (error) {
+    console.error('작성자별 레시피 조회 오류:', error);
+    return [];
   }
 } 

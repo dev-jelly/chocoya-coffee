@@ -25,15 +25,15 @@ interface UserNavProps {
 export function UserNav({ user }: UserNavProps) {
   const initials = user.name
     ? user.name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
     : user.email?.charAt(0) || "U";
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+        <Button variant="ghost" className="relative h-8 w-8 rounded-full cursor-pointer">
           <Avatar className="h-8 w-8">
             <AvatarImage src={user.image || ""} alt={user.name || "사용자"} />
             <AvatarFallback>{initials}</AvatarFallback>
@@ -52,10 +52,10 @@ export function UserNav({ user }: UserNavProps) {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
-            <Link href="/auth/profile">프로필</Link>
+            <Link href="/auth/profile" className="cursor-pointer">프로필</Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/recipes/my">내 레시피</Link>
+            <Link href="/recipes/my" className="cursor-pointer">내 레시피</Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

@@ -1,14 +1,15 @@
 import React from 'react';
 import Link from 'next/link';
-import { 
-  ArrowLeft, Bean, MapPin, Mountain, Building, Droplets, 
-  Coffee, Calendar, Pencil, Trash2 
+import {
+  ArrowLeft, Bean, MapPin, Mountain, Building, Droplets,
+  Coffee, Calendar, Pencil, Trash2
 } from 'lucide-react';
 import { getBeanById } from '@/lib/actions/bean';
 import { notFound } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import DeleteBeanButton from '@/components/bean/delete-bean-button';
+import { getOriginNameById } from '@/data/origins';
 
 export default async function BeanDetailPage({
   params,
@@ -17,30 +18,30 @@ export default async function BeanDetailPage({
 }) {
   // 원두 상세 정보 가져오기
   const bean = await getBeanById(params.id);
-  
+
   if (!bean) {
     notFound();
   }
-  
+
   // 세션에서 사용자 정보 가져오기
   const session = await getServerSession(authOptions);
   const isOwner = session?.user?.id === bean.userId;
 
   return (
     <div className="container px-4 md:px-6 py-6 md:py-10">
-      <Link 
-        href="/beans" 
+      <Link
+        href="/beans"
         className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-4 md:mb-6"
       >
         <ArrowLeft size={16} className="mr-1" /> 원두 목록으로 돌아가기
       </Link>
-      
+
       <div className="bg-card border rounded-lg p-4 md:p-6 lg:p-8">
         <div className="flex justify-between items-start mb-4">
           <h1 className="text-2xl md:text-3xl font-bold mb-2 flex items-center">
             <Bean className="mr-2" /> {bean.name}
           </h1>
-          
+
           {isOwner && (
             <div className="flex space-x-2">
               <Link
@@ -53,7 +54,7 @@ export default async function BeanDetailPage({
             </div>
           )}
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <div>
             <h2 className="text-xl font-semibold mb-4">원두 정보</h2>
@@ -63,11 +64,11 @@ export default async function BeanDetailPage({
                   <MapPin size={18} className="mr-2 mt-0.5 text-muted-foreground" />
                   <div>
                     <p className="font-medium">원산지</p>
-                    <p className="text-muted-foreground">{bean.origin}</p>
+                    <p className="text-muted-foreground">{getOriginNameById(bean.origin)}</p>
                   </div>
                 </div>
               )}
-              
+
               {bean.region && (
                 <div className="flex items-start">
                   <MapPin size={18} className="mr-2 mt-0.5 text-muted-foreground" />
@@ -77,7 +78,7 @@ export default async function BeanDetailPage({
                   </div>
                 </div>
               )}
-              
+
               {bean.farm && (
                 <div className="flex items-start">
                   <Building size={18} className="mr-2 mt-0.5 text-muted-foreground" />
@@ -87,7 +88,7 @@ export default async function BeanDetailPage({
                   </div>
                 </div>
               )}
-              
+
               {bean.altitude && (
                 <div className="flex items-start">
                   <Mountain size={18} className="mr-2 mt-0.5 text-muted-foreground" />
@@ -97,7 +98,7 @@ export default async function BeanDetailPage({
                   </div>
                 </div>
               )}
-              
+
               {bean.variety && (
                 <div className="flex items-start">
                   <Coffee size={18} className="mr-2 mt-0.5 text-muted-foreground" />
@@ -109,7 +110,7 @@ export default async function BeanDetailPage({
               )}
             </div>
           </div>
-          
+
           <div>
             <h2 className="text-xl font-semibold mb-4">가공 정보</h2>
             <div className="space-y-2">
@@ -122,7 +123,7 @@ export default async function BeanDetailPage({
                   </div>
                 </div>
               )}
-              
+
               {bean.roastLevel && (
                 <div className="flex items-start">
                   <Coffee size={18} className="mr-2 mt-0.5 text-muted-foreground" />
@@ -132,7 +133,7 @@ export default async function BeanDetailPage({
                   </div>
                 </div>
               )}
-              
+
               {bean.roaster && (
                 <div className="flex items-start">
                   <Building size={18} className="mr-2 mt-0.5 text-muted-foreground" />
@@ -142,7 +143,7 @@ export default async function BeanDetailPage({
                   </div>
                 </div>
               )}
-              
+
               {bean.roastDate && (
                 <div className="flex items-start">
                   <Calendar size={18} className="mr-2 mt-0.5 text-muted-foreground" />
@@ -157,14 +158,14 @@ export default async function BeanDetailPage({
             </div>
           </div>
         </div>
-        
+
         {bean.description && (
           <div className="mb-8">
             <h2 className="text-xl font-semibold mb-4">설명</h2>
             <p className="text-muted-foreground whitespace-pre-line">{bean.description}</p>
           </div>
         )}
-        
+
         {/* 관련 레시피 */}
         {bean.recipes && bean.recipes.length > 0 && (
           <div className="mb-8">
@@ -182,7 +183,7 @@ export default async function BeanDetailPage({
                 </Link>
               ))}
             </div>
-            
+
             {bean.recipes.length > 5 && (
               <div className="mt-4 text-center">
                 <Link href={`/recipes?bean=${bean.id}`} className="text-primary hover:underline">
@@ -192,7 +193,7 @@ export default async function BeanDetailPage({
             )}
           </div>
         )}
-        
+
         {/* 관련 맛 노트 */}
         {bean.tasteNotes && bean.tasteNotes.length > 0 && (
           <div>
@@ -200,10 +201,10 @@ export default async function BeanDetailPage({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {bean.tasteNotes.map((note) => (
                 <Link key={note.id} href={`/taste-notes/${note.id}`} passHref>
-                  <div 
+                  <div
                     className="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
-                    style={{ 
-                      borderLeft: note.primaryColor ? `4px solid ${note.primaryColor}` : undefined 
+                    style={{
+                      borderLeft: note.primaryColor ? `4px solid ${note.primaryColor}` : undefined
                     }}
                   >
                     <h3 className="font-medium">{note.brewingMethod}</h3>
@@ -221,7 +222,7 @@ export default async function BeanDetailPage({
                 </Link>
               ))}
             </div>
-            
+
             {bean.tasteNotes.length > 5 && (
               <div className="mt-4 text-center">
                 <Link href={`/taste-notes?bean=${bean.id}`} className="text-primary hover:underline">

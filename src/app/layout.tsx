@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google'
 import { MainLayout } from '@/components/layout/main-layout'
 import { Toaster } from "@/components/ui/sonner"
 import { cn } from "@/lib/utils"
+import AuthSessionProvider from '@/providers/session-provider'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -22,15 +23,17 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ko">
+    <html lang="ko" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
       <body className={cn(inter.className, "min-h-screen bg-background")}>
-        <MainLayout>
-          {children}
-        </MainLayout>
-        <Toaster />
+        <AuthSessionProvider>
+          <MainLayout>
+            {children}
+          </MainLayout>
+          <Toaster />
+        </AuthSessionProvider>
       </body>
     </html>
   )

@@ -23,6 +23,7 @@ interface Recipe {
   createdAt: Date;
   updatedAt: Date;
   likes: number;
+  waterTemp?: string;
 }
 
 interface RecipeFormProps {
@@ -43,6 +44,7 @@ interface RecipeFormData {
   equipment: string;
   notes: string;
   steps: string;
+  temperature?: string;
 }
 
 export default function RecipeForm({ recipe, isEditing = false }: RecipeFormProps) {
@@ -76,7 +78,7 @@ export default function RecipeForm({ recipe, isEditing = false }: RecipeFormProp
 
     try {
       const formData = new FormData(e.currentTarget);
-      
+
       // 폼 데이터 가공
       const recipeData: RecipeFormData = {
         title: formData.get('title') as string,
@@ -90,6 +92,7 @@ export default function RecipeForm({ recipe, isEditing = false }: RecipeFormProp
         equipment: formData.get('equipment') as string || '',
         notes: formData.get('notes') as string || '',
         steps: steps.filter(step => step.trim() !== '').join('\n'),
+        temperature: formData.get('temperature') as string,
       };
 
       if (isEditing && recipe) {
@@ -98,8 +101,26 @@ export default function RecipeForm({ recipe, isEditing = false }: RecipeFormProp
         router.push(`/recipes/${recipe.id}`);
       } else {
         // 새 레시피 생성
-        const newRecipe = await createRecipe(recipeData);
-        router.push(`/recipes/${newRecipe}`);
+        // FormData 객체를 직접 전달
+        const formElement = e.currentTarget;
+        const formDataToSubmit = new FormData(formElement);
+
+        // 단계 정보 추가
+        formDataToSubmit.set('stepsCount', steps.length.toString());
+        steps.forEach((step, index) => {
+          if (step.trim()) {
+            formDataToSubmit.set(`step-${index}`, step);
+          }
+        });
+
+        // 서버 액션 호출
+        const result = await createRecipe('', {}, formDataToSubmit);
+
+        if (result.message) {
+          router.push('/recipes');
+        } else if (result.errors) {
+          setError('입력 정보를 확인해주세요.');
+        }
       }
     } catch (err) {
       console.error('레시피 저장 중 오류 발생:', err);
@@ -116,7 +137,7 @@ export default function RecipeForm({ recipe, isEditing = false }: RecipeFormProp
           {error}
         </div>
       )}
-      
+
       {/* 기본 정보 */}
       <div>
         <h2 className="text-xl font-semibold mb-4">기본 정보</h2>
@@ -198,25 +219,55 @@ export default function RecipeForm({ recipe, isEditing = false }: RecipeFormProp
               className="w-full p-3 rounded-md border border-input bg-background resize-none"
             ></textarea>
           </div>
+          <div>
+            <label htmlFor="equipment" className="block text-sm font-medium mb-1">
+              필요 도구
+            </label>
+            <input
+              type="text"
+              id="equipment"
+              name="equipment"
+              defaultValue={recipe?.equipment || ''}
+              placeholder="예: V60 드리퍼, 전용 필터, 서버, 핸드밀, 전자저울"
+              className="w-full p-3 rounded-md border border-input bg-background"
+            />
+          </div>
+          <div>
+            <label htmlFor="temperature" className="block text-sm font-medium mb-1">
+              물 온도 <span className="text-xs text-muted-foreground">(°C)</span>
+            </label>
+            <input
+              type="number"
+              id="temperature"
+              name="temperature"
+              defaultValue={recipe?.waterTemp || ''}
+              placeholder="92.5"
+              className="w-full p-3 rounded-md border border-input bg-background"
+              step="0.5"
+              min="0"
+              max="100"
+            />
+          </div>
         </div>
       </div>
-      
+
       {/* 재료 및 준비물 */}
       <div>
         <h2 className="text-xl font-semibold mb-4">재료 및 준비물</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label htmlFor="beanAmount" className="block text-sm font-medium mb-1">
-              원두량 *
+              원두량 <span className="text-xs text-muted-foreground">(g)</span>
             </label>
             <input
-              type="text"
+              type="number"
               id="beanAmount"
               name="beanAmount"
               defaultValue={recipe?.beanAmount || ''}
-              placeholder="예: 15g"
+              placeholder="15.0"
               className="w-full p-3 rounded-md border border-input bg-background"
-              required
+              step="0.1"
+              min="0"
             />
           </div>
           <div>
@@ -242,38 +293,26 @@ export default function RecipeForm({ recipe, isEditing = false }: RecipeFormProp
           </div>
           <div>
             <label htmlFor="waterAmount" className="block text-sm font-medium mb-1">
-              물 용량 *
+              물 용량 <span className="text-xs text-muted-foreground">(ml)</span>
             </label>
             <input
-              type="text"
+              type="number"
               id="waterAmount"
               name="waterAmount"
               defaultValue={recipe?.waterAmount || ''}
-              placeholder="예: 250ml"
+              placeholder="250"
               className="w-full p-3 rounded-md border border-input bg-background"
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="equipment" className="block text-sm font-medium mb-1">
-              필요한 장비
-            </label>
-            <input
-              type="text"
-              id="equipment"
-              name="equipment"
-              defaultValue={recipe?.equipment || ''}
-              placeholder="예: V60 드리퍼, 필터 페이퍼, 굿넥 포트"
-              className="w-full p-3 rounded-md border border-input bg-background"
+              step="1"
+              min="0"
             />
           </div>
         </div>
       </div>
-      
+
       {/* 추출 방법 */}
       <div>
         <h2 className="text-xl font-semibold mb-4">추출 방법</h2>
-        
+
         <div className="space-y-4">
           {steps.map((step, index) => (
             <div key={index}>
@@ -300,7 +339,7 @@ export default function RecipeForm({ recipe, isEditing = false }: RecipeFormProp
               ></textarea>
             </div>
           ))}
-          
+
           <button
             type="button"
             onClick={handleAddStep}
@@ -311,7 +350,7 @@ export default function RecipeForm({ recipe, isEditing = false }: RecipeFormProp
           </button>
         </div>
       </div>
-      
+
       {/* 브루잉 팁 */}
       <div>
         <h2 className="text-xl font-semibold mb-4">팁 & 노트</h2>
@@ -324,7 +363,7 @@ export default function RecipeForm({ recipe, isEditing = false }: RecipeFormProp
           className="w-full p-3 rounded-md border border-input bg-background resize-none"
         ></textarea>
       </div>
-      
+
       {/* 제출 버튼 */}
       <div className="flex justify-end gap-3 pt-4">
         <button
@@ -339,10 +378,10 @@ export default function RecipeForm({ recipe, isEditing = false }: RecipeFormProp
           disabled={isSubmitting}
           className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
         >
-          {isSubmitting 
-            ? '저장 중...' 
-            : isEditing 
-              ? '레시피 수정하기' 
+          {isSubmitting
+            ? '저장 중...'
+            : isEditing
+              ? '레시피 수정하기'
               : '레시피 공유하기'
           }
         </button>

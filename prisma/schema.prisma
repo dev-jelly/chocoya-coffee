@@ -140,7 +140,7 @@ model BrewingTip {
 model Bean {
   id          String    @id @default(cuid())
   name        String    // 원두 이름
-  origin      String?   // 원산지
+  origin      String?   // 원산지 (국가 ID)
   region      String?   // 지역
   farm        String?   // 농장명
   altitude    String?   // 고도

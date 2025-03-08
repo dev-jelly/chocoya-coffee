@@ -1,196 +1,701 @@
 {
-  "flavorLabels": [
-    {
-      "id": "berry",
-      "name": "베리류",
-      "englishName": "Berry",
-      "color": "#9E2B5E",
-      "category": "fruit",
-      "description": "블루베리, 라즈베리, 블랙베리 등의 베리류 향미"
+  "flavorWheel": {
+    "title": {
+      "en": "Coffee Taster's Flavor Wheel",
+      "ko": "커피 테이스터의 플레이버 휠",
+      "colorCode": "#000000"
     },
-    {
-      "id": "dried-fruit",
-      "name": "건조 과일",
-      "englishName": "Dried Fruit",
-      "color": "#C76C46",
-      "category": "fruit",
-      "description": "건포도, 말린 살구 등의 건조 과일 향미"
-    },
-    {
-      "id": "citrus",
-      "name": "시트러스",
-      "englishName": "Citrus",
-      "color": "#F4AF2A",
-      "category": "fruit",
-      "description": "레몬, 라임, 오렌지, 자몽 등의 감귤류 향미"
-    },
-    {
-      "id": "stone-fruit",
-      "name": "핵과류",
-      "englishName": "Stone Fruit",
-      "color": "#F39664",
-      "category": "fruit",
-      "description": "복숭아, 살구, 자두 등의 핵과류 향미"
-    },
-    {
-      "id": "tropical",
-      "name": "열대 과일",
-      "englishName": "Tropical Fruit",
-      "color": "#F2C94C",
-      "category": "fruit",
-      "description": "파인애플, 망고, 패션프루트 등의 열대 과일 향미"
-    },
-    {
-      "id": "red-fruit",
-      "name": "붉은 과일",
-      "englishName": "Red Fruit",
-      "color": "#E5325C",
-      "category": "fruit",
-      "description": "딸기, 체리, 크랜베리 등의 붉은 과일 향미"
-    },
-    {
-      "id": "floral",
-      "name": "꽃",
-      "englishName": "Floral",
-      "color": "#F6BFCF",
-      "category": "floral",
-      "description": "재스민, 장미, 라일락 등의 꽃 향미"
-    },
-    {
-      "id": "perfume",
-      "name": "향수",
-      "englishName": "Perfumy",
-      "color": "#E790CB",
-      "category": "floral",
-      "description": "향수와 같은 강한 꽃향기"
-    },
-    {
-      "id": "vanilla",
-      "name": "바닐라",
-      "englishName": "Vanilla",
-      "color": "#F4E5C7",
-      "category": "sweet",
-      "description": "바닐라 향미"
-    },
-    {
-      "id": "brown-sugar",
-      "name": "흑설탕",
-      "englishName": "Brown Sugar",
-      "color": "#A56233",
-      "category": "sweet",
-      "description": "흑설탕, 캐러멜, 메이플 시럽 등의 달콤한 향미"
-    },
-    {
-      "id": "honey",
-      "name": "꿀",
-      "englishName": "Honey",
-      "color": "#E3B12D",
-      "category": "sweet",
-      "description": "꿀 향미"
-    },
-    {
-      "id": "caramel",
-      "name": "캐러멜",
-      "englishName": "Caramel",
-      "color": "#C26E2C",
-      "category": "sweet",
-      "description": "캐러멜, 토피 향미"
-    },
-    {
-      "id": "chocolate",
-      "name": "초콜릿",
-      "englishName": "Chocolate",
-      "color": "#6E411F",
-      "category": "sweet",
-      "description": "초콜릿, 코코아 향미"
-    },
-    {
-      "id": "nut",
-      "name": "견과류",
-      "englishName": "Nut",
-      "color": "#BD8355",
-      "category": "nutty",
-      "description": "아몬드, 호두, 헤이즐넛 등의 견과류 향미"
-    },
-    {
-      "id": "almond",
-      "name": "아몬드",
-      "englishName": "Almond",
-      "color": "#D6AA82",
-      "category": "nutty",
-      "description": "아몬드 특유의 향미"
-    },
-    {
-      "id": "spice",
-      "name": "향신료",
-      "englishName": "Spice",
-      "color": "#A34F3F",
-      "category": "spice",
-      "description": "계피, 정향, 카다몸 등의 향신료 향미"
-    },
-    {
-      "id": "cinnamon",
-      "name": "계피",
-      "englishName": "Cinnamon",
-      "color": "#9A4E36",
-      "category": "spice",
-      "description": "계피 향미"
-    },
-    {
-      "id": "clove",
-      "name": "정향",
-      "englishName": "Clove",
-      "color": "#8B3A2D",
-      "category": "spice",
-      "description": "정향 향미"
-    },
-    {
-      "id": "roasted",
-      "name": "로스팅",
-      "englishName": "Roasted",
-      "color": "#523329",
-      "category": "roasted",
-      "description": "로스팅된 향미"
-    },
-    {
-      "id": "smoky",
-      "name": "스모키",
-      "englishName": "Smoky",
-      "color": "#3D2A22",
-      "category": "roasted",
-      "description": "훈제된 듯한 스모키한 향미"
-    },
-    {
-      "id": "cereal",
-      "name": "곡물",
-      "englishName": "Cereal",
-      "color": "#D0B07F",
-      "category": "roasted",
-      "description": "곡물, 빵, 토스트 등의 향미"
-    },
-    {
-      "id": "earthy",
-      "name": "흙내음",
-      "englishName": "Earthy",
-      "color": "#707056",
-      "category": "other",
-      "description": "흙, 이끼 등의 대지 향미"
-    },
-    {
-      "id": "woody",
-      "name": "우디",
-      "englishName": "Woody",
-      "color": "#795C3B",
-      "category": "other",
-      "description": "나무, 참나무통 등의 우디한 향미"
-    },
-    {
-      "id": "herbal",
-      "name": "허브",
-      "englishName": "Herbal",
-      "color": "#779B6B",
-      "category": "other",
-      "description": "허브, 차, 민트 등의 향미"
+    "categories": [
+      {
+        "name": {
+          "en": "Floral",
+          "ko": "꽃"
+        },
+        "colorCode": "#FFCDD2",
+        "subcategories": [
+          {
+            "name": {
+              "en": "Chamomile",
+              "ko": "카모마일"
+            },
+            "colorCode": "#FFEBEE"
+          },
+          {
+            "name": {
+              "en": "Rose",
+              "ko": "장미"
+            },
+            "colorCode": "#FFCDD2"
+          },
+          {
+            "name": {
+              "en": "Jasmine",
+              "ko": "자스민"
+            },
+            "colorCode": "#EF9A9A"
+          }
+        ]
+      },
+      {
+        "name": {
+          "en": "Fruit",
+          "ko": "과일"
+        },
+        "colorCode": "#FFE0B2",
+        "subcategories": [
+          {
+            "name": {
+              "en": "Berry",
+              "ko": "베리류"
+            },
+            "colorCode": "#FFCCBC",
+            "flavors": [
+              {
+                "en": "Blackberry",
+                "ko": "블랙베리",
+                "colorCode": "#D7CCC8"
+              },
+              {
+                "en": "Raspberry",
+                "ko": "라즈베리",
+                "colorCode": "#FFAB91"
+              },
+              {
+                "en": "Blueberry",
+                "ko": "블루베리",
+                "colorCode": "#BCAAA4"
+              },
+              {
+                "en": "Strawberry",
+                "ko": "스트로베리",
+                "colorCode": "#FFAB91"
+              }
+            ]
+          },
+          {
+            "name": {
+              "en": "Dried Fruit",
+              "ko": "말린과일"
+            },
+            "colorCode": "#FFE082",
+            "flavors": [
+              {
+                "en": "Raisin",
+                "ko": "건포도",
+                "colorCode": "#D7CCC8"
+              },
+              {
+                "en": "Prune",
+                "ko": "자두",
+                "colorCode": "#A1887F"
+              }
+            ]
+          },
+          {
+            "name": {
+              "en": "Other Fruit",
+              "ko": "기타과일"
+            },
+            "colorCode": "#FFF9C4",
+            "flavors": [
+              {
+                "en": "Coconut",
+                "ko": "코코넛",
+                "colorCode": "#F0F4C3"
+              },
+              {
+                "en": "Cherry",
+                "ko": "CHERRY",
+                "colorCode": "#EF9A9A"
+              },
+              {
+                "en": "Pomegranate",
+                "ko": "석류",
+                "colorCode": "#F8BBD0"
+              },
+              {
+                "en": "Pineapple",
+                "ko": "파인애플",
+                "colorCode": "#FFF59D"
+              },
+              {
+                "en": "Grape",
+                "ko": "포도",
+                "colorCode": "#CE93D8"
+              },
+              {
+                "en": "Apple",
+                "ko": "사과",
+                "colorCode": "#C5E1A5"
+              },
+              {
+                "en": "Peach",
+                "ko": "복숭아",
+                "colorCode": "#FFE082"
+              },
+              {
+                "en": "Pear",
+                "ko": "배",
+                "colorCode": "#DCEDC8"
+              }
+            ]
+          },
+          {
+            "name": {
+              "en": "Citrus Fruit",
+              "ko": "감귤류"
+            },
+            "colorCode": "#FFF59D",
+            "flavors": [
+              {
+                "en": "Grapefruit",
+                "ko": "자몽",
+                "colorCode": "#FFF176"
+              },
+              {
+                "en": "Orange",
+                "ko": "오렌지",
+                "colorCode": "#FFCC80"
+              },
+              {
+                "en": "Lemon",
+                "ko": "레몬",
+                "colorCode": "#FFF59D"
+              },
+              {
+                "en": "Lime",
+                "ko": "라임",
+                "colorCode": "#DCE775"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": {
+          "en": "Sweet",
+          "ko": "달콤한"
+        },
+        "colorCode": "#FFECB3",
+        "subcategories": [
+          {
+            "name": {
+              "en": "Brown Sugar",
+              "ko": "갈색설탕"
+            },
+            "colorCode": "#D7CCC8"
+          },
+          {
+            "name": {
+              "en": "Vanilla",
+              "ko": "바닐라"
+            },
+            "colorCode": "#FFF9C4"
+          },
+          {
+            "name": {
+              "en": "Vanillin",
+              "ko": "바닐라 첨가향"
+            },
+            "colorCode": "#FFF59D"
+          },
+          {
+            "name": {
+              "en": "Overall Sweet",
+              "ko": "전반적으로 달콤한"
+            },
+            "colorCode": "#FFE082"
+          },
+          {
+            "name": {
+              "en": "Sweet Aromatics",
+              "ko": "달콤한 향료"
+            },
+            "colorCode": "#FFECB3"
+          },
+          {
+            "name": {
+              "en": "Maple Syrup",
+              "ko": "메이플 시럽"
+            },
+            "colorCode": "#D7CCC8"
+          },
+          {
+            "name": {
+              "en": "Molasses",
+              "ko": "당밀"
+            },
+            "colorCode": "#8D6E63"
+          },
+          {
+            "name": {
+              "en": "Caramelized",
+              "ko": "카라멜"
+            },
+            "colorCode": "#D7CCC8"
+          },
+          {
+            "name": {
+              "en": "Honey",
+              "ko": "HONEY"
+            },
+            "colorCode": "#FFE082"
+          }
+        ]
+      },
+      {
+        "name": {
+          "en": "Nutty/Cocoa",
+          "ko": "견과/코코아"
+        },
+        "colorCode": "#D7CCC8",
+        "subcategories": [
+          {
+            "name": {
+              "en": "Nutty",
+              "ko": "견과"
+            },
+            "colorCode": "#D7CCC8",
+            "flavors": [
+              {
+                "en": "Peanuts",
+                "ko": "PEANUTS",
+                "colorCode": "#D7CCC8"
+              },
+              {
+                "en": "Hazelnut",
+                "ko": "헤이즐넛",
+                "colorCode": "#BCAAA4"
+              },
+              {
+                "en": "Almond",
+                "ko": "아몬드",
+                "colorCode": "#D7CCC8"
+              }
+            ]
+          },
+          {
+            "name": {
+              "en": "Cocoa",
+              "ko": "코코아"
+            },
+            "colorCode": "#8D6E63",
+            "flavors": [
+              {
+                "en": "Chocolate",
+                "ko": "초콜릿",
+                "colorCode": "#8D6E63"
+              },
+              {
+                "en": "Dark Chocolate",
+                "ko": "다크 초콜릿",
+                "colorCode": "#6D4C41"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": {
+          "en": "Spices",
+          "ko": "향신료"
+        },
+        "colorCode": "#FFCC80",
+        "subcategories": [
+          {
+            "name": {
+              "en": "Brown Spice",
+              "ko": "황색 향신료"
+            },
+            "colorCode": "#D7CCC8",
+            "flavors": [
+              {
+                "en": "Clove",
+                "ko": "CLOVE",
+                "colorCode": "#A1887F"
+              },
+              {
+                "en": "Cinnamon",
+                "ko": "계피",
+                "colorCode": "#BCAAA4"
+              },
+              {
+                "en": "Nutmeg",
+                "ko": "너맥",
+                "colorCode": "#8D6E63"
+              }
+            ]
+          },
+          {
+            "name": {
+              "en": "Pepper",
+              "ko": "후추"
+            },
+            "colorCode": "#BDBDBD"
+          },
+          {
+            "name": {
+              "en": "Pungent",
+              "ko": "톡 쏘는"
+            },
+            "colorCode": "#9E9E9E"
+          },
+          {
+            "name": {
+              "en": "Anise",
+              "ko": "아니스"
+            },
+            "colorCode": "#A1887F"
+          }
+        ]
+      },
+      {
+        "name": {
+          "en": "Roasted",
+          "ko": "구운"
+        },
+        "colorCode": "#8D6E63",
+        "subcategories": [
+          {
+            "name": {
+              "en": "Cereal",
+              "ko": "곡류"
+            },
+            "colorCode": "#D7CCC8",
+            "flavors": [
+              {
+                "en": "Malt",
+                "ko": "맥아",
+                "colorCode": "#BCAAA4"
+              },
+              {
+                "en": "Grain",
+                "ko": "곡물",
+                "colorCode": "#D7CCC8"
+              }
+            ]
+          },
+          {
+            "name": {
+              "en": "Brown, Roast",
+              "ko": "노릇하게 구운"
+            },
+            "colorCode": "#8D6E63",
+            "flavors": [
+              {
+                "en": "Burnt",
+                "ko": "BURNT",
+                "colorCode": "#5D4037"
+              },
+              {
+                "en": "Smoky",
+                "ko": "연기",
+                "colorCode": "#757575"
+              },
+              {
+                "en": "Ashy",
+                "ko": "재",
+                "colorCode": "#9E9E9E"
+              }
+            ]
+          },
+          {
+            "name": {
+              "en": "Tobacco",
+              "ko": "담배"
+            },
+            "colorCode": "#795548",
+            "flavors": [
+              {
+                "en": "Pipe Tobacco",
+                "ko": "파이프 담배",
+                "colorCode": "#6D4C41"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": {
+          "en": "Sour/Fermented",
+          "ko": "시큼/발효"
+        },
+        "colorCode": "#FFECB3",
+        "subcategories": [
+          {
+            "name": {
+              "en": "Sour",
+              "ko": "시큼한"
+            },
+            "colorCode": "#FFF9C4",
+            "flavors": [
+              {
+                "en": "Sour Aromatics",
+                "ko": "신 향료",
+                "colorCode": "#FFF59D"
+              },
+              {
+                "en": "Acetic Acid",
+                "ko": "아세트산",
+                "colorCode": "#FFF176"
+              },
+              {
+                "en": "Butyric Acid",
+                "ko": "부티르산",
+                "colorCode": "#FFEE58"
+              },
+              {
+                "en": "Isovaleric Acid",
+                "ko": "이소발레르산",
+                "colorCode": "#FFEB3B"
+              },
+              {
+                "en": "Citric Acid",
+                "ko": "구연산",
+                "colorCode": "#FFF59D"
+              },
+              {
+                "en": "Malic Acid",
+                "ko": "사과산",
+                "colorCode": "#FFF176"
+              }
+            ]
+          },
+          {
+            "name": {
+              "en": "Alcohol/Fermented",
+              "ko": "알코올/발효된"
+            },
+            "colorCode": "#BDBDBD",
+            "flavors": [
+              {
+                "en": "Winey",
+                "ko": "와인",
+                "colorCode": "#C5CAE9"
+              },
+              {
+                "en": "Whiskey",
+                "ko": "위스키",
+                "colorCode": "#9FA8DA"
+              },
+              {
+                "en": "Fermented",
+                "ko": "발효된",
+                "colorCode": "#7986CB"
+              },
+              {
+                "en": "Overripe",
+                "ko": "지나치게 익은",
+                "colorCode": "#FFB74D"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": {
+          "en": "Green/Vegetative",
+          "ko": "그린/야채"
+        },
+        "colorCode": "#AED581",
+        "subcategories": [
+          {
+            "name": {
+              "en": "Olive Oil",
+              "ko": "올리브유"
+            },
+            "colorCode": "#C5E1A5"
+          },
+          {
+            "name": {
+              "en": "Raw",
+              "ko": "거친"
+            },
+            "colorCode": "#DCEDC8"
+          },
+          {
+            "name": {
+              "en": "Green/Vegetative",
+              "ko": "그린/야채"
+            },
+            "colorCode": "#C5E1A5"
+          },
+          {
+            "name": {
+              "en": "Under-ripe",
+              "ko": "덜 익은"
+            },
+            "colorCode": "#AED581"
+          },
+          {
+            "name": {
+              "en": "Peapod",
+              "ko": "완두콩"
+            },
+            "colorCode": "#9CCC65"
+          },
+          {
+            "name": {
+              "en": "Fresh",
+              "ko": "신선한"
+            },
+            "colorCode": "#8BC34A"
+          },
+          {
+            "name": {
+              "en": "Dark Green",
+              "ko": "암녹색"
+            },
+            "colorCode": "#7CB342"
+          },
+          {
+            "name": {
+              "en": "Vegetative",
+              "ko": "야채맛"
+            },
+            "colorCode": "#689F38"
+          },
+          {
+            "name": {
+              "en": "Hay-like",
+              "ko": "건초같은"
+            },
+            "colorCode": "#AFB42B"
+          },
+          {
+            "name": {
+              "en": "Herb-like",
+              "ko": "허브"
+            },
+            "colorCode": "#9E9D24"
+          },
+          {
+            "name": {
+              "en": "Beany",
+              "ko": "BEANY"
+            },
+            "colorCode": "#827717"
+          }
+        ]
+      },
+      {
+        "name": {
+          "en": "Other",
+          "ko": "기타"
+        },
+        "colorCode": "#B0BEC5",
+        "subcategories": [
+          {
+            "name": {
+              "en": "Papery/Musty",
+              "ko": "종이/퀴퀴한"
+            },
+            "colorCode": "#CFD8DC",
+            "flavors": [
+              {
+                "en": "Musty/Earthy",
+                "ko": "퀴퀴한/흙",
+                "colorCode": "#B0BEC5"
+              },
+              {
+                "en": "Musty/Dusty",
+                "ko": "퀴퀴한/먼지",
+                "colorCode": "#90A4AE"
+              },
+              {
+                "en": "Moldy/Damp",
+                "ko": "곰팡이/눅눅한",
+                "colorCode": "#78909C"
+              },
+              {
+                "en": "Woody",
+                "ko": "WOODY",
+                "colorCode": "#607D8B"
+              },
+              {
+                "en": "Papery",
+                "ko": "종이",
+                "colorCode": "#CFD8DC"
+              },
+              {
+                "en": "Cardboard",
+                "ko": "CARDBOARD",
+                "colorCode": "#B0BEC5"
+              },
+              {
+                "en": "Stale",
+                "ko": "오래된",
+                "colorCode": "#90A4AE"
+              }
+            ]
+          },
+          {
+            "name": {
+              "en": "Chemical",
+              "ko": "화학약품"
+            },
+            "colorCode": "#90A4AE",
+            "flavors": [
+              {
+                "en": "Rubber",
+                "ko": "고무",
+                "colorCode": "#78909C"
+              },
+              {
+                "en": "Skunky",
+                "ko": "석유",
+                "colorCode": "#607D8B"
+              },
+              {
+                "en": "Petroleum",
+                "ko": "PETROLEUM",
+                "colorCode": "#546E7A"
+              },
+              {
+                "en": "Medicinal",
+                "ko": "소독약",
+                "colorCode": "#455A64"
+              },
+              {
+                "en": "Salty",
+                "ko": "짜",
+                "colorCode": "#B0BEC5"
+              },
+              {
+                "en": "Bitter",
+                "ko": "BITTED",
+                "colorCode": "#90A4AE"
+              }
+            ]
+          },
+          {
+            "name": {
+              "en": "Phenolic",
+              "ko": "페놀"
+            },
+            "colorCode": "#78909C"
+          },
+          {
+            "name": {
+              "en": "Meaty Brothy",
+              "ko": "고기스프"
+            },
+            "colorCode": "#795548"
+          },
+          {
+            "name": {
+              "en": "Animalic",
+              "ko": "개냄새"
+            },
+            "colorCode": "#6D4C41"
+          }
+        ]
+      }
+    ],
+    "credits": {
+      "en": "WORLD COFFEE RESEARCH SPECIALTY COFFEE ASSOCIATION OF AMERICA COFFEE TASTER'S FLAVOR WHEEL CREATED USING THE SENSORY LEXICON DEVELOPED BY WORLD COFFEE RESEARCH ALL RIGHTS RESERVED SCAA AND WCR",
+      "ko": "월드 커피 리서치 스페셜티 커피 협회 오브 아메리카 커피 테이스터의 플레이버 휠은 월드 커피 리서치에서 개발한 센서리 렉시콘을 사용하여 제작되었습니다. 모든 권리는 SCAA와 WCR에 있습니다",
+      "colorCode": "#000000"
     }
-  ]
-} 
+  }
+}
