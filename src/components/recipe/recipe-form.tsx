@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, Trash2 } from 'lucide-react';
 import { createRecipe, updateRecipe } from '@/lib/actions/recipe';
+import { GrinderSelector } from './grinder-selector';
 
 // Recipe 타입 정의
 interface Recipe {
@@ -24,6 +25,8 @@ interface Recipe {
   updatedAt: Date;
   likes: number;
   waterTemp?: string;
+  grinderId?: string | null;
+  grinderSetting?: string | null;
 }
 
 interface RecipeFormProps {
@@ -45,6 +48,8 @@ interface RecipeFormData {
   notes: string;
   steps: string;
   temperature?: string;
+  grinderId?: string;
+  grinderSetting?: string;
 }
 
 export default function RecipeForm({ recipe, isEditing = false }: RecipeFormProps) {
@@ -54,6 +59,11 @@ export default function RecipeForm({ recipe, isEditing = false }: RecipeFormProp
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // 그라인더 관련 상태 추가
+  const [selectedGrinderId, setSelectedGrinderId] = useState<string>(recipe?.grinderId || '');
+  const [selectedGrinderSetting, setSelectedGrinderSetting] = useState<string>(recipe?.grinderSetting || '');
+  const [brewingMethod, setBrewingMethod] = useState<string>(recipe?.method || '');
 
   const handleAddStep = () => {
     setSteps([...steps, '']);
@@ -71,6 +81,11 @@ export default function RecipeForm({ recipe, isEditing = false }: RecipeFormProp
     setSteps(newSteps);
   };
 
+  // 브루잉 방식 변경 처리
+  const handleBrewingMethodChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setBrewingMethod(e.target.value);
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -79,52 +94,45 @@ export default function RecipeForm({ recipe, isEditing = false }: RecipeFormProp
     try {
       const formData = new FormData(e.currentTarget);
 
-      // 폼 데이터 가공
-      const recipeData: RecipeFormData = {
-        title: formData.get('title') as string,
-        method: formData.get('method') as string,
-        difficulty: formData.get('difficulty') as string,
-        preparationTime: formData.get('preparationTime') as string,
-        beanAmount: formData.get('beanAmount') as string,
-        waterAmount: formData.get('waterAmount') as string,
-        grindSize: formData.get('grindSize') as string,
-        description: formData.get('description') as string || '',
-        equipment: formData.get('equipment') as string || '',
-        notes: formData.get('notes') as string || '',
-        steps: steps.filter(step => step.trim() !== '').join('\n'),
-        temperature: formData.get('temperature') as string,
-      };
+      // 그라인더 관련 정보 추가
+      if (selectedGrinderId) {
+        formData.append('grinderId', selectedGrinderId);
+      }
+
+      if (selectedGrinderSetting) {
+        formData.append('grinderSetting', selectedGrinderSetting);
+      }
+
+      // 단계 정보 추가
+      formData.set('stepsCount', steps.length.toString());
+      steps.forEach((step, index) => {
+        if (step.trim()) {
+          formData.set(`step-${index}`, step);
+        }
+      });
 
       if (isEditing && recipe) {
         // 레시피 업데이트
-        await updateRecipe(recipe.id, recipeData);
-        router.push(`/recipes/${recipe.id}`);
+        const result = await updateRecipe(recipe.id, '', {}, formData);
+
+        if (result.message === 'success') {
+          router.push(`/recipes/${recipe.id}`);
+        } else {
+          setError('레시피 업데이트 중 오류가 발생했습니다.');
+        }
       } else {
-        // 새 레시피 생성
-        // FormData 객체를 직접 전달
-        const formElement = e.currentTarget;
-        const formDataToSubmit = new FormData(formElement);
+        // 레시피 생성
+        const result = await createRecipe('', {}, formData);
 
-        // 단계 정보 추가
-        formDataToSubmit.set('stepsCount', steps.length.toString());
-        steps.forEach((step, index) => {
-          if (step.trim()) {
-            formDataToSubmit.set(`step-${index}`, step);
-          }
-        });
-
-        // 서버 액션 호출
-        const result = await createRecipe('', {}, formDataToSubmit);
-
-        if (result.message) {
+        if (result.message === 'success') {
           router.push('/recipes');
-        } else if (result.errors) {
-          setError('입력 정보를 확인해주세요.');
+        } else {
+          setError('레시피 생성 중 오류가 발생했습니다.');
         }
       }
     } catch (err) {
-      console.error('레시피 저장 중 오류 발생:', err);
-      setError('레시피를 저장하는 중 오류가 발생했습니다. 다시 시도해주세요.');
+      console.error('레시피 저장 중 오류:', err);
+      setError('레시피를 저장하는 중 오류가 발생했습니다.');
     } finally {
       setIsSubmitting(false);
     }
@@ -164,17 +172,21 @@ export default function RecipeForm({ recipe, isEditing = false }: RecipeFormProp
               id="method"
               name="method"
               defaultValue={recipe?.method || ''}
+              onChange={handleBrewingMethodChange}
               className="w-full p-3 rounded-md border border-input bg-background"
               required
             >
               <option value="">추출 방식 선택</option>
-              <option value="pourOver">핸드드립</option>
-              <option value="aeropress">에어로프레스</option>
-              <option value="frenchPress">프렌치프레스</option>
-              <option value="coldBrew">콜드브루</option>
-              <option value="mokaPot">모카포트</option>
-              <option value="chemex">케멕스</option>
-              <option value="other">기타</option>
+              <option value="핸드드립">핸드드립</option>
+              <option value="에스프레소">에스프레소</option>
+              <option value="프렌치프레스">프렌치프레스</option>
+              <option value="에어로프레스">에어로프레스</option>
+              <option value="모카포트">모카포트</option>
+              <option value="콜드브루">콜드브루</option>
+              <option value="더치커피">더치커피</option>
+              <option value="사이폰">사이폰</option>
+              <option value="클레버드리퍼">클레버드리퍼</option>
+              <option value="기타">기타</option>
             </select>
           </div>
           <div>
@@ -184,12 +196,13 @@ export default function RecipeForm({ recipe, isEditing = false }: RecipeFormProp
             <select
               id="difficulty"
               name="difficulty"
-              defaultValue={recipe?.difficulty || '초급'}
+              defaultValue={recipe?.difficulty || ''}
               className="w-full p-3 rounded-md border border-input bg-background"
             >
+              <option value="">난이도 선택</option>
               <option value="초급">초급</option>
               <option value="중급">중급</option>
-              <option value="상급">상급</option>
+              <option value="고급">고급</option>
             </select>
           </div>
           <div>
@@ -248,6 +261,32 @@ export default function RecipeForm({ recipe, isEditing = false }: RecipeFormProp
               max="100"
             />
           </div>
+          <div>
+            <label htmlFor="grinder" className="block text-sm font-medium mb-1">
+              그라인더
+            </label>
+            <GrinderSelector
+              value={selectedGrinderId}
+              onChange={setSelectedGrinderId}
+              brewingMethod={brewingMethod}
+              onGrinderSettingChange={setSelectedGrinderSetting}
+            />
+          </div>
+          <div>
+            <label htmlFor="grindSize" className="block text-sm font-medium mb-1">
+              분쇄도 *
+            </label>
+            <input
+              type="text"
+              id="grindSize"
+              name="grindSize"
+              value={selectedGrinderSetting || recipe?.grindSize || ''}
+              onChange={(e) => setSelectedGrinderSetting(e.target.value)}
+              placeholder="예: 중간, 18클릭 (코만단테), 다이얼 2.5 (EK43)"
+              className="w-full p-3 rounded-md border border-input bg-background"
+              required
+            />
+          </div>
         </div>
       </div>
 
@@ -269,27 +308,6 @@ export default function RecipeForm({ recipe, isEditing = false }: RecipeFormProp
               step="0.1"
               min="0"
             />
-          </div>
-          <div>
-            <label htmlFor="grindSize" className="block text-sm font-medium mb-1">
-              분쇄도 *
-            </label>
-            <select
-              id="grindSize"
-              name="grindSize"
-              defaultValue={recipe?.grindSize || ''}
-              className="w-full p-3 rounded-md border border-input bg-background"
-              required
-            >
-              <option value="">분쇄도 선택</option>
-              <option value="매우 고운">매우 고운</option>
-              <option value="고운">고운</option>
-              <option value="중간-고운">중간-고운</option>
-              <option value="중간">중간</option>
-              <option value="중간-굵은">중간-굵은</option>
-              <option value="굵은">굵은</option>
-              <option value="매우 굵은">매우 굵은</option>
-            </select>
           </div>
           <div>
             <label htmlFor="waterAmount" className="block text-sm font-medium mb-1">

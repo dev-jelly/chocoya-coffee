@@ -83,6 +83,11 @@ model Recipe {
   grindSize        String?   // 분쇄도 (예: "중간", "고운" 등)
   tools           String?   // 필요한 도구 (쉼표로 구분)
   
+  // 그라인더 관련 필드 추가
+  grinderId      String?   // 사용한 그라인더 ID
+  grinder        Grinder?  @relation(fields: [grinderId], references: [id], onDelete: SetNull)
+  grinderSetting String?   // 그라인더 설정 (예: 코만단테 18클릭, EK43 2.5 등)
+  
   // 맛 프로필 관련 필드
   acidity         String?   // 산미 (예: "중간-높음")
   sweetness       String?   // 단맛 (예: "중간")
@@ -293,4 +298,40 @@ model RecipeLike {
   recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   
   @@id([userId, recipeId])
+}
+
+// 그라인더 모델
+model Grinder {
+  id          String    @id @default(cuid())
+  name        String    // 그라인더 이름 (예: Comandante C40, EK43, Kinu M47 등)
+  brand       String    // 브랜드 (예: Comandante, Mahlkonig, Kinu 등)
+  type        String    // 타입 (예: 수동 핸드 그라인더, 전동 그라인더, 상업용 그라인더 등)
+  burr        String?   // 날의 종류 (예: 플랫 버, 코니컬 버, 세라믹 버 등)
+  burrSize    String?   // 날의 크기 (예: 38mm, 40mm, 98mm 등)
+  adjustmentType String  // 분쇄도 조절 방식 (예: 클릭, 다이얼, 마이크로 미터 등)
+  description String?   // 설명
+  imageUrl    String?   // 이미지 URL
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // 관계
+  settings    GrinderSetting[] // 이 그라인더의 설정 목록
+  recipes     Recipe[]         // 이 그라인더를 사용한 레시피
+}
+
+// 그라인더 설정 모델
+model GrinderSetting {
+  id          String    @id @default(cuid())
+  grinderId   String    // 그라인더 ID
+  name        String    // 설정 이름 (예: 에스프레소, 핸드드립-중간, 프렌치프레스 등)
+  value       String    // 설정 값 (예: 12 클릭, 2.5, 8E 등)
+  brewingMethod String   // 추출 방식 (예: 에스프레소, 핸드드립, 프렌치프레스 등)
+  description String?   // 설명 (예: 밝은 로스팅 원두에 적합, 중간 분쇄도 등)
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // 관계
+  grinder     Grinder   @relation(fields: [grinderId], references: [id], onDelete: Cascade)
 } 
