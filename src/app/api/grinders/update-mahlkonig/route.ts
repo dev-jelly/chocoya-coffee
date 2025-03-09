@@ -3,26 +3,25 @@ import { prisma } from '@/lib/db';
 
 export async function GET() {
     try {
-        // 'Mahlkönig' 브랜드의 모든 그라인더 찾기
+        // 말코닉 브랜드의 그라인더 찾기
         const mahlkonigGrinders = await prisma.grinder.findMany({
             where: {
-                brand: 'Mahlkönig',
+                brand: '말코닉',
             }
         });
 
-        let updatedCount = 0;
+        // 결과 저장 배열
         const updatedGrinders = [];
+        let updatedCount = 0;
 
-        // 각 말코닉 그라인더 업데이트
+        // 각 그라인더에 대해 브랜드 이름 수정
         for (const grinder of mahlkonigGrinders) {
+            // 영문 이름 그대로 유지하고 브랜드만 변경
             const updatedGrinder = await prisma.grinder.update({
                 where: { id: grinder.id },
                 data: {
-                    brand: '말코닉', // 브랜드 이름 한글로 변경
-                    // 이름이 그대로면 '말코닉 EK43'과 같이 업데이트, 아니면 기존 name_ko 유지
-                    name_ko: grinder.name_ko === grinder.name
-                        ? `말코닉 ${grinder.name}`
-                        : grinder.name_ko
+                    brand: 'Mahlkönig',
+                    name_ko: grinder.name_ko || `말코닉 ${grinder.name}` // 한글 이름이 없는 경우 생성
                 }
             });
 
@@ -45,7 +44,7 @@ export async function GET() {
         console.error('Error updating Mahlkönig grinders:', error);
         return NextResponse.json({
             success: false,
-            error: '말코닉 그라인더 데이터 업데이트 중 오류가 발생했습니다.'
+            error: 'Mahlkönig 그라인더 데이터 업데이트 중 오류가 발생했습니다.'
         }, { status: 500 });
     }
 } 
