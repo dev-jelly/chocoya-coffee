@@ -30,15 +30,18 @@ interface GrinderSelectorProps {
 interface Grinder {
     id: string;
     name: string;
+    name_ko?: string;
     brand: string;
     type: string;
     adjustmentType: string;
     settings: {
         id: string;
         name: string;
+        name_ko?: string;
         value: string;
         brewingMethod: string;
         description: string;
+        description_ko?: string;
     }[];
 }
 
@@ -113,7 +116,7 @@ export function GrinderSelector({
                         ) : selectedGrinder ? (
                             <div className="flex items-center">
                                 <Coffee className="mr-2 h-4 w-4" />
-                                <span>{selectedGrinder.brand} {selectedGrinder.name}</span>
+                                <span>{selectedGrinder.brand} {selectedGrinder.name_ko || selectedGrinder.name}</span>
                             </div>
                         ) : (
                             "그라인더 선택..."
@@ -142,9 +145,9 @@ export function GrinderSelector({
                                                 )}
                                             />
                                             <div className="flex flex-col">
-                                                <span>{grinder.brand} {grinder.name}</span>
+                                                <span>{grinder.brand} {grinder.name_ko || grinder.name}</span>
                                                 <span className="text-xs text-muted-foreground">
-                                                    {adjustmentTypeNames[grinder.adjustmentType]} 방식, 설정 {grinder.settings.length}개
+                                                    {adjustmentTypeNames[grinder.adjustmentType as keyof typeof adjustmentTypeNames]} 방식, 설정 {grinder.settings.length}개
                                                 </span>
                                             </div>
                                         </CommandItem>
@@ -166,9 +169,9 @@ export function GrinderSelector({
                                                 )}
                                             />
                                             <div className="flex flex-col">
-                                                <span>{grinder.brand} {grinder.name}</span>
+                                                <span>{grinder.brand} {grinder.name_ko || grinder.name}</span>
                                                 <span className="text-xs text-muted-foreground">
-                                                    {adjustmentTypeNames[grinder.adjustmentType]} 방식, 설정 {grinder.settings.length}개
+                                                    {adjustmentTypeNames[grinder.adjustmentType as keyof typeof adjustmentTypeNames]} 방식, 설정 {grinder.settings.length}개
                                                 </span>
                                             </div>
                                         </CommandItem>
@@ -190,9 +193,9 @@ export function GrinderSelector({
                                                 )}
                                             />
                                             <div className="flex flex-col">
-                                                <span>{grinder.brand} {grinder.name}</span>
+                                                <span>{grinder.brand} {grinder.name_ko || grinder.name}</span>
                                                 <span className="text-xs text-muted-foreground">
-                                                    {adjustmentTypeNames[grinder.adjustmentType]} 방식, 설정 {grinder.settings.length}개
+                                                    {adjustmentTypeNames[grinder.adjustmentType as keyof typeof adjustmentTypeNames]} 방식, 설정 {grinder.settings.length}개
                                                 </span>
                                             </div>
                                         </CommandItem>
@@ -214,8 +217,10 @@ export function GrinderSelector({
                                 className="py-1 px-2 rounded bg-secondary/20 cursor-pointer hover:bg-secondary/40"
                                 onClick={() => onGrinderSettingChange(setting.value)}
                             >
-                                <div className="font-medium">{setting.name}: <span className="text-primary">{setting.value}</span></div>
-                                <div className="text-xs text-muted-foreground">{setting.description}</div>
+                                <div className="font-medium">
+                                    {setting.name_ko || setting.name}: <span className="text-primary">{setting.value}</span>
+                                </div>
+                                <div className="text-xs text-muted-foreground">{setting.description_ko || setting.description}</div>
                             </li>
                         ))}
                     </ul>

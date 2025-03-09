@@ -3,10 +3,11 @@ import { Button } from "@/components/ui/button";
 import { UserNav } from "./user-nav";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { Coffee, BookOpen, Droplet, FileText, Home, CoffeeIcon } from "lucide-react";
+import { Coffee, BookOpen, Droplet, FileText, Home, Bean } from "lucide-react";
 import { MobileNavClient } from "./mobile-nav-client";
 import { CatCoffeeLogo } from "@/components/ui/cat-coffee-logo";
 import { CreateBeanButtonClient } from "@/components/bean/create-bean-button-client";
+import { CoffeeBeanIcon } from "@/components/ui/coffee-bean-icon";
 
 export async function Header() {
   const session = await getServerSession(authOptions);
@@ -41,7 +42,7 @@ export async function Header() {
               href="/beans"
               className="text-sm font-medium transition-colors hover:text-primary flex items-center gap-1 cursor-pointer"
             >
-              <CoffeeIcon size={16} />
+              <Bean size={16} />
               <span>원두 라이브러리</span>
             </Link>
             <Link

@@ -1,8 +1,8 @@
 import type { NextAuthConfig } from 'next-auth';
-import Credentials from 'next-auth/providers/credentials';
+import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import { db } from '@/lib/db';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 
 // 로그인 스키마 정의
@@ -17,7 +17,7 @@ export default {
       clientId: process.env.GOOGLE_CLIENT_ID || '',
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
     }),
-    Credentials({
+    CredentialsProvider({
       name: 'Credentials',
       credentials: {
         email: { label: '이메일', type: 'email' },
@@ -26,30 +26,30 @@ export default {
       async authorize(credentials) {
         // 유효성 검사
         const validatedCredentials = loginSchema.safeParse(credentials);
-        
+
         if (!validatedCredentials.success) {
           return null;
         }
-        
+
         const { email, password } = validatedCredentials.data;
-        
+
         // 사용자 조회
         const user = await db.user.findUnique({
           where: { email },
         });
-        
+
         // 사용자가 존재하지 않는 경우
         if (!user || !user.password) {
           return null;
         }
-        
+
         // 비밀번호 확인
         const passwordMatch = await bcrypt.compare(password, user.password);
-        
+
         if (!passwordMatch) {
           return null;
         }
-        
+
         return {
           id: user.id,
           name: user.name,

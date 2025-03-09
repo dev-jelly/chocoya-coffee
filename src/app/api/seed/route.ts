@@ -1,21 +1,21 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 export async function GET() {
   try {
     // 관리자 계정 생성 (이미 존재하는 경우 업데이트)
     const adminEmail = 'admin@chocoya.coffee';
-    
+
     const existingAdmin = await prisma.user.findUnique({
       where: { email: adminEmail },
     });
-    
+
     let adminId;
-    
+
     if (!existingAdmin) {
       const hashedPassword = await bcrypt.hash('admin1234', 10);
-      
+
       const admin = await prisma.user.create({
         data: {
           email: adminEmail,
@@ -23,27 +23,27 @@ export async function GET() {
           password: hashedPassword,
         },
       });
-      
+
       adminId = admin.id;
     } else {
       adminId = existingAdmin.id;
     }
-    
-    // 기본 핸드드립 레시피 추가
+
+    // 기본 푸어오버 레시피 추가
     const recipeId = 'basic-hand-drip-recipe';
-    
+
     const existingRecipe = await prisma.recipe.findUnique({
       where: { id: recipeId },
     });
-    
+
     if (!existingRecipe) {
       const recipe = await prisma.recipe.create({
         data: {
           id: recipeId,
-          title: '기본 핸드드립 레시피',
-          description: '초보자도 쉽게 따라할 수 있는 기본 핸드드립 레시피입니다. 균형 잡힌 맛을 추출하는 것을 목표로 합니다.',
+          title: '기본 푸어오버 레시피',
+          description: '초보자도 쉽게 따라할 수 있는 기본 푸어오버 레시피입니다. 균형 잡힌 맛을 추출하는 것을 목표로 합니다.',
           isPublic: true,
-          brewingMethod: '핸드드립',
+          brewingMethod: '푸어오버',
           difficulty: '초급',
           preparationTime: '3~4분',
           beanAmount: '15g',
@@ -58,7 +58,7 @@ export async function GET() {
           userId: adminId,
         },
       });
-      
+
       // 레시피 단계 추가
       const steps = [
         {
@@ -102,13 +102,13 @@ export async function GET() {
           waterAmount: '70ml',
         },
       ];
-      
+
       for (const step of steps) {
         await prisma.step.create({
           data: step,
         });
       }
-      
+
       // 브루잉 팁 추가
       const tips = [
         {
@@ -124,26 +124,26 @@ export async function GET() {
           content: '전체 추출 시간은 2분 30초에서 3분 사이가 이상적입니다.',
         },
       ];
-      
+
       for (const tip of tips) {
         await prisma.brewingTip.create({
           data: tip,
         });
       }
-      
-      return NextResponse.json({ 
-        success: true, 
+
+      return NextResponse.json({
+        success: true,
         message: '기본 레시피가 성공적으로 추가되었습니다.',
         recipe: recipe.id
       });
     }
-    
-    return NextResponse.json({ 
-      success: true, 
+
+    return NextResponse.json({
+      success: true,
       message: '기본 레시피가 이미 존재합니다.',
       recipe: recipeId
     });
-    
+
   } catch (error: any) {
     console.error('시드 오류:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

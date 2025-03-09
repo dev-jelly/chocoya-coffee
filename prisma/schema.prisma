@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,31 +7,28 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// 유저 모델
 model User {
-  id            String    @id @default(cuid())
+  id            String       @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?      @unique
   emailVerified DateTime?
   image         String?
   password      String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  bio           String?   // 자기소개
-
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  bio           String?
   accounts      Account[]
-  sessions      Session[]
-  recipes       Recipe[]
-  tasteNotes    TasteNote[]
-  comments      Comment[]
-  likes         Like[]
-  reports       Report[]
-  favorites     Favorite[]
-  recipeLikes   RecipeLike[]
   beans         Bean[]
+  comments      Comment[]
+  favorites     Favorite[]
+  likes         Like[]
+  recipes       Recipe[]
+  recipeLikes   RecipeLike[]
+  reports       Report[]
+  sessions      Session[]
+  tasteNotes    TasteNote[]
 }
 
-// NextAuth 계정 모델
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -48,13 +42,11 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
 
-// NextAuth 세션 모델
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique
@@ -63,173 +55,137 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-// 브루잉 레시피 모델
 model Recipe {
-  id              String    @id @default(cuid())
-  title           String    // 레시피 이름
-  description     String?   // 레시피 설명
-  isPublic        Boolean   @default(true)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  userId          String    // 작성자 ID
-  
-  // 브루잉 관련 필드
-  brewingMethod   String    // 추출 방식 (핸드드립, 에어로프레스, 프렌치프레스 등)
-  difficulty      String?   // 난이도 (초급, 중급, 상급)
-  preparationTime String?   // 준비 시간 (예: "3~4분", "12시간" 등)
-  beanAmount      String?   // 원두량 (예: "15g")
-  waterAmount     String?   // 물 용량 (예: "250ml")
-  waterTemp       String?   // 물 온도 (예: "90-92°C")
-  grindSize        String?   // 분쇄도 (예: "중간", "고운" 등)
-  tools           String?   // 필요한 도구 (쉼표로 구분)
-  
-  // 그라인더 관련 필드 추가
-  grinderId      String?   // 사용한 그라인더 ID
-  grinder        Grinder?  @relation(fields: [grinderId], references: [id], onDelete: SetNull)
-  grinderSetting String?   // 그라인더 설정 (예: 코만단테 18클릭, EK43 2.5 등)
-  
-  // 맛 프로필 관련 필드
-  acidity         String?   // 산미 (예: "중간-높음")
-  sweetness       String?   // 단맛 (예: "중간")
-  body            String?   // 바디감 (예: "가벼움-중간")
-  recommendedBeans String?  // 추천 원두 (예: "에티오피아, 케냐 등 산미가 강한 싱글 오리진")
-  
-  // 원두 관계 필드 추가
-  beanId         String?
-  bean           Bean?   @relation(fields: [beanId], references: [id], onDelete: SetNull)
-  
-  // 관계
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  ingredients     Ingredient[]
-  steps           Step[]
-  brewingTips     BrewingTip[]
-  tasteNotes      TasteNote[]
-  comments        Comment[]
-  likes           Like[]
-  favorites       Favorite[]
-  recipeLikes     RecipeLike[]
-}
-
-// 재료 모델
-model Ingredient {
-  id          String   @id @default(cuid())
-  recipeId    String
-  name        String   // 재료 이름
-  amount      String?  // 양
-  
-  recipe      Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-}
-
-// 레시피 단계 모델
-model Step {
-  id          String   @id @default(cuid())
-  recipeId    String
-  order       Int      // 순서
-  description String   // 단계 설명
-  time        String?  // 시간 (예: "30초", "1분" 등)
-  waterAmount String?  // 물의 양 (예: "50ml")
-  
-  recipe      Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-}
-
-// 브루잉 팁 모델
-model BrewingTip {
-  id          String   @id @default(cuid())
-  recipeId    String
-  content     String   // 팁 내용
-  
-  recipe      Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-}
-
-// 원두 모델
-model Bean {
-  id          String    @id @default(cuid())
-  name        String    // 원두 이름
-  origin      String?   // 원산지 (국가 ID)
-  region      String?   // 지역
-  farm        String?   // 농장명
-  altitude    String?   // 고도
-  process     String?   // 프로세스 (워시드, 내추럴 등)
-  variety     String?   // 품종 (게이샤, 부르봉, 카투라 등)
-  roastLevel  String?   // 로스팅 단계
-  roaster     String?   // 로스터리
-  roastDate   DateTime? // 로스팅 날짜
-  description String?   // 설명
-  isPublic    Boolean   @default(true) // 공개 여부
-  
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  
-  userId      String    // 작성자 ID
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  // 관계
-  tasteNotes  TasteNote[]
-  recipes     Recipe[]  // 이 원두를 사용한 레시피
-}
-
-// 맛 노트 모델
-model TasteNote {
-  id                String   @id @default(cuid())
-  userId            String
-  recipeId          String?  // 특정 레시피에 대한 맛 노트인 경우
-  
-  // 기본 정보
-  date              DateTime @default(now())
-  coffeeName        String   // 원두 이름
-  origin            String?  // 원산지
-  roastLevel        String?  // 로스팅 단계
-  roaster           String?  // 로스터리
-  
-  // 추출 정보
-  brewingMethod     String   // 추출 방식
-  grindSize         String?  // 분쇄도
-  beanAmount        String?  // 원두량
-  waterAmount       String?  // 물 용량
-  waterTemp         String?  // 물 온도
-  brewTime          String?  // 추출 시간
-  ratio             String?  // 비율
-  
-  // 맛 평가
-  overallRating     Int?     // 종합 평가 (1-5)
-  acidity           Int?     // 산미 (1-10)
-  sweetness         Int?     // 단맛 (1-10)
-  body              Int?     // 바디감 (1-10)
-  bitterness        Int?     // 쓴맛 (1-10)
-  flavorNotes       String?  // 맛 노트 (쉼표로 구분)
-  notes             String?  // 추가 노트
-  
-  // 맛 노트 시각화 (SCA Flavor Wheel 기반)
-  flavorLabels      String?  // 분류 레이블 (쉼표로 구분, 예: "과일,견과류,초콜릿")
-  flavorColors      String?  // 각 맛 노트에 해당하는 색상 (쉼표로 구분, 예: "#FF5733,#3D9970,#8B4513")
-  primaryColor      String?  // 주요 맛 색상 (예: "#FF5733")
-  
-  // 원두 관계 필드 추가
+  id               String       @id @default(cuid())
+  title            String
+  description      String?
+  isPublic         Boolean      @default(true)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  userId           String
+  brewingMethod    String
+  difficulty       String?
+  preparationTime  String?
+  beanAmount       String?
+  waterAmount      String?
+  waterTemp        String?
+  grindSize        String?
+  tools            String?
+  grinderId        String?
+  grinderSetting   String?
+  acidity          String?
+  sweetness        String?
+  body             String?
+  recommendedBeans String?
   beanId           String?
-  bean             Bean?   @relation(fields: [beanId], references: [id], onDelete: SetNull)
-  
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  recipe            Recipe?  @relation(fields: [recipeId], references: [id], onDelete: SetNull)
-  labels            TasteNoteLabel[]  // 맛 노트 레이블 관계
+  brewingTips      BrewingTip[]
+  comments         Comment[]
+  favorites        Favorite[]
+  ingredients      Ingredient[]
+  likes            Like[]
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bean             Bean?        @relation(fields: [beanId], references: [id])
+  grinder          Grinder?     @relation(fields: [grinderId], references: [id])
+  recipeLikes      RecipeLike[]
+  steps            Step[]
+  tasteNotes       TasteNote[]
 }
 
-// 맛 노트 레이블 모델
+model Ingredient {
+  id       String  @id @default(cuid())
+  recipeId String
+  name     String
+  amount   String?
+  recipe   Recipe  @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+}
+
+model Step {
+  id          String  @id @default(cuid())
+  recipeId    String
+  order       Int
+  description String
+  time        String?
+  waterAmount String?
+  recipe      Recipe  @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+}
+
+model BrewingTip {
+  id       String @id @default(cuid())
+  recipeId String
+  content  String
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+}
+
+model Bean {
+  id           String      @id @default(cuid())
+  name         String
+  origin       String?
+  region       String?
+  farm         String?
+  altitude     String?
+  process      String?
+  variety      String?
+  roastLevel   String?
+  roaster      String?
+  roastDate    DateTime?
+  description  String?
+  isPublic     Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  userId       String
+  flavorColors String?
+  flavorLabels String?
+  flavorNotes  String?
+  primaryColor String?
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipes      Recipe[]
+  tasteNotes   TasteNote[]
+}
+
+model TasteNote {
+  id            String           @id @default(cuid())
+  userId        String
+  recipeId      String?
+  date          DateTime         @default(now())
+  coffeeName    String
+  origin        String?
+  roastLevel    String?
+  roaster       String?
+  brewingMethod String
+  grindSize     String?
+  beanAmount    String?
+  waterAmount   String?
+  waterTemp     String?
+  brewTime      String?
+  ratio         String?
+  overallRating Int?
+  acidity       Int?
+  sweetness     Int?
+  body          Int?
+  bitterness    Int?
+  flavorNotes   String?
+  notes         String?
+  flavorLabels  String?
+  flavorColors  String?
+  primaryColor  String?
+  beanId        String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  recipe        Recipe?          @relation(fields: [recipeId], references: [id])
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bean          Bean?            @relation(fields: [beanId], references: [id])
+  labels        TasteNoteLabel[] @relation("TasteNoteToTasteNoteLabel")
+}
+
 model TasteNoteLabel {
-  id          String    @id @default(cuid())
-  name        String    // 레이블 이름 (예: "과일", "견과류", "초콜릿")
-  color       String    // 레이블 색상 (예: "#FF5733")
-  description String?   // 레이블 설명
-  createdAt   DateTime  @default(now())
-  
-  tasteNotes  TasteNote[]  // 맛 노트와의 관계
-  
-  @@unique([name])
+  id          String      @id @default(cuid())
+  name        String      @unique
+  color       String
+  description String?
+  createdAt   DateTime    @default(now())
+  tasteNotes  TasteNote[] @relation("TasteNoteToTasteNoteLabel")
 }
 
-// 댓글 모델
 model Comment {
   id        String   @id @default(cuid())
   content   String
@@ -237,48 +193,41 @@ model Comment {
   userId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   reports   Report[]
 }
 
-// 좋아요 모델
 model Like {
   id        String   @id @default(cuid())
   recipeId  String
   userId    String
   createdAt DateTime @default(now())
-
-  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
 
   @@unique([recipeId, userId])
 }
 
-// 즐겨찾기 모델
 model Favorite {
   id        String   @id @default(cuid())
   recipeId  String
   userId    String
   createdAt DateTime @default(now())
-
-  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
 
   @@unique([recipeId, userId])
 }
 
-// 신고 모델
 model Report {
   id        String   @id @default(cuid())
   reason    String
   commentId String
   userId    String
   createdAt DateTime @default(now())
-  
-  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
 }
 
 model VerificationToken {
@@ -293,45 +242,40 @@ model RecipeLike {
   userId    String
   recipeId  String
   createdAt DateTime @default(now())
-  
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@id([userId, recipeId])
 }
 
-// 그라인더 모델
 model Grinder {
-  id          String    @id @default(cuid())
-  name        String    // 그라인더 이름 (예: Comandante C40, EK43, Kinu M47 등)
-  brand       String    // 브랜드 (예: Comandante, Mahlkonig, Kinu 등)
-  type        String    // 타입 (예: 수동 핸드 그라인더, 전동 그라인더, 상업용 그라인더 등)
-  burr        String?   // 날의 종류 (예: 플랫 버, 코니컬 버, 세라믹 버 등)
-  burrSize    String?   // 날의 크기 (예: 38mm, 40mm, 98mm 등)
-  adjustmentType String  // 분쇄도 조절 방식 (예: 클릭, 다이얼, 마이크로 미터 등)
-  description String?   // 설명
-  imageUrl    String?   // 이미지 URL
-  
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  
-  // 관계
-  settings    GrinderSetting[] // 이 그라인더의 설정 목록
-  recipes     Recipe[]         // 이 그라인더를 사용한 레시피
+  id             String           @id @default(cuid())
+  name           String
+  brand          String
+  type           String
+  burr           String?
+  burrSize       String?
+  adjustmentType String
+  description    String?
+  imageUrl       String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  description_ko String?
+  name_ko        String?
+  settings       GrinderSetting[]
+  recipes        Recipe[]
 }
 
-// 그라인더 설정 모델
 model GrinderSetting {
-  id          String    @id @default(cuid())
-  grinderId   String    // 그라인더 ID
-  name        String    // 설정 이름 (예: 에스프레소, 핸드드립-중간, 프렌치프레스 등)
-  value       String    // 설정 값 (예: 12 클릭, 2.5, 8E 등)
-  brewingMethod String   // 추출 방식 (예: 에스프레소, 핸드드립, 프렌치프레스 등)
-  description String?   // 설명 (예: 밝은 로스팅 원두에 적합, 중간 분쇄도 등)
-  
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  
-  // 관계
-  grinder     Grinder   @relation(fields: [grinderId], references: [id], onDelete: Cascade)
-} 
+  id             String   @id @default(cuid())
+  grinderId      String
+  name           String
+  value          String
+  brewingMethod  String
+  description    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  description_ko String?
+  name_ko        String?
+  grinder        Grinder  @relation(fields: [grinderId], references: [id], onDelete: Cascade)
+}

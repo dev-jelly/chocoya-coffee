@@ -27,6 +27,7 @@ interface Recipe {
   waterTemp?: string;
   grinderId?: string | null;
   grinderSetting?: string | null;
+  isPublic?: boolean;
 }
 
 interface RecipeFormProps {
@@ -50,7 +51,78 @@ interface RecipeFormData {
   temperature?: string;
   grinderId?: string;
   grinderSetting?: string;
+  isPublic?: boolean;
 }
+
+// 추출 방식 별 추출 기구 목록 정의
+const extractionEquipment = {
+  '푸어오버': [
+    { id: 'v60', name: 'Hario V60', description: '하리오 V60 드리퍼' },
+    { id: 'kalita', name: 'Kalita Wave', description: '칼리타 웨이브 드리퍼' },
+    { id: 'chemex', name: 'Chemex', description: '케멕스 드리퍼' },
+    { id: 'origami', name: 'Origami', description: '오리가미 드리퍼' },
+    { id: 'kono', name: 'Kono Meimon', description: '코노 메이몬 드리퍼' },
+    { id: 'other_pourover', name: '기타', description: '기타 푸어오버 장비' }
+  ],
+  '에스프레소': [
+    { id: 'semi_auto', name: '반자동 에스프레소 머신', description: '바리스타가 분쇄도, 탬핑, 추출 시간을 조절하는 머신' },
+    { id: 'full_auto', name: '전자동 에스프레소 머신', description: '버튼 하나로 모든 과정이 자동화된 머신' },
+    { id: 'manual_lever', name: '레버 에스프레소 머신', description: '수동으로 압력을 조절하는 전통적인 방식의 머신' },
+    { id: 'capsule', name: '캡슐 머신', description: '캡슐을 이용한 간편한 에스프레소 추출' },
+    { id: 'nanopresso', name: '나노프레소', description: '휴대용 수동 에스프레소 추출 기구' },
+    { id: 'flair', name: '플레어', description: '수동식 레버 타입의 휴대용 에스프레소 추출 기구' },
+    { id: 'rok', name: 'ROK 에스프레소 메이커', description: '수동식 레버 타입의 에스프레소 메이커' },
+    { id: 'other_espresso', name: '기타', description: '기타 에스프레소 추출 장비' }
+  ],
+  '프렌치프레스': [
+    { id: 'bodum', name: '보덤 프렌치프레스', description: '클래식한 디자인의 프렌치프레스' },
+    { id: 'hario', name: '하리오 프렌치프레스', description: '내구성 좋은 유리 재질의 프렌치프레스' },
+    { id: 'espro', name: '에스프로 프레스', description: '미세한 이중 필터로 더 깨끗한 추출의 프렌치프레스' },
+    { id: 'frieling', name: '프릴링 스테인레스 프레스', description: '스테인레스 재질로 내구성이 뛰어난 프렌치프레스' },
+    { id: 'other_frenchpress', name: '기타', description: '기타 프렌치프레스 장비' }
+  ],
+  '에어로프레스': [
+    { id: 'aeropress_standard', name: '에어로프레스 스탠다드', description: '기본적인 에어로프레스' },
+    { id: 'aeropress_go', name: '에어로프레스 고', description: '여행용으로 컴팩트한 에어로프레스' },
+    { id: 'fellow_prismo', name: '펠로우 프리즈모 부착형', description: '에어로프레스에 부착하여 에스프레소 스타일로 추출' },
+    { id: 'other_aeropress', name: '기타', description: '기타 에어로프레스 액세서리 사용' }
+  ],
+  '모카포트': [
+    { id: 'bialetti', name: '비알레띠 모카포트', description: '클래식한 이탈리안 모카포트' },
+    { id: 'bialetti_induction', name: '비알레띠 인덕션용 모카포트', description: '인덕션에서 사용 가능한 모카포트' },
+    { id: 'electric_moka', name: '전기식 모카포트', description: '전기로 작동하는 편리한 모카포트' },
+    { id: 'other_moka', name: '기타', description: '기타 브랜드의 모카포트' }
+  ],
+  '콜드브루': [
+    { id: 'toddy', name: '토디 콜드브루 시스템', description: '대용량 침지식 콜드브루 추출 시스템' },
+    { id: 'hario_mizudashi', name: '하리오 미즈다시', description: '간편한 콜드브루 포트' },
+    { id: 'filtron', name: '필트론', description: '대용량 홈 콜드브루 시스템' },
+    { id: 'oxo', name: 'OXO 콜드브루 메이커', description: '간편한 밸브 시스템의 콜드브루 메이커' },
+    { id: 'bruer', name: '브루어 콜드브루', description: '슬로우 드립 방식의 콜드브루 메이커' },
+    { id: 'diy_coldbrew', name: 'DIY 방식', description: '자체 제작 방식의 콜드브루 추출' },
+    { id: 'other_coldbrew', name: '기타', description: '기타 콜드브루 추출 방식' }
+  ],
+  '더치커피': [
+    { id: 'dutch_tower_wood', name: '목재 더치 타워', description: '전통적인 목재 더치커피 추출 장치' },
+    { id: 'dutch_tower_glass', name: '유리 더치 타워', description: '모던한 유리 재질의 더치커피 타워' },
+    { id: 'cold_drip_ceramic', name: '도자기 콜드 드립', description: '도자기 재질의 드립 시스템' },
+    { id: 'yama_tower', name: '야마 드립 타워', description: '일본식 유리 드립 타워' },
+    { id: 'other_dutch', name: '기타', description: '기타 더치커피 추출 장비' }
+  ],
+  '사이폰': [
+    { id: 'hario_syphon', name: '하리오 사이폰', description: '일본식 진공식 추출 시스템' },
+    { id: 'yama_syphon', name: '야마 사이폰', description: '고급 유리 재질의 사이폰' },
+    { id: 'other_syphon', name: '기타', description: '기타 사이폰 추출 장비' }
+  ],
+  '클레버드리퍼': [
+    { id: 'clever_standard', name: '클레버 드리퍼 스탠다드', description: '스탠다드 사이즈의 클레버 드리퍼' },
+    { id: 'clever_large', name: '클레버 드리퍼 라지', description: '대용량 클레버 드리퍼' },
+    { id: 'other_clever', name: '기타', description: '기타 클레버 드리퍼 유사 장비' }
+  ],
+  '기타': [
+    { id: 'other_method', name: '직접 입력', description: '위에 없는 추출 방식 및 장비' }
+  ]
+};
 
 export default function RecipeForm({ recipe, isEditing = false }: RecipeFormProps) {
   const router = useRouter();
@@ -59,11 +131,14 @@ export default function RecipeForm({ recipe, isEditing = false }: RecipeFormProp
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isPublic, setIsPublic] = useState<boolean>(recipe?.isPublic !== false);
 
   // 그라인더 관련 상태 추가
   const [selectedGrinderId, setSelectedGrinderId] = useState<string>(recipe?.grinderId || '');
   const [selectedGrinderSetting, setSelectedGrinderSetting] = useState<string>(recipe?.grinderSetting || '');
   const [brewingMethod, setBrewingMethod] = useState<string>(recipe?.method || '');
+  const [selectedEquipment, setSelectedEquipment] = useState<string>(recipe?.equipment || '');
+  const [otherEquipment, setOtherEquipment] = useState('');
 
   const handleAddStep = () => {
     setSteps([...steps, '']);
@@ -84,6 +159,16 @@ export default function RecipeForm({ recipe, isEditing = false }: RecipeFormProp
   // 브루잉 방식 변경 처리
   const handleBrewingMethodChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setBrewingMethod(e.target.value);
+    setSelectedEquipment('');
+  };
+
+  // 추출 기구 변경 핸들러
+  const handleEquipmentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedEquipment(e.target.value);
+    // 기타 옵션 선택 시 기존 equipment 값 초기화
+    if (!e.target.value.startsWith('other_')) {
+      setOtherEquipment('');
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -102,6 +187,20 @@ export default function RecipeForm({ recipe, isEditing = false }: RecipeFormProp
       if (selectedGrinderSetting) {
         formData.append('grinderSetting', selectedGrinderSetting);
       }
+
+      // 선택된 장비 정보 추가
+      if (selectedEquipment.startsWith('other_') && otherEquipment) {
+        formData.set('equipment', otherEquipment);
+      } else if (selectedEquipment) {
+        const methodEquipment = extractionEquipment[brewingMethod as keyof typeof extractionEquipment] || [];
+        const equipment = methodEquipment.find(item => item.id === selectedEquipment);
+        if (equipment) {
+          formData.set('equipment', equipment.name);
+        }
+      }
+
+      // 공개 설정 추가 (체크 해제 시에도 정확히 처리)
+      formData.set('isPublic', isPublic.toString());
 
       // 단계 정보 추가
       formData.set('stepsCount', steps.length.toString());
@@ -159,7 +258,7 @@ export default function RecipeForm({ recipe, isEditing = false }: RecipeFormProp
               id="title"
               name="title"
               defaultValue={recipe?.title || ''}
-              placeholder="예: 클래식 V60 핸드드립"
+              placeholder="예: 클래식 V60 푸어오버"
               className="w-full p-3 rounded-md border border-input bg-background"
               required
             />
@@ -177,7 +276,7 @@ export default function RecipeForm({ recipe, isEditing = false }: RecipeFormProp
               required
             >
               <option value="">추출 방식 선택</option>
-              <option value="핸드드립">핸드드립</option>
+              <option value="푸어오버">푸어오버</option>
               <option value="에스프레소">에스프레소</option>
               <option value="프렌치프레스">프렌치프레스</option>
               <option value="에어로프레스">에어로프레스</option>
@@ -234,16 +333,48 @@ export default function RecipeForm({ recipe, isEditing = false }: RecipeFormProp
           </div>
           <div>
             <label htmlFor="equipment" className="block text-sm font-medium mb-1">
-              필요 도구
+              추출 기구
             </label>
-            <input
-              type="text"
-              id="equipment"
-              name="equipment"
-              defaultValue={recipe?.equipment || ''}
-              placeholder="예: V60 드리퍼, 전용 필터, 서버, 핸드밀, 전자저울"
-              className="w-full p-3 rounded-md border border-input bg-background"
-            />
+            {brewingMethod ? (
+              <div className="space-y-2">
+                <select
+                  id="equipment"
+                  name="equipment_id"
+                  value={selectedEquipment}
+                  onChange={handleEquipmentChange}
+                  className="w-full p-3 rounded-md border border-input bg-background"
+                >
+                  <option value="">추출 기구 선택</option>
+                  {extractionEquipment[brewingMethod as keyof typeof extractionEquipment]?.map((equipment) => (
+                    <option key={equipment.id} value={equipment.id}>
+                      {equipment.name}
+                    </option>
+                  ))}
+                </select>
+
+                {selectedEquipment && (
+                  <p className="text-xs text-muted-foreground">
+                    {extractionEquipment[brewingMethod as keyof typeof extractionEquipment]?.find(
+                      (equipment) => equipment.id === selectedEquipment
+                    )?.description || ''}
+                  </p>
+                )}
+
+                {selectedEquipment.startsWith('other_') && (
+                  <input
+                    type="text"
+                    value={otherEquipment}
+                    onChange={(e) => setOtherEquipment(e.target.value)}
+                    placeholder="추출 기구를 직접 입력해주세요"
+                    className="w-full p-3 rounded-md border border-input bg-background mt-2"
+                  />
+                )}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground p-3 border border-dashed rounded-md">
+                먼저 추출 방식을 선택해주세요.
+              </p>
+            )}
           </div>
           <div>
             <label htmlFor="temperature" className="block text-sm font-medium mb-1">
@@ -380,6 +511,26 @@ export default function RecipeForm({ recipe, isEditing = false }: RecipeFormProp
           placeholder="맛을 극대화하기 위한 팁이나 조언을 적어주세요."
           className="w-full p-3 rounded-md border border-input bg-background resize-none"
         ></textarea>
+      </div>
+
+      {/* 공개 설정 */}
+      <div className="mt-6">
+        <div className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            id="isPublic"
+            name="isPublic"
+            checked={isPublic}
+            onChange={(e) => setIsPublic(e.target.checked)}
+            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+          />
+          <label htmlFor="isPublic" className="text-sm font-medium">
+            이 레시피를 다른 사용자와 공유합니다
+          </label>
+        </div>
+        <p className="mt-1 text-xs text-muted-foreground">
+          체크를 해제하면 나만 볼 수 있는 비공개 레시피로 저장됩니다. 언제든지 설정을 변경할 수 있습니다.
+        </p>
       </div>
 
       {/* 제출 버튼 */}

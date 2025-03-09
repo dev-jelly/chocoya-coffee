@@ -82,44 +82,45 @@ export default async function GrindersPage({
                     </p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {grinders.map((grinder) => (
-                        <Link key={grinder.id} href={`/grinders/${grinder.id}`} passHref>
-                            <div className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer bg-card h-full">
-                                {grinder.imageUrl && (
-                                    <div className="relative w-full h-48">
-                                        <Image
-                                            src={grinder.imageUrl}
-                                            alt={grinder.name}
-                                            fill
-                                            className="object-cover"
-                                        />
-                                    </div>
-                                )}
-                                <div className="p-4 md:p-6">
-                                    <h2 className="text-xl font-semibold mb-2 flex items-center">
-                                        {grinder.name}
-                                    </h2>
-                                    <p className="mb-2 text-primary font-medium">{grinder.brand}</p>
-
-                                    <div className="flex flex-col space-y-1 text-sm text-muted-foreground mb-4">
-                                        <span>종류: {grinderTypeNames[grinder.type]}</span>
-                                        {grinder.burr && <span>버: {grinder.burr}</span>}
-                                        {grinder.adjustmentType && <span>조절 방식: {adjustmentTypeNames[grinder.adjustmentType]}</span>}
-                                    </div>
-
-                                    {grinder.description && (
-                                        <p className="text-sm text-muted-foreground line-clamp-2">
-                                            {grinder.description}
-                                        </p>
-                                    )}
-
-                                    <div className="mt-4 text-xs text-muted-foreground">
-                                        <span className="inline-block bg-secondary rounded-full px-2 py-1 mr-2 mb-2">
-                                            설정 {grinder.settings.length}개
-                                        </span>
-                                    </div>
+                        <Link
+                            href={`/grinders/${grinder.id}`}
+                            key={grinder.id}
+                            className="bg-card border rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+                        >
+                            {grinder.imageUrl && (
+                                <div className="relative w-full h-48">
+                                    <Image
+                                        src={grinder.imageUrl}
+                                        alt={grinder.name_ko || grinder.name}
+                                        fill
+                                        className="object-contain p-6"
+                                    />
                                 </div>
+                            )}
+
+                            <div className="p-4">
+                                <h2 className="text-xl font-semibold mb-1">{grinder.name_ko || grinder.name}</h2>
+                                <p className="text-primary mb-2">{grinder.brand}</p>
+
+                                <div className="flex flex-wrap gap-2 mb-3">
+                                    <span className="text-xs bg-secondary/30 px-2 py-1 rounded-full">
+                                        {grinderTypeNames[grinder.type as keyof typeof grinderTypeNames]}
+                                    </span>
+                                    <span className="text-xs bg-secondary/30 px-2 py-1 rounded-full">
+                                        {adjustmentTypeNames[grinder.adjustmentType as keyof typeof adjustmentTypeNames]} 방식
+                                    </span>
+                                    {grinder.burr && (
+                                        <span className="text-xs bg-secondary/30 px-2 py-1 rounded-full">
+                                            {grinder.burr}
+                                        </span>
+                                    )}
+                                </div>
+
+                                <p className="text-sm text-muted-foreground line-clamp-2">
+                                    {grinder.description_ko || grinder.description}
+                                </p>
                             </div>
                         </Link>
                     ))}

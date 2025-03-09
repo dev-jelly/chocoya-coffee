@@ -14,10 +14,11 @@ export default async function RecipesPage({
 }: {
   searchParams?: Record<string, string | string[] | undefined>;
 }) {
-  // searchParams는 await 없이 직접 접근하지 않고 변수로 추출
-  const methodParam = searchParams?.method;
+  // searchParams 객체 복사하여 사용
+  const params = { ...searchParams };
+  const methodParam = params.method;
   const method = typeof methodParam === 'string' ? methodParam : undefined;
-  
+
   // 데이터베이스에서 레시피 가져오기
   const recipes = await getRecipes(method);
 
@@ -26,29 +27,29 @@ export default async function RecipesPage({
       <h1 className="text-2xl md:text-3xl font-bold mb-4 md:mb-6 flex items-center">
         <Coffee className="mr-2" /> 커피 브루잉 레시피
       </h1>
-      
+
       <div className="mb-6 md:mb-8">
         <p className="text-muted-foreground text-sm md:text-base">
           다양한 추출 방식으로 나만의 완벽한 커피를 만들어보세요. 각 레시피를 클릭하면 상세 가이드를 확인할 수 있습니다.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
-          <Link 
-            href="/brewing-guide" 
+          <Link
+            href="/brewing-guide"
             className="px-3 py-1.5 md:px-4 md:py-2 text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
           >
             브루잉 가이드
           </Link>
-          <Link 
-            href="/recipes/create" 
+          <Link
+            href="/recipes/create"
             className="px-3 py-1.5 md:px-4 md:py-2 text-sm bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/90 transition-colors"
           >
             내 레시피 공유하기
           </Link>
         </div>
       </div>
-      
+
       <RecipesNav />
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {recipes.length > 0 ? (
           recipes.map((recipe) => (

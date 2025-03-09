@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, X, Coffee, BookOpen, Droplet, FileText, Home, User, LogIn, CoffeeIcon } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
+import { Menu, X, Coffee, BookOpen, Droplet, FileText, Home, User, LogIn, Bean, Settings } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 interface MobileNavClientProps {
   isLoggedIn: boolean;
@@ -12,6 +13,10 @@ interface MobileNavClientProps {
 
 export function MobileNavClient({ isLoggedIn }: MobileNavClientProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const { data: session } = useSession();
+
+  // 관리자 이메일 체크 (환경 변수에서 가져오거나 기본값 사용)
+  const isAdmin = session?.user?.email === (process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@chocoya.coffee');
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -22,6 +27,7 @@ export function MobileNavClient({ isLoggedIn }: MobileNavClientProps) {
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="w-[280px] sm:w-[350px] p-0">
+        <SheetTitle className="sr-only">초코야 커피 메뉴</SheetTitle>
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between p-4 border-b">
             <Link
@@ -59,7 +65,7 @@ export function MobileNavClient({ isLoggedIn }: MobileNavClientProps) {
               className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent"
               onClick={() => setIsOpen(false)}
             >
-              <CoffeeIcon size={18} />
+              <Bean size={18} />
               <span>원두 라이브러리</span>
             </Link>
             <Link
@@ -92,8 +98,18 @@ export function MobileNavClient({ isLoggedIn }: MobileNavClientProps) {
                 className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent"
                 onClick={() => setIsOpen(false)}
               >
-                <CoffeeIcon size={18} />
+                <Bean size={18} />
                 <span>원두 등록</span>
+              </Link>
+            )}
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent"
+                onClick={() => setIsOpen(false)}
+              >
+                <Settings size={18} />
+                <span>관리자 대시보드</span>
               </Link>
             )}
           </nav>

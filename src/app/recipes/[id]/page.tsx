@@ -1,13 +1,14 @@
 import React from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Coffee, Clock, Droplet, Scale, ThumbsUp, User } from 'lucide-react';
-import { getRecipeById } from '@/lib/actions/recipe';
+import { ArrowLeft, Coffee, Clock, Droplet, Scale, ThumbsUp, User, Trash2, Lock, Pencil } from 'lucide-react';
+import { getRecipeById, deleteRecipe } from '@/lib/actions/recipe';
 import { notFound } from 'next/navigation';
 import { FavoriteButton } from '@/components/recipe/favorite-button';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/db';
 import { LikeButton } from '@/components/recipe/like-button';
+import { DeleteRecipeButton } from '@/components/recipe/delete-recipe-button';
 
 export default async function RecipeDetailPage({
   params,
@@ -73,6 +74,12 @@ export default async function RecipeDetailPage({
       <div className="bg-card border rounded-lg p-4 md:p-6 lg:p-8">
         <h1 className="text-2xl md:text-3xl font-bold mb-2 flex items-center">
           <Coffee className="mr-2" /> {recipe.title}
+          {!recipe.isPublic && (
+            <span className="ml-3 text-sm flex items-center px-2 py-1 bg-secondary/80 text-secondary-foreground rounded-full">
+              <Lock size={12} className="mr-1" />
+              비공개
+            </span>
+          )}
         </h1>
 
         <div className="flex flex-wrap gap-2 mb-4">
@@ -156,12 +163,23 @@ export default async function RecipeDetailPage({
           </div>
 
           {session?.user?.id === recipe.userId && (
-            <Link
-              href={`/recipes/${recipe.id}/edit`}
-              className="px-3 py-1.5 text-sm bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/90 transition-colors"
-            >
-              레시피 수정하기
-            </Link>
+            <div className="flex space-x-2">
+              <Link
+                href={`/recipes/${recipe.id}/edit`}
+                className="px-3 py-1.5 text-sm bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/90 transition-colors flex items-center"
+              >
+                <Pencil size={14} className="mr-1" />
+                레시피 수정하기
+              </Link>
+              <form action={async () => {
+                'use server';
+                if (session?.user?.id) {
+                  await deleteRecipe(recipe.id, session.user.id);
+                }
+              }}>
+                <DeleteRecipeButton recipeId={recipe.id} />
+              </form>
+            </div>
           )}
         </div>
       </div>

@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import {
   ArrowLeft, Bean, MapPin, Mountain, Building, Droplets,
-  Coffee, Calendar, Pencil, Trash2
+  Coffee, Pencil, Trash2
 } from 'lucide-react';
 import { getBeanById } from '@/lib/actions/bean';
 import { notFound } from 'next/navigation';
@@ -10,6 +10,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import DeleteBeanButton from '@/components/bean/delete-bean-button';
 import { getOriginNameById } from '@/data/origins';
+import { flavorLabels } from '@/data/flavor-labels';
 
 export default async function BeanDetailPage({
   params,
@@ -143,18 +144,6 @@ export default async function BeanDetailPage({
                   </div>
                 </div>
               )}
-
-              {bean.roastDate && (
-                <div className="flex items-start">
-                  <Calendar size={18} className="mr-2 mt-0.5 text-muted-foreground" />
-                  <div>
-                    <p className="font-medium">로스팅 날짜</p>
-                    <p className="text-muted-foreground">
-                      {new Date(bean.roastDate).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -163,6 +152,41 @@ export default async function BeanDetailPage({
           <div className="mb-8">
             <h2 className="text-xl font-semibold mb-4">설명</h2>
             <p className="text-muted-foreground whitespace-pre-line">{bean.description}</p>
+          </div>
+        )}
+
+        {/* 향미 노트 섹션 추가 */}
+        {(bean.flavorNotes || bean.flavorLabels) && (
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold mb-4">향미 프로필</h2>
+
+            {bean.flavorNotes && (
+              <p className="text-muted-foreground mb-4">{bean.flavorNotes}</p>
+            )}
+
+            {bean.flavorLabels && (
+              <div className="flex flex-wrap gap-2">
+                {bean.flavorLabels.split(',').map(labelId => {
+                  const label = flavorLabels.find(l => l.id === labelId);
+                  if (!label) return null;
+
+                  return (
+                    <span
+                      key={label.id}
+                      className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+                      style={{
+                        backgroundColor: `${label.color}20`,
+                        color: label.color,
+                        borderColor: label.color,
+                        borderWidth: '1px'
+                      }}
+                    >
+                      {label.name}
+                    </span>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 

@@ -7,6 +7,7 @@ import { redirect } from 'next/navigation';
 import { getFavoriteRecipesByUser } from '@/lib/actions/favorite';
 import { getRecipesByAuthor } from '@/lib/actions/recipe';
 import { prisma } from '@/lib/db';
+import { formatKoreanDate } from '@/lib/utils';
 
 export const metadata = {
   title: '내 프로필 | 초코야 커피',
@@ -34,8 +35,8 @@ export default async function ProfilePage() {
 
   // 가입일 포맷팅 (실제 createdAt 필드 사용)
   const memberSince = userDetails?.createdAt
-    ? new Date(userDetails.createdAt).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long' })
-    : '정보 없음';
+    ? `${formatKoreanDate(userDetails.createdAt, { showDay: false })}부터 회원`
+    : '';
 
   return (
     <div className="container mx-auto py-10">
@@ -66,7 +67,7 @@ export default async function ProfilePage() {
           </div>
 
           <p className="text-sm text-muted-foreground mb-4">
-            가입일: {memberSince}
+            {memberSince}
           </p>
 
           <div className="flex flex-col w-full gap-2 mt-2">
@@ -131,9 +132,9 @@ export default async function ProfilePage() {
                         <Coffee size={18} className="mr-2 text-primary" />
                         <span className="font-medium">{recipe.title}</span>
                       </div>
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(recipe.createdAt).toLocaleDateString('ko-KR')}
-                      </span>
+                      <div className="text-xs text-muted-foreground mt-2">
+                        {formatKoreanDate(recipe.createdAt)}
+                      </div>
                     </div>
                   </Link>
                 ))

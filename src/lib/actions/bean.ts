@@ -16,9 +16,12 @@ const beanSchema = z.object({
   variety: z.string().optional(),
   roastLevel: z.string().optional(),
   roaster: z.string().optional(),
-  roastDate: z.string().optional(),
   description: z.string().optional(),
   isPublic: z.boolean().default(true),
+  flavorNotes: z.string().optional(),
+  flavorLabels: z.string().optional(),
+  flavorColors: z.string().optional(),
+  primaryColor: z.string().optional(),
 });
 
 export type BeanFormState = {
@@ -32,9 +35,12 @@ export type BeanFormState = {
     variety?: string[];
     roastLevel?: string[];
     roaster?: string[];
-    roastDate?: string[];
     description?: string[];
     isPublic?: string[];
+    flavorNotes?: string[];
+    flavorLabels?: string[];
+    flavorColors?: string[];
+    primaryColor?: string[];
     _form?: string[];
   };
   message?: string | null;
@@ -57,9 +63,12 @@ export async function createBean(
     variety: formData.get('variety'),
     roastLevel: formData.get('roastLevel'),
     roaster: formData.get('roaster'),
-    roastDate: formData.get('roastDate'),
     description: formData.get('description'),
     isPublic: formData.get('isPublic') === 'true',
+    flavorNotes: formData.get('flavorNotes'),
+    flavorLabels: formData.get('flavorLabels'),
+    flavorColors: formData.get('flavorColors'),
+    primaryColor: formData.get('primaryColor'),
   });
 
   // 유효성 검사 실패 시
@@ -70,9 +79,10 @@ export async function createBean(
     };
   }
 
-  const { 
-    name, origin, region, farm, altitude, process, 
-    variety, roastLevel, roaster, roastDate, description, isPublic
+  const {
+    name, origin, region, farm, altitude, process,
+    variety, roastLevel, roaster, description, isPublic,
+    flavorNotes, flavorLabels, flavorColors, primaryColor
   } = validatedFields.data;
 
   try {
@@ -88,16 +98,19 @@ export async function createBean(
         variety,
         roastLevel,
         roaster,
-        roastDate: roastDate ? new Date(roastDate) : null,
         description,
         isPublic,
+        flavorNotes,
+        flavorLabels,
+        flavorColors,
+        primaryColor,
         userId,
       },
     });
 
     // 캐시 갱신
     revalidatePath('/beans');
-    
+
     return {
       message: '원두 정보가 성공적으로 등록되었습니다.',
     };
@@ -136,7 +149,7 @@ export async function getBeans(search?: string) {
         createdAt: 'desc',
       },
     });
-    
+
     return beans;
   } catch (error) {
     console.error('원두 목록 조회 오류:', error);
@@ -155,7 +168,7 @@ export async function getUserBeans(userId: string) {
         createdAt: 'desc',
       },
     });
-    
+
     return beans;
   } catch (error) {
     console.error('사용자 원두 목록 조회 오류:', error);
@@ -202,7 +215,7 @@ export async function getBeanById(id: string) {
         },
       },
     });
-    
+
     return bean;
   } catch (error) {
     console.error('원두 상세 조회 오류:', error);
@@ -228,9 +241,12 @@ export async function updateBean(
     variety: formData.get('variety'),
     roastLevel: formData.get('roastLevel'),
     roaster: formData.get('roaster'),
-    roastDate: formData.get('roastDate'),
     description: formData.get('description'),
     isPublic: formData.get('isPublic') === 'true',
+    flavorNotes: formData.get('flavorNotes'),
+    flavorLabels: formData.get('flavorLabels'),
+    flavorColors: formData.get('flavorColors'),
+    primaryColor: formData.get('primaryColor'),
   });
 
   // 유효성 검사 실패 시
@@ -255,9 +271,10 @@ export async function updateBean(
     };
   }
 
-  const { 
-    name, origin, region, farm, altitude, process, 
-    variety, roastLevel, roaster, roastDate, description, isPublic
+  const {
+    name, origin, region, farm, altitude, process,
+    variety, roastLevel, roaster, description, isPublic,
+    flavorNotes, flavorLabels, flavorColors, primaryColor
   } = validatedFields.data;
 
   try {
@@ -274,15 +291,18 @@ export async function updateBean(
         variety,
         roastLevel,
         roaster,
-        roastDate: roastDate ? new Date(roastDate) : null,
         description,
         isPublic,
+        flavorNotes,
+        flavorLabels,
+        flavorColors,
+        primaryColor,
       },
     });
 
     // 캐시 갱신
     revalidatePath(`/beans/${id}`);
-    
+
     return {
       message: '원두 정보가 성공적으로 수정되었습니다.',
     };
@@ -319,7 +339,7 @@ export async function deleteBean(id: string, userId: string) {
 
     // 캐시 갱신
     revalidatePath('/beans');
-    
+
     return {
       success: true,
       message: '원두 정보가 성공적으로 삭제되었습니다.',

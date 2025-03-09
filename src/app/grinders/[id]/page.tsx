@@ -1,22 +1,30 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Coffee, Settings } from 'lucide-react';
-import { getGrinderById } from '@/lib/actions/grinder';
+import { ArrowLeft, Coffee, Settings, Pencil, Trash2 } from 'lucide-react';
+import { getGrinderById, deleteGrinder } from '@/lib/actions/grinder';
 import { grinderTypeNames, adjustmentTypeNames } from '@/data/grinders';
 import { notFound } from 'next/navigation';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { DeleteGrinderButton } from '@/components/grinder/delete-grinder-button';
 
 export default async function GrinderDetailPage({
     params,
 }: {
     params: { id: string };
 }) {
+    // 세션에서 사용자 정보 가져오기
+    const session = await getServerSession(authOptions);
+
     // 그라인더 상세 정보 가져오기
     const grinder = await getGrinderById(params.id);
 
     if (!grinder) {
         notFound();
     }
+
+    const isOwner = session?.user?.id === grinder.userId;
 
     return (
         <div className="container px-4 md:px-6 py-6 md:py-10">
@@ -35,7 +43,7 @@ export default async function GrinderDetailPage({
                             <div className="relative w-full h-64 md:h-80">
                                 <Image
                                     src={grinder.imageUrl}
-                                    alt={grinder.name}
+                                    alt={grinder.name_ko || grinder.name}
                                     fill
                                     className="object-contain"
                                 />
@@ -47,45 +55,60 @@ export default async function GrinderDetailPage({
                     <div className={`p-4 md:p-6 ${grinder.imageUrl ? 'col-span-1 lg:col-span-2' : 'col-span-1 lg:col-span-3'}`}>
                         <h1 className="text-2xl md:text-3xl font-bold mb-2 flex items-center">
                             <Coffee className="mr-2" />
-                            {grinder.name}
+                            {grinder.name_ko || grinder.name}
+                            {grinder.name_ko && grinder.name_ko !== grinder.name && (
+                                <span className="text-muted-foreground text-sm ml-2">({grinder.name})</span>
+                            )}
                         </h1>
 
-                        <p className="text-xl text-primary font-medium mb-4">{grinder.brand}</p>
+                        <div className="flex justify-between items-center mb-4">
+                            <p className="text-xl text-primary font-medium">{grinder.brand}</p>
+
+                            {isOwner && (
+                                <div className="flex space-x-2">
+                                    <Link
+                                        href={`/grinders/${grinder.id}/edit`}
+                                        className="p-2 rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-colors"
+                                    >
+                                        <Pencil size={16} />
+                                    </Link>
+                                    <form action={async () => {
+                                        'use server';
+                                        await deleteGrinder(grinder.id);
+                                    }}>
+                                        <DeleteGrinderButton grinderId={grinder.id} />
+                                    </form>
+                                </div>
+                            )}
+                        </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                             <div>
-                                <h2 className="text-lg font-semibold mb-2">기본 정보</h2>
-                                <div className="space-y-2">
-                                    <div className="flex items-center">
-                                        <span className="w-32 font-medium">그라인더 유형</span>
-                                        <span>{grinderTypeNames[grinder.type]}</span>
-                                    </div>
-                                    {grinder.burr && (
-                                        <div className="flex items-center">
-                                            <span className="w-32 font-medium">버 종류</span>
-                                            <span>{grinder.burr}</span>
-                                        </div>
-                                    )}
-                                    {grinder.burrSize && (
-                                        <div className="flex items-center">
-                                            <span className="w-32 font-medium">버 크기</span>
-                                            <span>{grinder.burrSize}</span>
-                                        </div>
-                                    )}
-                                    <div className="flex items-center">
-                                        <span className="w-32 font-medium">조절 방식</span>
-                                        <span>{adjustmentTypeNames[grinder.adjustmentType]}</span>
-                                    </div>
-                                </div>
+                                <h3 className="text-sm font-semibold mb-1">브랜드</h3>
+                                <p>{grinder.brand}</p>
+                            </div>
+                            <div>
+                                <h3 className="text-sm font-semibold mb-1">타입</h3>
+                                <p>{grinderTypeNames[grinder.type as keyof typeof grinderTypeNames]}</p>
+                            </div>
+                            <div>
+                                <h3 className="text-sm font-semibold mb-1">버</h3>
+                                <p>{grinder.burr || '정보 없음'}</p>
+                            </div>
+                            <div>
+                                <h3 className="text-sm font-semibold mb-1">버 크기</h3>
+                                <p>{grinder.burrSize || '정보 없음'}</p>
+                            </div>
+                            <div>
+                                <h3 className="text-sm font-semibold mb-1">조절 방식</h3>
+                                <p>{adjustmentTypeNames[grinder.adjustmentType as keyof typeof adjustmentTypeNames]}</p>
                             </div>
                         </div>
 
-                        {grinder.description && (
-                            <div className="mb-6">
-                                <h2 className="text-lg font-semibold mb-2">제품 설명</h2>
-                                <p className="text-muted-foreground whitespace-pre-line">{grinder.description}</p>
-                            </div>
-                        )}
+                        <div className="mb-6">
+                            <h3 className="text-sm font-semibold mb-1">설명</h3>
+                            <p className="text-muted-foreground">{grinder.description_ko || grinder.description}</p>
+                        </div>
                     </div>
                 </div>
 
@@ -115,9 +138,9 @@ export default async function GrinderDetailPage({
                                         .map((setting) => (
                                             <tr key={setting.id} className="border-b border-secondary/20 hover:bg-secondary/10">
                                                 <td className="p-3 whitespace-nowrap">{setting.brewingMethod}</td>
-                                                <td className="p-3 whitespace-nowrap">{setting.name}</td>
+                                                <td className="p-3 whitespace-nowrap">{setting.name_ko || setting.name}</td>
                                                 <td className="p-3 whitespace-nowrap font-medium">{setting.value}</td>
-                                                <td className="p-3">{setting.description}</td>
+                                                <td className="p-3">{setting.description_ko || setting.description}</td>
                                             </tr>
                                         ))}
                                 </tbody>

@@ -6,6 +6,8 @@ import { useToast } from '@/components/ui/use-toast';
 import { createBean, updateBean } from '@/lib/actions/bean';
 import { Calendar } from 'lucide-react';
 import { getOrigins } from '@/data/origins';
+import { FlavorWheelSelector } from '@/components/taste-note/flavor-wheel-selector';
+import { flavorLabels } from '@/data/flavor-labels';
 
 interface BeanFormProps {
   userId: string;
@@ -17,6 +19,9 @@ export default function BeanForm({ userId, bean, isEditing = false }: BeanFormPr
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedLabelIds, setSelectedLabelIds] = useState<string[]>(
+    bean?.flavorLabels ? bean.flavorLabels.split(',').filter(Boolean) : []
+  );
 
   // 커피 원산지 목록 가져오기
   const origins = getOrigins();
@@ -31,7 +36,6 @@ export default function BeanForm({ userId, bean, isEditing = false }: BeanFormPr
     variety: bean?.variety || '',
     roastLevel: bean?.roastLevel || '',
     roaster: bean?.roaster || '',
-    roastDate: bean?.roastDate ? new Date(bean.roastDate).toISOString().split('T')[0] : '',
     description: bean?.description || '',
     isPublic: bean?.isPublic ?? true,
   });
@@ -58,6 +62,29 @@ export default function BeanForm({ userId, bean, isEditing = false }: BeanFormPr
           formDataObj.append(key, value.toString());
         }
       });
+
+      // 향미 노트 데이터 추가
+      if (selectedLabelIds.length > 0) {
+        // 선택된 레이블 ID 문자열
+        formDataObj.append('flavorLabels', selectedLabelIds.join(','));
+
+        // 선택된 향미의 색상 코드 추출
+        const selectedLabels = selectedLabelIds.map(id =>
+          flavorLabels.find(label => label.id === id)
+        ).filter(Boolean);
+
+        const flavorColors = selectedLabels.map(label => label?.color).join(',');
+        formDataObj.append('flavorColors', flavorColors);
+
+        // 첫 번째 색상을 대표 색상으로 설정
+        if (selectedLabels.length > 0 && selectedLabels[0]?.color) {
+          formDataObj.append('primaryColor', selectedLabels[0].color);
+        }
+
+        // 선택된 향미의 이름을 텍스트로 변환
+        const flavorNotes = selectedLabels.map(label => label?.name).join(', ');
+        formDataObj.append('flavorNotes', flavorNotes);
+      }
 
       // 서버 액션 호출
       const result = isEditing
@@ -183,15 +210,17 @@ export default function BeanForm({ userId, bean, isEditing = false }: BeanFormPr
 
           <div>
             <label htmlFor="altitude" className="block text-sm font-medium mb-1">
-              고도
+              고도 (m)
             </label>
             <input
-              type="text"
+              type="number"
               id="altitude"
               name="altitude"
               value={formData.altitude}
               onChange={handleInputChange}
-              placeholder="예: 1,900-2,200m"
+              placeholder="예: 1900"
+              min="0"
+              step="10"
               className="w-full p-3 rounded-md border border-input bg-background"
             />
           </div>
@@ -266,26 +295,18 @@ export default function BeanForm({ userId, bean, isEditing = false }: BeanFormPr
               className="w-full p-3 rounded-md border border-input bg-background"
             />
           </div>
-
-          <div>
-            <label htmlFor="roastDate" className="block text-sm font-medium mb-1">
-              로스팅 날짜
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Calendar size={16} className="text-muted-foreground" />
-              </div>
-              <input
-                type="date"
-                id="roastDate"
-                name="roastDate"
-                value={formData.roastDate}
-                onChange={handleInputChange}
-                className="w-full p-3 pl-10 rounded-md border border-input bg-background"
-              />
-            </div>
-          </div>
         </div>
+      </div>
+
+      {/* 향미 노트 섹션 추가 */}
+      <div>
+        <h2 className="text-xl font-semibold mb-4">향미 프로필</h2>
+        <p className="text-muted-foreground mb-4">이 원두가 가진 향미 노트를 선택해주세요. 여러 개 선택 가능합니다.</p>
+
+        <FlavorWheelSelector
+          selectedLabels={selectedLabelIds}
+          onChange={(labels) => setSelectedLabelIds(labels)}
+        />
       </div>
 
       {/* 설명 */}
@@ -297,7 +318,7 @@ export default function BeanForm({ userId, bean, isEditing = false }: BeanFormPr
           rows={5}
           value={formData.description}
           onChange={handleInputChange}
-          placeholder="원두에 대한 설명을 입력하세요. (맛, 향, 특징 등)"
+          placeholder="원두에 대한 설명이나 추가 정보를 입력하세요"
           className="w-full p-3 rounded-md border border-input bg-background resize-none"
         ></textarea>
       </div>

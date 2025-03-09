@@ -5,6 +5,7 @@ import { getBeans } from '@/lib/actions/bean';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { getOriginNameById } from '@/data/origins';
+import { formatKoreanDate } from '@/lib/utils';
 
 export const metadata = {
   title: '원두 라이브러리 | 초코야 커피',
@@ -19,8 +20,9 @@ export default async function BeansPage({
   // 세션에서 사용자 정보 가져오기
   const session = await getServerSession(authOptions);
 
-  // 검색어 가져오기
-  const search = searchParams?.search || '';
+  // 검색어 가져오기 - 객체 복사하여 사용
+  const params = { ...searchParams };
+  const search = params.search || '';
 
   // 원두 목록 가져오기
   const beans = await getBeans(search);
@@ -110,9 +112,9 @@ export default async function BeansPage({
 
                   <div className="mt-4 flex justify-between items-center text-xs text-muted-foreground">
                     <span>작성자: {bean.user?.name || '익명'}</span>
-                    <span>
-                      {new Date(bean.createdAt).toLocaleDateString()}
-                    </span>
+                    <div className="text-xs text-muted-foreground mt-2">
+                      {formatKoreanDate(bean.createdAt)}
+                    </div>
                   </div>
                 </div>
               </div>

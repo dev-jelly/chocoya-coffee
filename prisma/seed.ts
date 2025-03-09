@@ -1,14 +1,14 @@
-const { PrismaClient } = require('@prisma/client');
-const bcrypt = require('bcrypt');
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
 async function main() {
   // 관리자 계정 생성 (이미 존재하는 경우 업데이트)
   const adminEmail = 'admin@chocoya.coffee';
-  
+
   const hashedPassword = await bcrypt.hash('admin1234', 10);
-  
+
   const admin = await prisma.user.upsert({
     where: { email: adminEmail },
     update: {},
@@ -18,19 +18,19 @@ async function main() {
       password: hashedPassword,
     },
   });
-  
+
   console.log(`관리자 계정 생성 완료: ${admin.id}`);
-  
-  // 기본 핸드드립 레시피 추가
+
+  // 기본 푸어오버 레시피 추가
   const basicHandDripRecipe = await prisma.recipe.upsert({
     where: { id: 'basic-hand-drip-recipe' },
     update: {},
     create: {
       id: 'basic-hand-drip-recipe',
-      title: '기본 핸드드립 레시피',
-      description: '초보자도 쉽게 따라할 수 있는 기본 핸드드립 레시피입니다. 균형 잡힌 맛을 추출하는 것을 목표로 합니다.',
+      title: '기본 푸어오버 레시피',
+      description: '초보자도 쉽게 따라할 수 있는 기본 푸어오버 레시피입니다. 균형 잡힌 맛을 추출하는 것을 목표로 합니다.',
       isPublic: true,
-      brewingMethod: '핸드드립',
+      brewingMethod: '푸어오버',
       difficulty: '초급',
       preparationTime: '3~4분',
       beanAmount: '15g',
@@ -45,12 +45,12 @@ async function main() {
       userId: admin.id,
     },
   });
-  
+
   // 레시피 단계 추가
   await prisma.step.deleteMany({
     where: { recipeId: basicHandDripRecipe.id },
   });
-  
+
   const steps = [
     {
       recipeId: basicHandDripRecipe.id,
@@ -93,18 +93,18 @@ async function main() {
       waterAmount: '70ml',
     },
   ];
-  
+
   for (const step of steps) {
     await prisma.step.create({
       data: step,
     });
   }
-  
+
   // 브루잉 팁 추가
   await prisma.brewingTip.deleteMany({
     where: { recipeId: basicHandDripRecipe.id },
   });
-  
+
   const tips = [
     {
       recipeId: basicHandDripRecipe.id,
@@ -119,16 +119,17 @@ async function main() {
       content: '전체 추출 시간은 2분 30초에서 3분 사이가 이상적입니다.',
     },
   ];
-  
+
   for (const tip of tips) {
     await prisma.brewingTip.create({
       data: tip,
     });
   }
-  
-  console.log(`기본 핸드드립 레시피 생성 완료: ${basicHandDripRecipe.id}`);
+
+  console.log(`기본 푸어오버 레시피 생성 완료: ${basicHandDripRecipe.id}`);
 }
 
+// 모듈 형식으로 실행
 main()
   .catch((e) => {
     console.error(e);

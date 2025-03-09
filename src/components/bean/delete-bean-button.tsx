@@ -15,18 +15,18 @@ export default function DeleteBeanButton({ beanId, userId }: DeleteBeanButtonPro
   const router = useRouter();
   const { toast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
-  
+
   const handleDelete = async () => {
     // 삭제 확인
     const confirmed = window.confirm('정말로 이 원두 정보를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.');
-    
+
     if (!confirmed) return;
-    
+
     setIsDeleting(true);
-    
+
     try {
       const result = await deleteBean(beanId, userId);
-      
+
       if (result.success) {
         toast({
           title: '원두 정보 삭제 성공',
@@ -51,12 +51,12 @@ export default function DeleteBeanButton({ beanId, userId }: DeleteBeanButtonPro
       setIsDeleting(false);
     }
   };
-  
+
   return (
     <button
       onClick={handleDelete}
       disabled={isDeleting}
-      className="p-2 rounded-md bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors"
+      className="p-2 rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors"
       title="원두 정보 삭제"
     >
       <Trash2 size={16} />

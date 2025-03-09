@@ -304,7 +304,7 @@ export default function TasteNoteForm({ userId }: { userId: string }) {
               className="w-full p-3 rounded-md border border-input bg-background"
             >
               <option value="">추출 방식 선택</option>
-              <option value="핸드드립">핸드드립</option>
+              <option value="푸어오버">푸어오버</option>
               <option value="에스프레소">에스프레소</option>
               <option value="프렌치프레스">프렌치프레스</option>
               <option value="에어로프레스">에어로프레스</option>

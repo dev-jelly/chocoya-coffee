@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { CoffeeIcon } from "lucide-react";
+import { Bean } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
@@ -37,7 +37,7 @@ export function CreateBeanButton({
                         size={size}
                         className={`${className} cursor-pointer`}
                     >
-                        <CoffeeIcon className="mr-2 h-4 w-4" />
+                        <Bean className="mr-2 h-4 w-4" />
                         원두 등록
                     </Button>
                 </Link>
@@ -48,7 +48,7 @@ export function CreateBeanButton({
                     className={`${className} cursor-pointer`}
                     onClick={handleClick}
                 >
-                    <CoffeeIcon className="mr-2 h-4 w-4" />
+                    <Bean className="mr-2 h-4 w-4" />
                     원두 등록
                 </Button>
             )}

@@ -1,5 +1,6 @@
 "use client";
 
+import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +31,9 @@ export function UserNav({ user }: UserNavProps) {
       .join("")
     : user.email?.charAt(0) || "U";
 
+  // 관리자 이메일 체크 (환경 변수에서 가져오거나 기본값 사용)
+  const isAdmin = user.email === (process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@chocoya.coffee');
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -57,6 +61,11 @@ export function UserNav({ user }: UserNavProps) {
           <DropdownMenuItem asChild>
             <Link href="/recipes/my" className="cursor-pointer">내 레시피</Link>
           </DropdownMenuItem>
+          {isAdmin && (
+            <DropdownMenuItem asChild>
+              <Link href="/admin" className="cursor-pointer">관리자 대시보드</Link>
+            </DropdownMenuItem>
+          )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem

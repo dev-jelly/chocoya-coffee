@@ -1,6 +1,6 @@
-const { PrismaClient } = require('@prisma/client');
-const fs = require('fs');
-const path = require('path');
+import { PrismaClient } from '@prisma/client';
+import fs from 'fs';
+import path from 'path';
 
 const prisma = new PrismaClient();
 
@@ -11,7 +11,7 @@ const flavorLabels = flavorLabelsJson.flavorLabels;
 
 async function main() {
   console.log('맛 노트 레이블 시드 데이터 추가 시작...');
-  
+
   // 맛 노트 레이블 추가
   for (const label of flavorLabels) {
     await prisma.tasteNoteLabel.upsert({
@@ -27,7 +27,7 @@ async function main() {
       },
     });
   }
-  
+
   console.log(`${flavorLabels.length}개의 맛 노트 레이블이 추가되었습니다.`);
 }
 

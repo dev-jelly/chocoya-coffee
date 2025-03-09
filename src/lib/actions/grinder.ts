@@ -14,9 +14,11 @@ export async function getGrinders(search?: string) {
             whereClause = {
                 OR: [
                     { name: { contains: search, mode: 'insensitive' } },
+                    { name_ko: { contains: search, mode: 'insensitive' } },
                     { brand: { contains: search, mode: 'insensitive' } },
                     { type: { contains: search, mode: 'insensitive' } },
                     { description: { contains: search, mode: 'insensitive' } },
+                    { description_ko: { contains: search, mode: 'insensitive' } },
                 ],
             };
         }
@@ -176,23 +178,56 @@ export async function seedGrinders() {
                     data: {
                         id: grinderInfo.id,
                         name: grinderInfo.name,
+                        name_ko: grinderInfo.name_ko,
                         brand: grinderInfo.brand,
                         type: grinderInfo.type,
                         burr: grinderInfo.burr,
                         burrSize: grinderInfo.burrSize,
                         adjustmentType: grinderInfo.adjustmentType,
                         description: grinderInfo.description,
+                        description_ko: grinderInfo.description_ko,
                         imageUrl: grinderInfo.imageUrl,
                         settings: {
                             create: settings.map(setting => ({
                                 name: setting.name,
+                                name_ko: setting.name_ko,
                                 value: setting.value,
                                 brewingMethod: setting.brewingMethod,
                                 description: setting.description,
+                                description_ko: setting.description_ko,
                             })),
                         },
                     },
                 });
+            } else {
+                // 기존 그라인더 업데이트
+                await prisma.grinder.update({
+                    where: { id: existingGrinder.id },
+                    data: {
+                        name_ko: grinderInfo.name_ko,
+                        description_ko: grinderInfo.description_ko,
+                    },
+                });
+
+                // 그라인더 설정 업데이트
+                for (const setting of settings) {
+                    const existingSetting = await prisma.grinderSetting.findFirst({
+                        where: {
+                            grinderId: existingGrinder.id,
+                            name: setting.name,
+                        },
+                    });
+
+                    if (existingSetting) {
+                        await prisma.grinderSetting.update({
+                            where: { id: existingSetting.id },
+                            data: {
+                                name_ko: setting.name_ko,
+                                description_ko: setting.description_ko,
+                            },
+                        });
+                    }
+                }
             }
         }
 
@@ -200,5 +235,22 @@ export async function seedGrinders() {
     } catch (error) {
         console.error('Error seeding grinders:', error);
         return { success: false, error: '그라인더 데이터 추가 중 오류가 발생했습니다.' };
+    }
+}
+
+// 모든 그라인더 삭제
+export async function deleteAllGrinders() {
+    try {
+        // 먼저 모든 그라인더 설정 삭제
+        await prisma.grinderSetting.deleteMany({});
+
+        // 그 다음 모든 그라인더 삭제
+        await prisma.grinder.deleteMany({});
+
+        revalidatePath('/grinders');
+        return { success: true, message: '모든 그라인더 데이터가 삭제되었습니다.' };
+    } catch (error) {
+        console.error('Error deleting all grinders:', error);
+        return { success: false, error: '모든 그라인더 삭제 중 오류가 발생했습니다.' };
     }
 } 
