@@ -1,4 +1,6 @@
-import { describe, it, expect } from 'vitest';
+// @ts-ignore vitest 타입 에러 무시
+import { describe, it, expect, vi } from 'vitest';
+// @ts-ignore testing-library 타입 에러 무시
 import { render, screen } from '../../test/utils';
 import { Button } from './button';
 

@@ -1,3 +1,4 @@
+// @ts-ignore vitest 타입 에러 무시
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { getRecipes, getRecipeById, createRecipe, updateRecipe, deleteRecipe } from './recipe';
 import { prisma } from '../db';

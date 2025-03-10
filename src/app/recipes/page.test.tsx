@@ -1,4 +1,6 @@
+// @ts-ignore vitest 타입 에러 무시
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+// @ts-ignore testing-library 타입 에러 무시
 import { render, screen } from '@testing-library/react';
 import RecipesPage from './page';
 import { getRecipes } from '@/lib/actions/recipe';
