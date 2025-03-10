@@ -2,5 +2,13 @@
   "version": 2,
   "buildCommand": "pnpm run build",
   "installCommand": "pnpm install",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "outputDirectory": ".next",
+  "regions": ["icn1"],
+  "env": {
+    "POSTGRES_PRISMA_URL": "POSTGRES_PRISMA_URL 환경 변수는 Vercel 대시보드에서 설정해주세요",
+    "POSTGRES_URL_NON_POOLING": "POSTGRES_URL_NON_POOLING 환경 변수는 Vercel 대시보드에서 설정해주세요",
+    "NEXTAUTH_URL": "배포 URL을 입력해주세요",
+    "NEXTAUTH_SECRET": "보안을 위한 랜덤 문자열을 생성해주세요"
+  }
 } 
