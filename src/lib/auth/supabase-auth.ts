@@ -1,5 +1,5 @@
 import { supabase } from '../supabase';
-import type { User, Session } from '@supabase/supabase-js';
+import type { User, Session, Provider } from '@supabase/supabase-js';
 
 // 현재 사용자 정보 가져오기
 export async function getCurrentUser() {
@@ -36,7 +36,7 @@ export async function signInWithEmail(email: string, password: string) {
 }
 
 // OAuth 공급자로 로그인
-export async function signInWithOAuth(provider: 'google' | 'github') {
+export async function signInWithOAuth(provider: Provider) {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,
     options: {

@@ -100,7 +100,7 @@ export function RegisterForm() {
     }
   };
 
-  const handleOAuthSignUp = async (provider: 'github' | 'google') => {
+  const handleOAuthSignUp = async (provider: 'kakao' | 'google') => {
     setIsLoading(true);
     try {
       await signInWithOAuth(provider);
@@ -190,10 +190,11 @@ export function RegisterForm() {
           variant="outline" 
           type="button" 
           disabled={isLoading}
-          onClick={() => handleOAuthSignUp('github')}
+          onClick={() => handleOAuthSignUp('kakao')}
+          className="bg-[#FEE500] text-black hover:bg-[#FDD835] hover:text-black"
         >
-          <Icons.gitHub className="mr-2 h-4 w-4" />
-          GitHub
+          <Icons.kakao className="mr-2 h-4 w-4" />
+          카카오
         </Button>
         <Button 
           variant="outline" 

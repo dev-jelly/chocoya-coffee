@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { loginSchema } from "@/lib/validations/auth";
 import { signInWithEmail, signInWithOAuth } from "@/lib/auth/supabase-auth";
+import { Icons } from "@/components/ui/icons";
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
@@ -50,7 +51,7 @@ export function LoginForm() {
     }
   }
 
-  async function handleOAuthSignIn(provider: 'github' | 'google') {
+  async function handleOAuthSignIn(provider: 'kakao' | 'google') {
     setIsLoading(true);
 
     try {
@@ -113,9 +114,11 @@ export function LoginForm() {
           variant="outline"
           type="button"
           disabled={isLoading}
-          onClick={() => handleOAuthSignIn("github")}
+          onClick={() => handleOAuthSignIn("kakao")}
+          className="bg-[#FEE500] text-black hover:bg-[#FDD835] hover:text-black"
         >
-          GitHub
+          <Icons.kakao className="mr-2 h-4 w-4" />
+          카카오
         </Button>
         <Button
           variant="outline"
@@ -123,6 +126,7 @@ export function LoginForm() {
           disabled={isLoading}
           onClick={() => handleOAuthSignIn("google")}
         >
+          <Icons.google className="mr-2 h-4 w-4" />
           Google
         </Button>
       </div>
