@@ -16,21 +16,21 @@
 - **프론트엔드**: Next.js, React, TypeScript
 - **백엔드**: Next.js API Routes
 - **데이터베이스**: 
-  - 개발: SQLite
-  - 프로덕션: PostgreSQL
+  - 개발 및 프로덕션: Supabase (PostgreSQL)
 - **ORM**: Prisma
 - **인증**: NextAuth.js
 - **상태 관리**: Zustand
 - **데이터 검증**: Zod
 - **스타일링**: Tailwind CSS, shadcn/ui
 - **배포**: Vercel
+- **패키지 관리**: pnpm (npm 사용 금지)
 
 ## 시작하기
 
 ### 필수 조건
 
 - Node.js 18.0.0 이상
-- npm 또는 pnpm
+- pnpm (프로젝트 전체에서 pnpm만 사용해야 함)
 
 ### 설치
 
@@ -39,9 +39,7 @@
 git clone https://github.com/yourusername/chocoya-coffee.git
 cd chocoya-coffee
 
-# 의존성 설치
-npm install
-# 또는
+# 의존성 설치 (반드시 pnpm 사용)
 pnpm install
 
 # 환경 변수 설정
@@ -49,8 +47,6 @@ cp .env.example .env.local
 # .env.local 파일을 편집하여 필요한 환경 변수 설정
 
 # 개발 서버 실행
-npm run dev
-# 또는
 pnpm dev
 ```
 
