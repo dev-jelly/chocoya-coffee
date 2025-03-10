@@ -56,17 +56,45 @@ pnpm dev
 
 ### 데이터베이스 설정
 
-```bash
-# Prisma 마이그레이션 실행
-npx prisma migrate dev
-# 또는
-pnpm prisma migrate dev
+이 프로젝트는 Supabase PostgreSQL 데이터베이스를 사용합니다. 
 
-# 개발용 데이터 시드 (선택 사항)
-npx prisma db seed
-# 또는
-pnpm prisma db seed
-```
+#### 1. Supabase 설정 (프로덕션 또는 공유 개발 환경용)
+
+1. [Supabase](https://supabase.com)에 가입하고 새 프로젝트를 생성합니다.
+2. 대시보드에서 `Settings` > `Database` 메뉴로 이동하여 PostgreSQL 연결 정보를 확인합니다.
+3. `.env` 파일을 생성하고 다음 환경 변수를 설정합니다:
+   ```
+   DATABASE_URL=postgresql://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-REF].supabase.co:5432/postgres
+   NEXT_PUBLIC_SUPABASE_URL=https://[YOUR-PROJECT-REF].supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=[YOUR-ANON-KEY]
+   SUPABASE_SERVICE_ROLE_KEY=[YOUR-SERVICE-ROLE-KEY]
+   ```
+
+#### 2. 로컬 개발 환경 설정
+
+1. `.env` 파일에 다음 환경 변수를 설정합니다:
+   ```
+   DATABASE_URL=postgresql://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-REF].supabase.co:5432/postgres
+   NEXTAUTH_SECRET="랜덤_문자열"
+   NEXTAUTH_URL="http://localhost:3000"
+   ```
+
+2. 의존성 설치 및 Prisma 생성:
+   ```bash
+   pnpm install
+   npx prisma generate
+   ```
+
+3. 개발 서버 실행:
+   ```bash
+   pnpm dev
+   ```
+
+4. 데이터베이스 마이그레이션 및 시드:
+   ```bash
+   npx prisma migrate dev
+   npx prisma db seed
+   ```
 
 ## Prisma 마이그레이션 가이드
 

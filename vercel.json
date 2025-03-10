@@ -6,8 +6,9 @@
   "outputDirectory": ".next",
   "regions": ["icn1"],
   "env": {
-    "POSTGRES_PRISMA_URL": "POSTGRES_PRISMA_URL 환경 변수는 Vercel 대시보드에서 설정해주세요",
-    "POSTGRES_URL_NON_POOLING": "POSTGRES_URL_NON_POOLING 환경 변수는 Vercel 대시보드에서 설정해주세요",
+    "DATABASE_URL": "프로젝트 설정에서 DATABASE_URL 환경 변수를 설정해주세요",
+    "NEXT_PUBLIC_SUPABASE_URL": "Supabase 프로젝트 URL을 설정해주세요",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "Supabase 익명 키를 설정해주세요",
     "NEXTAUTH_URL": "배포 URL을 입력해주세요",
     "NEXTAUTH_SECRET": "보안을 위한 랜덤 문자열을 생성해주세요"
   }
