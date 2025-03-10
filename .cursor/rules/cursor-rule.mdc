@@ -5,7 +5,7 @@ alwaysApply: false
 ---
 ---
 description: 
-globs: **.tsx
+globs: **/*
 alwaysApply: false
 ---
 
@@ -47,5 +47,22 @@ Key Conventions
 - Favor server components and Next.js SSR.
 - Use only for Web API access in small components.
 - Avoid for data fetching or state management.
+
+Package Management and Database
+- Use pnpm exclusively for package management:
+  - Never use npm or yarn commands in this project
+  - Run scripts with `pnpm <script-name>` (e.g., `pnpm dev`, `pnpm test`)
+  - Install dependencies with `pnpm add <package-name>` or `pnpm add -D <package-name>` for dev dependencies
+  - Use pnpm workspaces for monorepo structure when needed
+  - Follow .npmrc configuration for consistent package management
+- Use Supabase for database (PostgreSQL) in both development and production:
+  - All database connections should go through Supabase client
+  - Use Prisma as ORM with Supabase PostgreSQL connection
+
+Testing Conventions
+- Write tests using Vitest and React Testing Library
+- Use mocks for external dependencies
+- Follow the AAA pattern (Arrange, Act, Assert)
+- Create tests alongside implementation files
 
 Follow Next.js docs for Data Fetching, Rendering, and Routing.

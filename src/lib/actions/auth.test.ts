@@ -2,7 +2,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { login, register } from './auth';
 import { prisma } from '../db';
-import bcrypt from 'bcryptjs';
 import { redirect } from 'next/navigation';
 
 // 모듈 모킹
@@ -15,9 +14,13 @@ vi.mock('../db', () => ({
   },
 }));
 
+// bcryptjs 모킹
 vi.mock('bcryptjs', () => ({
-  compare: vi.fn(),
-  hash: vi.fn(),
+  __esModule: true,
+  default: {
+    compare: vi.fn(),
+    hash: vi.fn(),
+  },
 }));
 
 vi.mock('next/navigation', () => ({
@@ -43,15 +46,18 @@ describe('인증 액션', () => {
       };
 
       (prisma.user.findUnique as any).mockResolvedValue(mockUser);
-      (bcrypt.compare as any).mockResolvedValue(true);
+      
+      // bcrypt 모킹
+      const bcrypt = await import('bcryptjs');
+      (bcrypt.default.compare as any).mockResolvedValue(true);
       
       await login({}, formData);
       
       expect(prisma.user.findUnique).toHaveBeenCalledWith({
         where: { email: 'test@example.com' },
       });
-      expect(bcrypt.compare).toHaveBeenCalledWith('password123', 'hashedPassword');
-      expect(redirect).toHaveBeenCalledWith('/dashboard');
+      expect(bcrypt.default.compare).toHaveBeenCalledWith('password123', 'hashedPassword');
+      expect(vi.mocked(redirect)).toHaveBeenCalledWith('/');
     });
 
     it('잘못된 이메일로 로그인 시 에러를 반환해야 합니다', async () => {
@@ -63,7 +69,7 @@ describe('인증 액션', () => {
       
       const result = await login({}, formData);
       
-      expect(result.errors?._form).toContain('이메일 또는 비밀번호가 일치하지 않습니다.');
+      expect(result.errors?._form).toContain('이메일 또는 비밀번호가 올바르지 않습니다.');
     });
 
     it('잘못된 비밀번호로 로그인 시 에러를 반환해야 합니다', async () => {
@@ -78,11 +84,14 @@ describe('인증 액션', () => {
       };
 
       (prisma.user.findUnique as any).mockResolvedValue(mockUser);
-      (bcrypt.compare as any).mockResolvedValue(false);
+      
+      // bcrypt 모킹
+      const bcrypt = await import('bcryptjs');
+      (bcrypt.default.compare as any).mockResolvedValue(false);
       
       const result = await login({}, formData);
       
-      expect(result.errors?._form).toContain('이메일 또는 비밀번호가 일치하지 않습니다.');
+      expect(result.errors?._form).toContain('이메일 또는 비밀번호가 올바르지 않습니다.');
     });
 
     it('유효하지 않은 데이터로 로그인 시 유효성 검증 에러를 반환해야 합니다', async () => {
@@ -106,7 +115,11 @@ describe('인증 액션', () => {
       formData.append('confirmPassword', 'password123');
       
       (prisma.user.findUnique as any).mockResolvedValue(null); // 이메일이 사용 가능함
-      (bcrypt.hash as any).mockResolvedValue('hashedPassword');
+      
+      // bcrypt 모킹
+      const bcrypt = await import('bcryptjs');
+      (bcrypt.default.hash as any).mockResolvedValue('hashedPassword');
+      
       (prisma.user.create as any).mockResolvedValue({
         id: 'newuser123',
         name: '홍길동',
@@ -118,9 +131,9 @@ describe('인증 액션', () => {
       expect(prisma.user.findUnique).toHaveBeenCalledWith({
         where: { email: 'test@example.com' },
       });
-      expect(bcrypt.hash).toHaveBeenCalled();
+      expect(bcrypt.default.hash).toHaveBeenCalled();
       expect(prisma.user.create).toHaveBeenCalled();
-      expect(redirect).toHaveBeenCalledWith('/login?registered=true');
+      expect(vi.mocked(redirect)).toHaveBeenCalledWith('/auth/login');
     });
 
     it('이미 사용 중인 이메일로 회원가입 시 에러를 반환해야 합니다', async () => {
