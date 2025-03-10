@@ -10,7 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Icons } from "@/components/ui/icons";
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
-import { api } from "@/lib/api-client";
+import { signUpWithEmail, signInWithOAuth } from "@/lib/auth/supabase-auth";
+import { prisma } from "@/lib/db";
 
 const registerSchema = z.object({
   name: z.string().min(2, {
@@ -47,20 +48,32 @@ export function RegisterForm() {
     setIsLoading(true);
 
     try {
-      const response = await api.post('/api/auth/register', values, {
-        showSuccessToast: false,
-        showErrorToast: true,
-        errorMessageOverride: {
-          409: '이미 등록된 이메일입니다. 다른 이메일을 사용하거나 로그인해 주세요.',
-          400: '입력한 정보가 유효하지 않습니다. 다시 확인해주세요.',
-          500: '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
-        },
-      });
+      // Supabase 회원가입
+      const { user } = await signUpWithEmail(values.email, values.password);
+      
+      if (user) {
+        // 사용자 프로필 정보 추가
+        // 참고: 사용자 메타데이터는 Supabase Auth에서 관리하지만
+        // Prisma 데이터베이스에도 사용자 정보를 저장합니다.
+        try {
+          await fetch('/api/users', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              id: user.id,
+              name: values.name,
+              email: values.email,
+            }),
+          });
+        } catch (error) {
+          console.error('사용자 프로필 저장 오류:', error);
+        }
 
-      if (response.success) {
         toast({
           title: "성공",
-          description: "회원가입이 완료되었습니다!",
+          description: "회원가입이 완료되었습니다! 이메일 인증을 확인해주세요.",
         });
         
         setTimeout(() => {
@@ -69,7 +82,36 @@ export function RegisterForm() {
       }
     } catch (error) {
       console.error('Register error:', error);
+      let errorMessage = '회원가입 중 오류가 발생했습니다.';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('email already exists')) {
+          errorMessage = '이미 등록된 이메일입니다. 다른 이메일을 사용하거나 로그인해 주세요.';
+        }
+      }
+      
+      toast({
+        title: "오류",
+        description: errorMessage,
+        variant: "destructive",
+      });
     } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleOAuthSignUp = async (provider: 'github' | 'google') => {
+    setIsLoading(true);
+    try {
+      await signInWithOAuth(provider);
+      // OAuth 인증은 리디렉션되므로 여기서 추가 작업이 필요 없습니다.
+    } catch (error) {
+      console.error(`${provider} 로그인 오류:`, error);
+      toast({
+        title: "오류",
+        description: `${provider} 로그인에 실패했습니다. 다시 시도해주세요.`,
+        variant: "destructive",
+      });
       setIsLoading(false);
     }
   };
@@ -144,11 +186,21 @@ export function RegisterForm() {
         </div>
       </div>
       <div className="grid grid-cols-2 gap-4">
-        <Button variant="outline" type="button" disabled={isLoading}>
+        <Button 
+          variant="outline" 
+          type="button" 
+          disabled={isLoading}
+          onClick={() => handleOAuthSignUp('github')}
+        >
           <Icons.gitHub className="mr-2 h-4 w-4" />
           GitHub
         </Button>
-        <Button variant="outline" type="button" disabled={isLoading}>
+        <Button 
+          variant="outline" 
+          type="button" 
+          disabled={isLoading}
+          onClick={() => handleOAuthSignUp('google')}
+        >
           <Icons.google className="mr-2 h-4 w-4" />
           Google
         </Button>

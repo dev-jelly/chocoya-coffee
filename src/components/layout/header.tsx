@@ -1,17 +1,58 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { UserNav } from "./user-nav";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { Coffee, BookOpen, Droplet, FileText, Home, Bean } from "lucide-react";
 import { MobileNavClient } from "./mobile-nav-client";
 import { CatCoffeeLogo } from "@/components/ui/cat-coffee-logo";
 import { CreateBeanButtonClient } from "@/components/bean/create-bean-button-client";
-import { CoffeeBeanIcon } from "@/components/ui/coffee-bean-icon";
+import { cookies } from 'next/headers';
+import { createServerClient } from '@supabase/ssr';
+import { prisma } from "@/lib/db";
 
 export async function Header() {
-  const session = await getServerSession(authOptions);
+  // 서버 컴포넌트에서 Supabase 클라이언트 생성
+  const cookieStore = cookies();
+  
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value;
+        },
+        set(name: string, value: string, options: any) {
+          cookieStore.set(name, value, options);
+        },
+        remove(name: string, options: any) {
+          cookieStore.set(name, '', { ...options, maxAge: 0 });
+        },
+      },
+    }
+  );
+
+  // 세션 확인
+  const { data: { session } } = await supabase.auth.getSession();
   const isLoggedIn = !!session;
+
+  // 사용자 정보 가져오기
+  let userProfile = null;
+  if (session?.user) {
+    userProfile = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { id: true, name: true, email: true, image: true }
+    });
+
+    // Prisma DB에 사용자 정보가 없다면 기본 정보 사용
+    if (!userProfile) {
+      userProfile = {
+        id: session.user.id,
+        name: session.user.user_metadata?.name || '사용자',
+        email: session.user.email,
+        image: session.user.user_metadata?.avatar_url
+      };
+    }
+  }
 
   return (
     <header className="border-b sticky top-0 bg-background z-10">
@@ -63,7 +104,7 @@ export async function Header() {
         </div>
 
         <div className="flex items-center gap-2 md:gap-4">
-          {session ? (
+          {isLoggedIn ? (
             <div className="flex gap-2 md:gap-4 items-center">
               <Button asChild variant="outline" size="sm" className="hidden md:flex">
                 <Link href="/recipes/create" className="flex items-center">
@@ -74,7 +115,7 @@ export async function Header() {
               <div className="hidden md:block">
                 <CreateBeanButtonClient variant="outline" size="sm" />
               </div>
-              <UserNav user={session.user} />
+              <UserNav user={userProfile} />
             </div>
           ) : (
             <div className="flex gap-2">

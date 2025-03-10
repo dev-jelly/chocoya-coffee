@@ -12,11 +12,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { LogoutButton } from "@/components/auth/logout-button";
 
 interface UserNavProps {
   user: {
+    id?: string;
     name?: string | null;
     email?: string | null;
     image?: string | null;
@@ -24,6 +26,7 @@ interface UserNavProps {
 }
 
 export function UserNav({ user }: UserNavProps) {
+  const router = useRouter();
   const initials = user.name
     ? user.name
       .split(" ")
@@ -47,7 +50,7 @@ export function UserNav({ user }: UserNavProps) {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user.name}</p>
+            <p className="text-sm font-medium leading-none">{user.name || '사용자'}</p>
             <p className="text-xs leading-none text-muted-foreground">
               {user.email}
             </p>
@@ -68,11 +71,10 @@ export function UserNav({ user }: UserNavProps) {
           )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onClick={() => signOut({ callbackUrl: "/" })}
-        >
-          로그아웃
+        <DropdownMenuItem asChild>
+          <LogoutButton variant="ghost" className="cursor-pointer w-full justify-start">
+            로그아웃
+          </LogoutButton>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

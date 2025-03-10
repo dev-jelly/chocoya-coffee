@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import Link from "next/link";
 import { loginSchema } from "@/lib/validations/auth";
+import { signInWithEmail, signInWithOAuth } from "@/lib/auth/supabase-auth";
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
@@ -37,21 +37,30 @@ export function LoginForm() {
   async function onSubmit(data: LoginFormValues) {
     setIsLoading(true);
 
-    const result = await signIn("credentials", {
-      email: data.email,
-      password: data.password,
-      redirect: false,
-    });
-
-    setIsLoading(false);
-
-    if (result?.error) {
-      return toast.error("로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.");
+    try {
+      await signInWithEmail(data.email, data.password);
+      router.push("/");
+      router.refresh();
+      toast.success("로그인되었습니다.");
+    } catch (error) {
+      console.error("로그인 오류:", error);
+      toast.error("로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.");
+    } finally {
+      setIsLoading(false);
     }
+  }
 
-    router.push("/");
-    router.refresh();
-    toast.success("로그인되었습니다.");
+  async function handleOAuthSignIn(provider: 'github' | 'google') {
+    setIsLoading(true);
+
+    try {
+      await signInWithOAuth(provider);
+      // OAuth 로그인은 리디렉션되므로 여기서는 추가 작업이 필요 없습니다.
+    } catch (error) {
+      console.error(`${provider} 로그인 오류:`, error);
+      toast.error(`${provider} 로그인에 실패했습니다. 다시 시도해주세요.`);
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -104,7 +113,7 @@ export function LoginForm() {
           variant="outline"
           type="button"
           disabled={isLoading}
-          onClick={() => signIn("github", { callbackUrl: "/" })}
+          onClick={() => handleOAuthSignIn("github")}
         >
           GitHub
         </Button>
@@ -112,7 +121,7 @@ export function LoginForm() {
           variant="outline"
           type="button"
           disabled={isLoading}
-          onClick={() => signIn("google", { callbackUrl: "/" })}
+          onClick={() => handleOAuthSignIn("google")}
         >
           Google
         </Button>
