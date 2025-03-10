@@ -6,10 +6,17 @@
   "outputDirectory": ".next",
   "regions": ["icn1"],
   "env": {
-    "DATABASE_URL": "프로젝트 설정에서 DATABASE_URL 환경 변수를 설정해주세요",
-    "NEXT_PUBLIC_SUPABASE_URL": "Supabase 프로젝트 URL을 설정해주세요",
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "Supabase 익명 키를 설정해주세요",
+    "DATABASE_URL": "Vercel 대시보드에서 설정하세요",
+    "NEXT_PUBLIC_SUPABASE_URL": "Vercel 대시보드에서 설정하세요",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "Vercel 대시보드에서 설정하세요",
+    "SUPABASE_SERVICE_ROLE_KEY": "Vercel 대시보드에서 설정하세요",
     "NEXTAUTH_URL": "배포 URL을 입력해주세요",
-    "NEXTAUTH_SECRET": "보안을 위한 랜덤 문자열을 생성해주세요"
+    "NEXTAUTH_SECRET": "보안을 위한 랜덤 문자열을 생성해주세요",
+    "POSTGRES_URL": "Vercel 대시보드에서 설정하세요",
+    "POSTGRES_PRISMA_URL": "Vercel 대시보드에서 설정하세요",
+    "POSTGRES_URL_NON_POOLING": "Vercel 대시보드에서 설정하세요",
+    "SUPABASE_URL": "Vercel 대시보드에서 설정하세요",
+    "SUPABASE_ANON_KEY": "Vercel 대시보드에서 설정하세요",
+    "SUPABASE_JWT_SECRET": "Vercel 대시보드에서 설정하세요"
   }
 } 
