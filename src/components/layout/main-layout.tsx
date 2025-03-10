@@ -19,7 +19,7 @@ export function MainLayout({ children }: MainLayoutProps) {
           </p>
           <div className="flex items-center gap-4">
             <Link
-              href="https://github.com/octol-ing/chocoya-coffee"
+              href="https://github.com/dev-jelly/chocoya-coffee"
               target="_blank"
               rel="noopener noreferrer"
               className="text-muted-foreground hover:text-foreground transition-colors"
