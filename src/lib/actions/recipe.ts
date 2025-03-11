@@ -275,7 +275,7 @@ export async function getRecipeById(id: string) {
   }
 }
 
-// 레시피 수정 액션
+// 레시피 업데이트 액션
 export async function updateRecipe(
   id: string,
   userId: string,
@@ -283,8 +283,8 @@ export async function updateRecipe(
   formData: FormData
 ): Promise<RecipeFormState> {
   // 현재 로그인한 사용자 확인
-  const session = await getAuthenticatedUserId();
-  if (!session) {
+  const actualUserId = await getAuthenticatedUserId();
+  if (!actualUserId) {
     return {
       errors: {
         _form: ['로그인이 필요합니다.'],
@@ -292,27 +292,23 @@ export async function updateRecipe(
     };
   }
 
-  // 실제 사용자 ID 사용
-  const actualUserId = session;
-
   // 레시피 존재 및 작성자 확인
-  const existingRecipe = await prisma.recipe.findUnique({
+  const recipe = await prisma.recipe.findUnique({
     where: { id },
-    select: { userId: true },
   });
 
-  if (!existingRecipe) {
+  if (!recipe) {
     return {
       errors: {
-        _form: ['해당 레시피를 찾을 수 없습니다.'],
+        _form: ['존재하지 않는 레시피입니다.'],
       },
     };
   }
 
-  if (existingRecipe.userId !== actualUserId) {
+  if (recipe.userId !== actualUserId) {
     return {
       errors: {
-        _form: ['이 레시피를 수정할 권한이 없습니다.'],
+        _form: ['본인이 작성한 레시피만 수정할 수 있습니다.'],
       },
     };
   }
@@ -321,17 +317,17 @@ export async function updateRecipe(
   const validatedFields = recipeSchema.safeParse({
     title: formData.get('title'),
     description: formData.get('description'),
-    brewingMethod: formData.get('method'), // 필드명 수정
+    brewingMethod: formData.get('method') || formData.get('brewingMethod'),
     difficulty: formData.get('difficulty'),
     preparationTime: formData.get('preparationTime'),
     beanAmount: formData.get('beanAmount'),
     waterAmount: formData.get('waterAmount'),
-    waterTemp: formData.get('waterTemp') || formData.get('temperature'), // 필드명 대체 가능성
+    waterTemp: formData.get('waterTemp') || formData.get('temperature'),
     grindSize: formData.get('grindSize'),
-    tools: formData.get('equipment'), // 필드명 수정
-    acidity: formData.get('acidity') || '',
-    sweetness: formData.get('sweetness') || '',
-    body: formData.get('body') || '',
+    tools: formData.get('equipment') || formData.get('tools'),
+    acidity: formData.get('acidity') || '중간',
+    sweetness: formData.get('sweetness') || '중간',
+    body: formData.get('body') || '중간',
     recommendedBeans: formData.get('recommendedBeans') || '',
     isPublic: formData.get('isPublic') === 'true',
     beanId: formData.get('beanId') || null,
@@ -347,45 +343,52 @@ export async function updateRecipe(
     };
   }
 
-  // 단계 포맷팅
-  let stepsText = '';
-  const stepsCount = parseInt(formData.get('stepsCount')?.toString() || '0', 10);
-
-  if (stepsCount > 0) {
-    const stepsArray = [];
-    for (let i = 0; i < stepsCount; i++) {
-      const step = formData.get(`step-${i}`)?.toString();
-      if (step?.trim()) {
-        stepsArray.push(step);
-      }
-    }
-    stepsText = stepsArray.join('\n');
-  }
+  const {
+    title, description, brewingMethod, difficulty, preparationTime,
+    beanAmount, waterAmount, waterTemp, grindSize, tools,
+    acidity, sweetness, body, recommendedBeans, isPublic, beanId,
+    grinderId, grinderSetting
+  } = validatedFields.data;
 
   try {
+    // 단계 포맷팅
+    let stepsText = '';
+    const stepsCount = parseInt(formData.get('stepsCount')?.toString() || '0', 10);
+
+    if (stepsCount > 0) {
+      const stepsArray = [];
+      for (let i = 0; i < stepsCount; i++) {
+        const step = formData.get(`step-${i}`)?.toString();
+        if (step?.trim()) {
+          stepsArray.push(step);
+        }
+      }
+      stepsText = stepsArray.join('\n');
+    }
+
     // DB에 레시피 업데이트
     await prisma.recipe.update({
       where: { id },
       data: {
-        title: validatedFields.data.title,
-        description: validatedFields.data.description || '',
-        brewingMethod: validatedFields.data.brewingMethod,
-        difficulty: validatedFields.data.difficulty || '',
-        preparationTime: validatedFields.data.preparationTime,
-        beanAmount: validatedFields.data.beanAmount,
-        waterAmount: validatedFields.data.waterAmount,
-        waterTemp: validatedFields.data.waterTemp || '',
-        grindSize: validatedFields.data.grindSize,
-        tools: validatedFields.data.tools || '',
-        acidity: validatedFields.data.acidity || '',
-        sweetness: validatedFields.data.sweetness || '',
-        body: validatedFields.data.body || '',
-        recommendedBeans: validatedFields.data.recommendedBeans || '',
+        title,
+        description,
+        brewingMethod,
+        difficulty,
+        preparationTime,
+        beanAmount,
+        waterAmount,
+        waterTemp,
+        grindSize,
+        tools,
+        acidity,
+        sweetness,
+        body,
+        recommendedBeans,
         steps: stepsText,
-        isPublic: validatedFields.data.isPublic,
-        grinderId: validatedFields.data.grinderId,
-        grinderSetting: validatedFields.data.grinderSetting,
-        beanId: validatedFields.data.beanId,
+        isPublic,
+        grinderId,
+        grinderSetting,
+        beanId: beanId || undefined,
       },
     });
 
@@ -394,7 +397,7 @@ export async function updateRecipe(
       where: { recipeId: id },
     });
 
-    // 재료 추가
+    // 새 재료 추가
     const ingredientsStr = formData.get('ingredients') as string;
     if (ingredientsStr) {
       const ingredients = ingredientsStr.split(',').map(item => item.trim());
@@ -409,12 +412,12 @@ export async function updateRecipe(
       }
     }
 
-    // 기존 브루잉 팁 삭제
+    // 기존 팁 삭제
     await prisma.brewingTip.deleteMany({
       where: { recipeId: id },
     });
 
-    // 브루잉 팁 추가
+    // 새 팁 추가
     const tipsStr = formData.get('brewingTips') as string;
     if (tipsStr) {
       const tips = tipsStr.split('\n').filter(tip => tip.trim() !== '');
@@ -430,17 +433,17 @@ export async function updateRecipe(
     }
 
     // 캐시 갱신
-    revalidatePath(`/recipes/${id}`);
     revalidatePath('/recipes');
+    revalidatePath(`/recipes/${id}`);
 
     return {
-      message: '레시피가 성공적으로 수정되었습니다.',
+      message: '레시피가 성공적으로 업데이트되었습니다.',
     };
   } catch (error) {
-    console.error('레시피 수정 오류:', error);
+    console.error('레시피 업데이트 오류:', error);
     return {
       errors: {
-        _form: ['레시피 수정 중 오류가 발생했습니다. 다시 시도해주세요.'],
+        _form: ['레시피 업데이트 중 오류가 발생했습니다. 다시 시도해주세요.'],
       },
     };
   }
@@ -449,37 +452,42 @@ export async function updateRecipe(
 // 레시피 삭제 액션
 export async function deleteRecipe(id: string, userId: string) {
   try {
-    // 레시피 소유자 확인
-    const recipe = await prisma.recipe.findUnique({
-      where: { id },
-      select: { userId: true },
-    });
-
-    if (!recipe || recipe.userId !== userId) {
-      return {
-        success: false,
-        message: '레시피를 삭제할 권한이 없습니다.',
-      };
+    // 현재 로그인한 사용자 확인
+    const actualUserId = await getAuthenticatedUserId();
+    if (!actualUserId) {
+      throw new Error('로그인이 필요합니다.');
     }
 
-    // 관련 데이터 삭제 (Prisma의 cascade 기능으로 자동 삭제됨)
-    await prisma.recipe.delete({
+    // 레시피 존재 및 작성자 확인
+    const recipe = await prisma.recipe.findUnique({
       where: { id },
     });
+
+    if (!recipe) {
+      throw new Error('존재하지 않는 레시피입니다.');
+    }
+
+    // 관리자 여부 확인 (관리자는 모든 레시피 삭제 가능)
+    const isAdmin = process.env.NEXT_PUBLIC_ADMIN_EMAIL === actualUserId;
+
+    if (recipe.userId !== actualUserId && !isAdmin) {
+      throw new Error('본인이 작성한 레시피만 삭제할 수 있습니다.');
+    }
+
+    // 연관된 데이터 삭제
+    await prisma.$transaction([
+      prisma.ingredient.deleteMany({ where: { recipeId: id } }),
+      prisma.brewingTip.deleteMany({ where: { recipeId: id } }),
+      prisma.recipe.delete({ where: { id } }),
+    ]);
 
     // 캐시 갱신
     revalidatePath('/recipes');
 
-    return {
-      success: true,
-      message: '레시피가 성공적으로 삭제되었습니다.',
-    };
+    return { success: true, message: '레시피가 성공적으로 삭제되었습니다.' };
   } catch (error) {
     console.error('레시피 삭제 오류:', error);
-    return {
-      success: false,
-      message: '레시피 삭제 중 오류가 발생했습니다. 다시 시도해주세요.',
-    };
+    return { success: false, message: '레시피 삭제 중 오류가 발생했습니다.' };
   }
 }
 
