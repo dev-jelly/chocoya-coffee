@@ -3,9 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
-import { auth } from '@/lib/auth';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { getAuthenticatedUserId } from '@/lib/auth/utils/server-auth';
 
 // 레시피 스키마 정의
 const recipeSchema = z.object({
@@ -60,17 +58,14 @@ export async function createRecipe(
   formData: FormData
 ): Promise<RecipeFormState> {
   // 현재 로그인한 사용자 확인
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
+  const actualUserId = await getAuthenticatedUserId();
+  if (!actualUserId) {
     return {
       errors: {
         _form: ['로그인이 필요합니다.'],
       },
     };
   }
-
-  // 실제 사용자 ID 사용
-  const actualUserId = session.user.id;
 
   // 폼 데이터 파싱
   const validatedFields = recipeSchema.safeParse({
@@ -288,8 +283,8 @@ export async function updateRecipe(
   formData: FormData
 ): Promise<RecipeFormState> {
   // 현재 로그인한 사용자 확인
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
+  const session = await getAuthenticatedUserId();
+  if (!session) {
     return {
       errors: {
         _form: ['로그인이 필요합니다.'],
@@ -298,7 +293,7 @@ export async function updateRecipe(
   }
 
   // 실제 사용자 ID 사용
-  const actualUserId = session.user.id;
+  const actualUserId = session;
 
   // 레시피 존재 및 작성자 확인
   const existingRecipe = await prisma.recipe.findUnique({

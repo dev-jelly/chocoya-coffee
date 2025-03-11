@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Coffee } from "lucide-react";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
+import { useAuth } from "@/lib/auth/AuthContext";
 import { toast } from "sonner";
 
 interface CreateBeanButtonProps {
@@ -17,10 +17,10 @@ export function CreateBeanButton({
     variant = "default",
     size = "default",
 }: CreateBeanButtonProps) {
-    const { data: session } = useSession();
+    const { user } = useAuth();
 
     const handleClick = () => {
-        if (!session) {
+        if (!user) {
             toast.error("로그인이 필요합니다", {
                 description: "원두 등록을 위해 먼저 로그인해주세요.",
             });
@@ -30,7 +30,7 @@ export function CreateBeanButton({
 
     return (
         <>
-            {session ? (
+            {user ? (
                 <Link href="/beans/create">
                     <Button
                         variant={variant}
