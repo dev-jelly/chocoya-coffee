@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
-import { Menu, X, Coffee, BookOpen, Droplet, FileText, Home, User, LogIn, Bean, Settings } from "lucide-react";
+import { Menu, X, Coffee, BookText, Droplet, FileText, Home, User, LogIn, Settings } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthContext";
 
 interface MobileNavClientProps {
@@ -65,7 +65,7 @@ export function MobileNavClient({ isLoggedIn }: MobileNavClientProps) {
               className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent"
               onClick={() => setIsOpen(false)}
             >
-              <Bean size={18} />
+              <Coffee size={18} />
               <span>원두 라이브러리</span>
             </Link>
             <Link
@@ -81,7 +81,7 @@ export function MobileNavClient({ isLoggedIn }: MobileNavClientProps) {
               className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent"
               onClick={() => setIsOpen(false)}
             >
-              <BookOpen size={18} />
+              <BookText size={18} />
               <span>맛 노트</span>
             </Link>
             <Link
@@ -98,7 +98,7 @@ export function MobileNavClient({ isLoggedIn }: MobileNavClientProps) {
                 className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent"
                 onClick={() => setIsOpen(false)}
               >
-                <Bean size={18} />
+                <Coffee size={18} />
                 <span>원두 등록</span>
               </Link>
             )}
