@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Menu, X, Coffee, BookOpen, Droplet, FileText, Home, User, LogIn, Bean, Settings } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { useAuth } from "@/lib/auth/AuthContext";
 
 interface MobileNavClientProps {
   isLoggedIn: boolean;
@@ -13,10 +13,10 @@ interface MobileNavClientProps {
 
 export function MobileNavClient({ isLoggedIn }: MobileNavClientProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const { data: session } = useSession();
+  const { user } = useAuth();
 
   // 관리자 이메일 체크 (환경 변수에서 가져오거나 기본값 사용)
-  const isAdmin = session?.user?.email === (process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@chocoya.coffee');
+  const isAdmin = user?.email === (process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@chocoya.coffee');
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
