@@ -1,0 +1,24 @@
+{
+  "version": 2,
+  "buildCommand": "pnpm install --no-frozen-lockfile && pnpm run build",
+  "installCommand": "pnpm install --no-frozen-lockfile",
+  "framework": "nextjs",
+  "outputDirectory": ".next",
+  "regions": ["icn1"],
+  "env": {
+    "DATABASE_URL": "prisma://aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres?api_key=csfPTRPVLiAWRojg&schema=chocoya_coffee",
+    "DIRECT_URL": "postgres://postgres.hapusdfstwgamfrbfjyr:csfPTRPVLiAWRojg@aws-0-ap-northeast-2.pooler.supabase.com:5432/postgres?schema=chocoya_coffee&sslmode=require",
+    "PRISMA_CLIENT_ENGINE_TYPE": "binary",
+    "NEXT_PUBLIC_SUPABASE_URL": "https://hapusdfstwgamfrbfjyr.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhcHVzZGZzdHdnYW1mcmJmanlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE2MjAwNDcsImV4cCI6MjA1NzE5NjA0N30.VQF7mQGa1dWMfL1Cg3R7-_lqRVjnCLYO4mhGJaopwy4",
+    "SUPABASE_SERVICE_ROLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhcHVzZGZzdHdnYW1mcmJmanlyIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MTYyMDA0NywiZXhwIjoyMDU3MTk2MDQ3fQ.9f_LdenNSBWYlp-6HpTw23puGeLyPYzV_VBUl-RKzrQ",
+    "NEXTAUTH_URL": "http://localhost:3000",
+    "NEXTAUTH_SECRET": "j8aslk23j4lk2j3lk4j2lk3j4lk2j34lkj2l3k4j2l3kj42lk3j4",
+    "POSTGRES_URL": "postgres://postgres.hapusdfstwgamfrbfjyr:csfPTRPVLiAWRojg@aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres?schema=chocoya_coffee&sslmode=require",
+    "POSTGRES_PRISMA_URL": "postgres://postgres.hapusdfstwgamfrbfjyr:csfPTRPVLiAWRojg@aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres?schema=chocoya_coffee&sslmode=require",
+    "POSTGRES_URL_NON_POOLING": "postgres://postgres.hapusdfstwgamfrbfjyr:csfPTRPVLiAWRojg@aws-0-ap-northeast-2.pooler.supabase.com:5432/postgres?schema=chocoya_coffee&sslmode=require",
+    "SUPABASE_URL": "https://hapusdfstwgamfrbfjyr.supabase.co",
+    "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhcHVzZGZzdHdnYW1mcmJmanlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE2MjAwNDcsImV4cCI6MjA1NzE5NjA0N30.VQF7mQGa1dWMfL1Cg3R7-_lqRVjnCLYO4mhGJaopwy4",
+    "SUPABASE_JWT_SECRET": "dTOCpd3QYPx/e+70TQhkX1LSZL/OhZyuU/l0cMdnmojsG4GKOeRgGHUDrm/7gjMtApG8To28aMyceZHPA68x5A=="
+  }
+} 
