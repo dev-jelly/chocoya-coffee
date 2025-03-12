@@ -1,8 +1,7 @@
 // 런타임에서 직접 환경 변수 설정하여 Data Proxy 사용 안함 강제
 process.env.PRISMA_CLIENT_ENGINE_TYPE = 'binary';
 
-// any를 사용하여 타입 오류 우회 (임시 조치)
-// @ts-ignore
+// @ts-ignore - 타입 오류 무시
 import { PrismaClient } from '@prisma/client';
 
 // 전역 변수 설정으로 핫 리로딩 시 여러 인스턴스 생성 방지
