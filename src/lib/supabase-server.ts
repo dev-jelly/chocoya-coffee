@@ -5,7 +5,7 @@ import { createServerClient } from '@supabase/ssr';
  * Next.js 15 이상에서 비동기 cookies API를 사용하기 위한 서버 클라이언트 생성 함수
  */
 export async function createClient() {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL || '',

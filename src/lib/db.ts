@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client/edge';
 
 // PrismaClient 인스턴스가 개발 환경에서 여러번 생성되는 것을 방지
 const globalForPrisma = global as unknown as {
