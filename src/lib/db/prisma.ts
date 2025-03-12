@@ -8,6 +8,12 @@ export const prisma =
   globalForPrisma.prisma ||
   new PrismaClient({
     log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
+    datasources: {
+      db: {
+        // Vercel에서 Data Proxy가 아닌 직접 연결을 강제하기 위해 DIRECT_URL을 우선 사용
+        url: process.env.DIRECT_URL || process.env.DATABASE_URL
+      }
+    }
   });
 
 // 개발 환경에서만 전역 변수에 할당
