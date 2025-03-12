@@ -4,6 +4,22 @@ import { Coffee, Clock, Droplet, Scale } from 'lucide-react';
 import { RecipesNav } from '@/components/layout/recipes-nav';
 import { getRecipes } from '@/lib/actions/recipe';
 
+// Recipe 타입 정의
+interface Recipe {
+  id: string;
+  title: string;
+  description: string | null;
+  preparationTime: string | null;
+  beanAmount: string | null;
+  waterAmount: string | null;
+  difficulty: string | null;
+  grindSize: string | null;
+  brewingMethod: string;
+  isPublic: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export const metadata = {
   title: '초코야 커피 - 브루잉 레시피',
   description: '다양한 커피 브루잉 레시피를 찾아보세요',
@@ -14,7 +30,7 @@ export default async function RecipesPage({
 }: {
   searchParams?: Record<string, string | string[] | undefined>;
 }) {
-  // searchParams는 이제 비동기 API이므로 직접 접근
+  // searchParams 직접 접근 (params 객체 제거)
   const methodParam = searchParams.method;
   const method = typeof methodParam === 'string' ? methodParam : undefined;
 
@@ -51,7 +67,7 @@ export default async function RecipesPage({
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {recipes.length > 0 ? (
-          recipes.map((recipe) => (
+          recipes.map((recipe: Recipe) => (
             <Link key={recipe.id} href={`/recipes/${recipe.id}`} passHref>
               <div className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer bg-card">
                 <div className="p-4 md:p-6">
