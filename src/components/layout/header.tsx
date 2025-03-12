@@ -12,25 +12,25 @@ export async function Header() {
   // 서버 컴포넌트에서 Supabase 클라이언트 생성 (Next.js 15 비동기 API 지원)
   const supabase = await createClient();
 
-  // 세션 확인
-  const { data: { session } } = await supabase.auth.getSession();
-  const isLoggedIn = !!session;
+  // 인증된 사용자 정보 가져오기 (권장되는 방식)
+  const { data: { user } } = await supabase.auth.getUser();
+  const isLoggedIn = !!user;
 
   // 사용자 정보 가져오기
   let userProfile = null;
-  if (session?.user) {
+  if (user) {
     userProfile = await prisma.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: user.id },
       select: { id: true, name: true, email: true, image: true }
     });
 
     // Prisma DB에 사용자 정보가 없다면 기본 정보 사용
     if (!userProfile) {
       userProfile = {
-        id: session.user.id,
-        name: session.user.user_metadata?.name || '사용자',
-        email: session.user.email,
-        image: session.user.user_metadata?.avatar_url
+        id: user.id,
+        name: user.user_metadata?.name || '사용자',
+        email: user.email,
+        image: user.user_metadata?.avatar_url
       };
     }
   }

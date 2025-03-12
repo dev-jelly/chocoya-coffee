@@ -3,13 +3,22 @@ import type { User, Session, Provider } from '@supabase/supabase-js';
 
 // 현재 사용자 정보 가져오기
 export async function getCurrentUser() {
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error) {
+    console.error('사용자 정보 가져오기 오류:', error);
+    return null;
+  }
   return user;
 }
 
-// 현재 세션 정보 가져오기
+// 현재 세션 정보 가져오기 - 주의: 보안상 권장되지 않음
+// 대신 getCurrentUser()를 사용하는 것이 권장됩니다
 export async function getCurrentSession() {
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session }, error } = await supabase.auth.getSession();
+  if (error) {
+    console.error('세션 정보 가져오기 오류:', error);
+    return null;
+  }
   return session;
 }
 
@@ -79,6 +88,8 @@ export async function signOut() {
 // 인증 상태 변경 리스너 설정
 export function onAuthStateChange(callback: (user: User | null) => void) {
   return supabase.auth.onAuthStateChange((event, session) => {
+    // 클라이언트 측 상태 변경은 UI 업데이트에만 사용하고,
+    // 중요한 인증 결정에는 getUser()를 다시 호출해야 합니다
     callback(session?.user || null);
   });
 }
@@ -112,8 +123,8 @@ export async function updateUserProfile(profile: { name?: string, avatar_url?: s
 
 // 세션 상태 확인하는 유틸리티 함수
 export async function isAuthenticated(): Promise<boolean> {
-  const session = await getCurrentSession();
-  return session !== null;
+  const user = await getCurrentUser();
+  return user !== null;
 }
 
 // 사용자 ID 가져오기

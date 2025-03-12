@@ -37,8 +37,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     // 인증 상태 변경 구독
-    const { data: authListener } = onAuthStateChange((user) => {
-      setUser(user);
+    const { data: authListener } = onAuthStateChange(async (userFromEvent) => {
+      // 상태 변경 이벤트 발생 시 UI 업데이트를 위해 일단 값 설정
+      setUser(userFromEvent);
+      
+      if (userFromEvent) {
+        // 중요: 추가 확인을 위해 권장되는 방식으로 사용자 정보 재확인
+        try {
+          const confirmedUser = await getCurrentUser();
+          // 인증된 사용자 정보로 업데이트
+          setUser(confirmedUser);
+        } catch (err) {
+          console.error('사용자 인증 확인 오류:', err);
+          setUser(null);
+          setError(err instanceof Error ? err : new Error('인증 확인 오류'));
+        }
+      }
+      
       setLoading(false);
     });
 

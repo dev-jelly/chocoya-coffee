@@ -73,14 +73,14 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // 사용자 세션 확인
-  const { data: { session } } = await supabase.auth.getSession();
+  // 사용자 인증 확인 (보안 권장사항에 따라 getUser() 사용)
+  const { data: { user } } = await supabase.auth.getUser();
   const pathname = request.nextUrl.pathname;
 
   // 보호된 경로에 인증되지 않은 사용자가 접근할 때
   if (
     protectedRoutes.some(route => pathname.startsWith(route)) &&
-    !session
+    !user
   ) {
     const redirectUrl = new URL('/auth/login', request.url);
     redirectUrl.searchParams.set('callbackUrl', pathname);
@@ -90,7 +90,7 @@ export async function middleware(request: NextRequest) {
   // 인증 경로에 이미 인증된 사용자가 접근할 때
   if (
     authRoutes.some(route => pathname.startsWith(route)) &&
-    session
+    user
   ) {
     return NextResponse.redirect(new URL('/', request.url));
   }
@@ -99,7 +99,7 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith('/admin')) {
     const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@chocoya.coffee';
     
-    if (!session || session.user.email !== adminEmail) {
+    if (!user || user.email !== adminEmail) {
       return NextResponse.redirect(new URL('/', request.url));
     }
   }

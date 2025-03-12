@@ -6,12 +6,12 @@ export async function POST(request: NextRequest) {
   try {
     const { id, name, email } = await request.json();
 
-    // Supabase 인증 확인
-    const { data: sessionData } = await supabase.auth.getSession();
-    const session = sessionData.session;
+    // Supabase 인증 확인 (보안 권장사항에 따라 getUser() 사용)
+    const { data: userData } = await supabase.auth.getUser();
+    const user = userData.user;
 
     // 인증된 사용자만 허용 또는 요청된 ID가 현재 사용자와 일치하는지 확인
-    if (!session || (session.user.id !== id)) {
+    if (!user || (user.id !== id)) {
       return NextResponse.json(
         { error: "인증되지 않은 요청입니다." },
         { status: 401 }
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Prisma DB에 사용자 정보 저장
-    const user = await prisma.user.create({
+    const userCreated = await prisma.user.create({
       data: {
         id,
         name,
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ success: true, user }, { status: 201 });
+    return NextResponse.json({ success: true, user: userCreated }, { status: 201 });
   } catch (error) {
     console.error("사용자 생성 오류:", error);
     
