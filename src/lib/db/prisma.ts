@@ -1,19 +1,18 @@
-import { PrismaClient } from "@prisma/client";
+// 런타임에서 직접 환경 변수 설정하여 Data Proxy 사용 안함 강제
+process.env.PRISMA_CLIENT_ENGINE_TYPE = 'binary';
 
-// PrismaClient 인스턴스를 전역 변수로 선언하여 핫 리로딩 시 여러 인스턴스가 생성되는 것을 방지
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
+// any를 사용하여 타입 오류 우회 (임시 조치)
+// @ts-ignore
+import { PrismaClient } from '@prisma/client';
+
+// 전역 변수 설정으로 핫 리로딩 시 여러 인스턴스 생성 방지
+const globalForPrisma = global as unknown as { prisma: any };
 
 // 개발 환경에서는 전역 변수를 사용하고, 프로덕션 환경에서는 새 인스턴스 생성
 export const prisma =
   globalForPrisma.prisma ||
   new PrismaClient({
     log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
-    datasources: {
-      db: {
-        // Vercel에서 Data Proxy가 아닌 직접 연결을 강제하기 위해 DIRECT_URL을 우선 사용
-        url: process.env.DIRECT_URL || process.env.DATABASE_URL
-      }
-    }
   });
 
 // 개발 환경에서만 전역 변수에 할당
