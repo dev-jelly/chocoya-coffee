@@ -1,44 +1,31 @@
-'use client';
-
-import { redirect } from 'next/navigation';
 import { AdminDashboard } from '@/components/admin/admin-dashboard';
-import { useAuth } from '@/lib/auth/AuthContext';
-import { useEffect, useState } from 'react';
-import { Skeleton } from '@/components/ui/skeleton';
 
 export default function AdminPage() {
-  const { user, loading } = useAuth();
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  useEffect(() => {
-    if (!loading) {
-      // 관리자 이메일 체크
-      const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@chocoya.coffee';
-      
-      if (!user || user.email !== adminEmail) {
-        redirect('/');
-      } else {
-        setIsAdmin(true);
-      }
-    }
-  }, [user, loading]);
-
-  if (loading) {
-    return (
-      <div className="container py-10">
-        <Skeleton className="h-10 w-1/4 mb-6" />
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <Skeleton className="h-40" />
-          <Skeleton className="h-40" />
-          <Skeleton className="h-40" />
+  return (
+    <div className="container py-10">
+      <h1 className="text-3xl font-bold mb-6">관리자 대시보드</h1>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {/* 그라인더 관리 */}
+        <div className="border rounded-lg p-4 hover:bg-accent/10 transition-colors">
+          <h2 className="text-xl font-semibold">그라인더 관리</h2>
+          <p className="text-sm mt-2">그라인더 및 분쇄도 설정 관리</p>
+          <a href="/admin/grinders" className="text-blue-500 mt-4 inline-block">관리하기 →</a>
+        </div>
+        
+        {/* 원두 관리 */}
+        <div className="border rounded-lg p-4 hover:bg-accent/10 transition-colors">
+          <h2 className="text-xl font-semibold">원두 관리</h2>
+          <p className="text-sm mt-2">원두 정보 및 로스팅 관리</p>
+          <a href="/admin/beans" className="text-blue-500 mt-4 inline-block">관리하기 →</a>
+        </div>
+        
+        {/* 제품 관리 */}
+        <div className="border rounded-lg p-4 hover:bg-accent/10 transition-colors">
+          <h2 className="text-xl font-semibold">제품 관리</h2>
+          <p className="text-sm mt-2">장비 및 제품 카탈로그 관리</p>
+          <a href="/admin/products" className="text-blue-500 mt-4 inline-block">관리하기 →</a>
         </div>
       </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return null; // 리다이렉트 처리 중
-  }
-
-  return <AdminDashboard />;
+    </div>
+  );
 } 
