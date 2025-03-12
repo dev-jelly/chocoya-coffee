@@ -39,13 +39,23 @@ export function LoginForm() {
     setIsLoading(true);
 
     try {
-      await signInWithEmail(data.email, data.password);
-      router.push("/");
-      router.refresh();
-      toast.success("로그인되었습니다.");
+      const result = await signInWithEmail(data.email, data.password);
+      
+      if (result.success) {
+        router.push("/");
+        router.refresh();
+        toast.success("로그인되었습니다.");
+      } else {
+        toast.error(result.error || "로그인에 실패했습니다.");
+        
+        if (result.error?.includes('이메일 또는 비밀번호가 올바르지 않습니다')) {
+          form.setError('email', { message: '이메일 또는 비밀번호를 확인해주세요' });
+          form.setError('password', { message: '이메일 또는 비밀번호를 확인해주세요' });
+        }
+      }
     } catch (error) {
       console.error("로그인 오류:", error);
-      toast.error("로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.");
+      toast.error("로그인 중 예상치 못한 오류가 발생했습니다. 다시 시도해주세요.");
     } finally {
       setIsLoading(false);
     }
@@ -57,17 +67,20 @@ export function LoginForm() {
     try {
       const result = await signInWithOAuth(provider);
       
-      // 리디렉션 URL이 있으면 사용자는 리디렉션됩니다.
-      // 이 함수는 리디렉션 후에는 실행되지 않습니다.
-      if (!result.url) {
-        toast.error(`${provider} 로그인 URL을 가져오는데 실패했습니다.`);
+      if (result.success && result.data) {
+        if (result.data.url) {
+          window.location.href = result.data.url;
+        } else {
+          toast.error(`${provider} 로그인 URL을 가져오는데 실패했습니다.`);
+          setIsLoading(false);
+        }
+      } else {
+        toast.error(result.error || `${provider} 로그인에 실패했습니다.`);
+        setIsLoading(false);
       }
-      
-      // 리디렉션 URL로 이동
-      window.location.href = result.url;
     } catch (error) {
       console.error(`${provider} 로그인 오류:`, error);
-      toast.error(`${provider} 로그인에 실패했습니다. 다시 시도해주세요.`);
+      toast.error(`${provider} 로그인 중 예상치 못한 오류가 발생했습니다. 다시 시도해주세요.`);
       setIsLoading(false);
     }
   }

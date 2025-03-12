@@ -31,8 +31,20 @@ export async function signInWithEmail(email: string, password: string) {
     password,
   });
   
-  if (error) throw error;
-  return data;
+  if (error) {
+    // 에러 코드별 세분화된 에러 메시지 리턴
+    if (error.message.includes('Invalid login credentials')) {
+      return { success: false, error: '이메일 또는 비밀번호가 올바르지 않습니다.' };
+    } else if (error.message.includes('Email not confirmed')) {
+      return { success: false, error: '이메일 인증이 완료되지 않았습니다. 메일함을 확인해주세요.' };
+    } else if (error.message.includes('rate limit')) {
+      return { success: false, error: '로그인 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.' };
+    } else {
+      return { success: false, error: '로그인 중 오류가 발생했습니다: ' + error.message };
+    }
+  }
+  
+  return { success: true, data };
 }
 
 // OAuth 공급자로 로그인
@@ -44,8 +56,18 @@ export async function signInWithOAuth(provider: Provider) {
     },
   });
   
-  if (error) throw error;
-  return data;
+  if (error) {
+    // OAuth 로그인 에러 메시지 세분화
+    if (error.message.includes('popup blocked')) {
+      return { success: false, error: '팝업이 차단되었습니다. 팝업 차단을 해제해주세요.' };
+    } else if (error.message.includes('canceled')) {
+      return { success: false, error: '로그인이 취소되었습니다.' };
+    } else {
+      return { success: false, error: `${provider} 로그인 중 오류가 발생했습니다: ` + error.message };
+    }
+  }
+  
+  return { success: true, data };
 }
 
 // 로그아웃
