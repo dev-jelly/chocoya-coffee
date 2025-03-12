@@ -5,31 +5,12 @@ import { Coffee, BookOpen, Droplet, FileText, Home, Bean } from "lucide-react";
 import { MobileNavClient } from "./mobile-nav-client";
 import { CatCoffeeLogo } from "@/components/ui/cat-coffee-logo";
 import { CreateBeanButtonClient } from "@/components/bean/create-bean-button-client";
-import { cookies } from 'next/headers';
-import { createServerClient } from '@supabase/ssr';
+import { createClient } from '@/lib/supabase-server';
 import { prisma } from "@/lib/db";
 
 export async function Header() {
-  // 서버 컴포넌트에서 Supabase 클라이언트 생성
-  const cookieStore = cookies();
-  
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-        set(name: string, value: string, options: any) {
-          cookieStore.set(name, value, options);
-        },
-        remove(name: string, options: any) {
-          cookieStore.set(name, '', { ...options, maxAge: 0 });
-        },
-      },
-    }
-  );
+  // 서버 컴포넌트에서 Supabase 클라이언트 생성 (Next.js 15 비동기 API 지원)
+  const supabase = await createClient();
 
   // 세션 확인
   const { data: { session } } = await supabase.auth.getSession();

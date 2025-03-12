@@ -1,10 +1,12 @@
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  schemas  = ["chocoya_coffee"]
 }
 
 model User {
@@ -27,6 +29,8 @@ model User {
   reports       Report[]
   sessions      Session[]
   tasteNotes    TasteNote[]
+
+  @@schema("chocoya_coffee")
 }
 
 model Account {
@@ -45,6 +49,7 @@ model Account {
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@schema("chocoya_coffee")
 }
 
 model Session {
@@ -53,6 +58,8 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@schema("chocoya_coffee")
 }
 
 model Recipe {
@@ -89,6 +96,8 @@ model Recipe {
   recipeLikes      RecipeLike[]
   steps            Step[]
   tasteNotes       TasteNote[]
+  
+  @@schema("chocoya_coffee")
 }
 
 model Ingredient {
@@ -97,6 +106,8 @@ model Ingredient {
   name     String
   amount   String?
   recipe   Recipe  @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  
+  @@schema("chocoya_coffee")
 }
 
 model Step {
@@ -107,6 +118,8 @@ model Step {
   time        String?
   waterAmount String?
   recipe      Recipe  @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  
+  @@schema("chocoya_coffee")
 }
 
 model BrewingTip {
@@ -114,6 +127,8 @@ model BrewingTip {
   recipeId String
   content  String
   recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  
+  @@schema("chocoya_coffee")
 }
 
 model Bean {
@@ -140,6 +155,8 @@ model Bean {
   user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   recipes      Recipe[]
   tasteNotes   TasteNote[]
+  
+  @@schema("chocoya_coffee")
 }
 
 model TasteNote {
@@ -175,6 +192,8 @@ model TasteNote {
   user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   bean          Bean?            @relation(fields: [beanId], references: [id])
   labels        TasteNoteLabel[] @relation("TasteNoteToTasteNoteLabel")
+  
+  @@schema("chocoya_coffee")
 }
 
 model TasteNoteLabel {
@@ -184,6 +203,8 @@ model TasteNoteLabel {
   description String?
   createdAt   DateTime    @default(now())
   tasteNotes  TasteNote[] @relation("TasteNoteToTasteNoteLabel")
+  
+  @@schema("chocoya_coffee")
 }
 
 model Comment {
@@ -196,6 +217,8 @@ model Comment {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   reports   Report[]
+  
+  @@schema("chocoya_coffee")
 }
 
 model Like {
@@ -207,6 +230,7 @@ model Like {
   recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
 
   @@unique([recipeId, userId])
+  @@schema("chocoya_coffee")
 }
 
 model Favorite {
@@ -218,6 +242,7 @@ model Favorite {
   recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
 
   @@unique([recipeId, userId])
+  @@schema("chocoya_coffee")
 }
 
 model Report {
@@ -228,6 +253,8 @@ model Report {
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  
+  @@schema("chocoya_coffee")
 }
 
 model VerificationToken {
@@ -236,6 +263,7 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+  @@schema("chocoya_coffee")
 }
 
 model RecipeLike {
@@ -246,6 +274,7 @@ model RecipeLike {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, recipeId])
+  @@schema("chocoya_coffee")
 }
 
 model Grinder {
@@ -264,6 +293,8 @@ model Grinder {
   name_ko        String?
   settings       GrinderSetting[]
   recipes        Recipe[]
+  
+  @@schema("chocoya_coffee")
 }
 
 model GrinderSetting {
@@ -278,4 +309,6 @@ model GrinderSetting {
   description_ko String?
   name_ko        String?
   grinder        Grinder  @relation(fields: [grinderId], references: [id], onDelete: Cascade)
+  
+  @@schema("chocoya_coffee")
 }

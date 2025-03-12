@@ -14,9 +14,8 @@ export default async function RecipesPage({
 }: {
   searchParams?: Record<string, string | string[] | undefined>;
 }) {
-  // searchParams 객체 복사하여 사용
-  const params = { ...searchParams };
-  const methodParam = params.method;
+  // searchParams는 이제 비동기 API이므로 직접 접근
+  const methodParam = searchParams.method;
   const method = typeof methodParam === 'string' ? methodParam : undefined;
 
   // 데이터베이스에서 레시피 가져오기

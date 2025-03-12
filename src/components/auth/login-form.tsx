@@ -55,8 +55,16 @@ export function LoginForm() {
     setIsLoading(true);
 
     try {
-      await signInWithOAuth(provider);
-      // OAuth 로그인은 리디렉션되므로 여기서는 추가 작업이 필요 없습니다.
+      const result = await signInWithOAuth(provider);
+      
+      // 리디렉션 URL이 있으면 사용자는 리디렉션됩니다.
+      // 이 함수는 리디렉션 후에는 실행되지 않습니다.
+      if (!result.url) {
+        toast.error(`${provider} 로그인 URL을 가져오는데 실패했습니다.`);
+      }
+      
+      // 리디렉션 URL로 이동
+      window.location.href = result.url;
     } catch (error) {
       console.error(`${provider} 로그인 오류:`, error);
       toast.error(`${provider} 로그인에 실패했습니다. 다시 시도해주세요.`);
