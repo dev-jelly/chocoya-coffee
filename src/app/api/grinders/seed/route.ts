@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { seedGrinders, deleteAllGrinders } from '@/lib/actions/grinder';
 import { prisma } from '@/lib/db';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 
 export async function GET(request: NextRequest) {
     try {
@@ -10,9 +10,26 @@ export async function GET(request: NextRequest) {
         const skipAuth = process.env.NEXT_PUBLIC_SKIP_AUTH === 'true' || process.env.NODE_ENV === 'development';
 
         if (!skipAuth) {
-            // 관리자 권한 확인 (실제 운영 환경에서는 더 강력한 검증 필요)
-            const session = await getServerSession(authOptions);
-            if (!session?.user?.email) {
+            // Supabase 클라이언트 생성
+            const cookieStore = cookies();
+            const supabase = createServerClient(
+                process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+                {
+                    cookies: {
+                        get(name: string) {
+                            return cookieStore.get(name)?.value;
+                        },
+                        set() {},
+                        remove() {},
+                    },
+                }
+            );
+            
+            // 사용자 정보 가져오기
+            const { data: { user } } = await supabase.auth.getUser();
+            
+            if (!user?.email) {
                 return NextResponse.json(
                     { error: '인증이 필요합니다.' },
                     { status: 401 }
@@ -22,7 +39,7 @@ export async function GET(request: NextRequest) {
             // 관리자 이메일 확인 (실제 구현 시 관리자 역할이 있는지 확인)
             // 여기서는 간단히 처리
             const adminEmail = process.env.ADMIN_EMAIL || 'admin@example.com';
-            if (session.user.email !== adminEmail) {
+            if (user.email !== adminEmail) {
                 return NextResponse.json(
                     { error: '관리자 권한이 필요합니다.' },
                     { status: 403 }

@@ -1,11 +1,10 @@
 import React from 'react';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
 import ProfileEditForm from '@/components/auth/profile-edit-form';
+import { createClient } from '@/lib/supabase-server';
 
 export const metadata = {
   title: '프로필 수정 | 초코야 커피',
@@ -13,16 +12,17 @@ export const metadata = {
 };
 
 export default async function EditProfilePage() {
-  // 로그인 확인
-  const session = await getServerSession(authOptions);
+  // Supabase 인증 확인
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  if (!session || !session.user) {
+  if (!user) {
     redirect('/auth/signin');
   }
 
   // 사용자 정보 가져오기
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
+  const dbUser = await prisma.user.findUnique({
+    where: { id: user.id },
     select: {
       id: true,
       name: true,
@@ -32,7 +32,7 @@ export default async function EditProfilePage() {
     }
   });
 
-  if (!user) {
+  if (!dbUser) {
     redirect('/auth/signin');
   }
 
@@ -46,7 +46,7 @@ export default async function EditProfilePage() {
       <div className="bg-card p-6 rounded-lg shadow-md max-w-2xl mx-auto">
         <h1 className="text-2xl font-bold mb-6">프로필 수정</h1>
 
-        <ProfileEditForm user={user} />
+        <ProfileEditForm user={dbUser} />
       </div>
     </div>
   );

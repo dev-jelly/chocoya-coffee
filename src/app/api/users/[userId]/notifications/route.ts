@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { createClient } from '@/lib/supabase-server';
 
 // 알림 설정 가져오기
 export async function GET(
@@ -9,16 +8,18 @@ export async function GET(
     { params }: { params: { userId: string } }
 ) {
     try {
-        // 세션 확인
-        const session = await getServerSession(authOptions);
-        if (!session?.user?.id) {
+        // Supabase 클라이언트 생성 및 사용자 정보 가져오기
+        const supabase = await createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user?.id) {
             return NextResponse.json({ error: '인증이 필요합니다' }, { status: 401 });
         }
 
         const userId = params.userId;
 
         // 요청한 사용자가 본인인지 확인
-        if (session.user.id !== userId) {
+        if (user.id !== userId) {
             return NextResponse.json({ error: '권한이 없습니다' }, { status: 403 });
         }
 
@@ -62,16 +63,18 @@ export async function POST(
     { params }: { params: { userId: string } }
 ) {
     try {
-        // 세션 확인
-        const session = await getServerSession(authOptions);
-        if (!session?.user?.id) {
+        // Supabase 클라이언트 생성 및 사용자 정보 가져오기
+        const supabase = await createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user?.id) {
             return NextResponse.json({ error: '인증이 필요합니다' }, { status: 401 });
         }
 
         const userId = params.userId;
 
         // 요청한 사용자가 본인인지 확인
-        if (session.user.id !== userId) {
+        if (user.id !== userId) {
             return NextResponse.json({ error: '권한이 없습니다' }, { status: 403 });
         }
 

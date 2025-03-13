@@ -1,11 +1,10 @@
 import React from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Bean } from 'lucide-react';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { redirect, notFound } from 'next/navigation';
 import BeanForm from '@/components/bean/bean-form';
 import { getBeanById } from '@/lib/actions/bean';
+import { createClient } from '@/lib/supabase-server';
 
 export const metadata = {
   title: '원두 정보 수정 | 초코야 커피',
@@ -17,10 +16,11 @@ export default async function EditBeanPage({
 }: {
   params: { id: string };
 }) {
-  // 세션에서 사용자 정보 가져오기
-  const session = await getServerSession(authOptions);
+  // Supabase 인증 확인
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
   
-  if (!session?.user?.id) {
+  if (!user?.id) {
     redirect(`/auth/login?callbackUrl=/beans/${params.id}/edit`);
   }
   
@@ -32,7 +32,7 @@ export default async function EditBeanPage({
   }
   
   // 작성자 확인
-  if (bean.userId !== session.user.id) {
+  if (bean.userId !== user.id) {
     redirect(`/beans/${params.id}`);
   }
   
@@ -52,7 +52,7 @@ export default async function EditBeanPage({
         </div>
         
         <div className="bg-card p-6 rounded-lg shadow-md mb-6">
-          <BeanForm userId={session.user.id} bean={bean} isEditing={true} />
+          <BeanForm userId={user.id} bean={bean} isEditing={true} />
         </div>
       </div>
     </div>

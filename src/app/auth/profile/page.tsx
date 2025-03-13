@@ -1,13 +1,12 @@
 import React from 'react';
 import Link from 'next/link';
 import { ArrowLeft, User, Settings, Coffee, Heart, History, Mail, Edit } from 'lucide-react';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { redirect } from 'next/navigation';
 import { getFavoriteRecipesByUser } from '@/lib/actions/favorite';
 import { getRecipesByAuthor } from '@/lib/actions/recipe';
 import { prisma } from '@/lib/db';
 import { formatKoreanDate } from '@/lib/utils';
+import { createClient } from '@/lib/supabase-server';
 
 export const metadata = {
   title: '내 프로필 | 초코야 커피',
@@ -15,22 +14,33 @@ export const metadata = {
 };
 
 export default async function ProfilePage() {
-  const session = await getServerSession(authOptions);
+  // Supabase 인증 확인
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  if (!session || !session.user) {
+  if (!user) {
     redirect('/auth/signin');
   }
 
   // 사용자 상세 정보 가져오기 (createdAt 포함)
   const userDetails = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { createdAt: true }
+    where: { id: user.id },
+    select: { 
+      createdAt: true,
+      name: true,
+      email: true,
+      image: true
+    }
   });
+
+  if (!userDetails) {
+    redirect('/auth/signin');
+  }
 
   // 사용자 관련 데이터 가져오기
   const [favoriteRecipes, createdRecipes] = await Promise.all([
-    getFavoriteRecipesByUser(session.user.id),
-    getRecipesByAuthor(session.user.id)
+    getFavoriteRecipesByUser(user.id),
+    getRecipesByAuthor(user.id)
   ]);
 
   // 가입일 포맷팅 (실제 createdAt 필드 사용)
@@ -49,10 +59,10 @@ export default async function ProfilePage() {
         {/* 프로필 카드 */}
         <div className="bg-card p-6 rounded-lg shadow-md flex flex-col items-center">
           <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center mb-4 overflow-hidden">
-            {session.user.image ? (
+            {userDetails.image ? (
               <img
-                src={session.user.image}
-                alt={session.user.name || '프로필 이미지'}
+                src={userDetails.image}
+                alt={userDetails.name || '프로필 이미지'}
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -60,10 +70,10 @@ export default async function ProfilePage() {
             )}
           </div>
 
-          <h1 className="text-2xl font-bold mb-1">{session.user.name || '이름 없음'}</h1>
+          <h1 className="text-2xl font-bold mb-1">{userDetails.name || '이름 없음'}</h1>
           <div className="flex items-center text-muted-foreground mb-4">
             <Mail size={14} className="mr-1" />
-            <span>{session.user.email}</span>
+            <span>{userDetails.email}</span>
           </div>
 
           <p className="text-sm text-muted-foreground mb-4">

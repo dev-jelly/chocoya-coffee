@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { createClient } from '@/lib/supabase-server';
 
 // 좋아요 토글 API
 export async function POST(
@@ -9,9 +8,11 @@ export async function POST(
     { params }: { params: Promise<{ recipeId: string }> | { recipeId: string } }
 ) {
     try {
-        const session = await getServerSession(authOptions);
+        // Supabase 클라이언트 생성 및 사용자 정보 가져오기
+        const supabase = await createClient();
+        const { data: { user } } = await supabase.auth.getUser();
 
-        if (!session?.user?.id) {
+        if (!user?.id) {
             return NextResponse.json(
                 { error: '인증이 필요합니다.' },
                 { status: 401 }
@@ -21,7 +22,7 @@ export async function POST(
         // params를 await 처리
         const resolvedParams = params instanceof Promise ? await params : params;
         const recipeId = resolvedParams.recipeId;
-        const userId = session.user.id;
+        const userId = user.id;
 
         // 레시피가 존재하는지 확인
         const recipe = await prisma.recipe.findUnique({
@@ -87,16 +88,18 @@ export async function GET(
     { params }: { params: Promise<{ recipeId: string }> | { recipeId: string } }
 ) {
     try {
-        const session = await getServerSession(authOptions);
+        // Supabase 클라이언트 생성 및 사용자 정보 가져오기
+        const supabase = await createClient();
+        const { data: { user } } = await supabase.auth.getUser();
 
-        if (!session?.user?.id) {
+        if (!user?.id) {
             return NextResponse.json({ isLiked: false });
         }
 
         // params를 await 처리
         const resolvedParams = params instanceof Promise ? await params : params;
         const recipeId = resolvedParams.recipeId;
-        const userId = session.user.id;
+        const userId = user.id;
 
         // 좋아요 여부 확인
         const like = await prisma.recipeLike.findUnique({

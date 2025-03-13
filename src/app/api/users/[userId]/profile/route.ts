@@ -1,23 +1,24 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { createClient } from '@/lib/supabase-server';
 
 export async function PUT(
     request: Request,
     { params }: { params: { userId: string } }
 ) {
     try {
-        // 세션 확인
-        const session = await getServerSession(authOptions);
-        if (!session?.user?.id) {
+        // Supabase 클라이언트 생성 및 사용자 정보 가져오기
+        const supabase = await createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user?.id) {
             return NextResponse.json({ error: '인증이 필요합니다' }, { status: 401 });
         }
 
         const userId = params.userId;
 
         // 요청한 사용자가 본인인지 확인
-        if (session.user.id !== userId) {
+        if (user.id !== userId) {
             return NextResponse.json({ error: '권한이 없습니다' }, { status: 403 });
         }
 
@@ -76,6 +77,19 @@ export async function PUT(
                 ...(imageUrl && { image: imageUrl }),
             },
         });
+        
+        // Supabase 사용자 정보도 업데이트
+        if (email !== user.email || name) {
+            const updateData: any = {};
+            if (email !== user.email) updateData.email = email;
+            if (name) updateData.user_metadata = { ...user.user_metadata, full_name: name };
+            
+            const { error } = await supabase.auth.updateUser(updateData);
+            if (error) {
+                console.error('Supabase 사용자 정보 업데이트 오류:', error);
+                // DB 업데이트는 성공했으므로 오류를 반환하지 않고 계속 진행
+            }
+        }
 
         return NextResponse.json({
             message: '프로필이 성공적으로 업데이트되었습니다',
@@ -101,16 +115,18 @@ export async function GET(
     { params }: { params: { userId: string } }
 ) {
     try {
-        // 세션 확인
-        const session = await getServerSession(authOptions);
-        if (!session?.user?.id) {
+        // Supabase 클라이언트 생성 및 사용자 정보 가져오기
+        const supabase = await createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user?.id) {
             return NextResponse.json({ error: '인증이 필요합니다' }, { status: 401 });
         }
 
         const userId = params.userId;
 
         // 사용자 정보 가져오기
-        const user = await prisma.user.findUnique({
+        const dbUser = await prisma.user.findUnique({
             where: { id: userId },
             select: {
                 id: true,
@@ -122,7 +138,7 @@ export async function GET(
             },
         });
 
-        if (!user) {
+        if (!dbUser) {
             return NextResponse.json(
                 { error: '사용자를 찾을 수 없습니다' },
                 { status: 404 }
@@ -130,12 +146,12 @@ export async function GET(
         }
 
         // 요청한 사용자가 본인이거나 관리자인지 확인
-        if (session.user.id !== userId) {
+        if (user.id !== userId) {
             // 여기서는 간단하게 처리하지만, 실제로는 관리자 권한 확인 로직이 필요합니다
             return NextResponse.json({ error: '권한이 없습니다' }, { status: 403 });
         }
 
-        return NextResponse.json({ user });
+        return NextResponse.json({ user: dbUser });
     } catch (error) {
         console.error('프로필 조회 오류:', error);
         return NextResponse.json(
