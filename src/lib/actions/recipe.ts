@@ -195,50 +195,48 @@ export async function createRecipe(
 // 레시피 목록 조회 액션
 export async function getRecipes(method?: string) {
   try {
-    let recipes;
+    let whereClause = {
+      isPublic: true,
+    };
 
     if (method) {
-      recipes = await prisma.recipe.findMany({
-        where: {
-          brewingMethod: method,
-          isPublic: true,
-        },
-        include: {
-          ingredients: true,
-          steps: {
-            orderBy: {
-              order: 'asc',
-            },
-          },
-          brewingTips: true,
-        },
-        orderBy: {
-          createdAt: 'desc',
-        },
-      });
-    } else {
-      recipes = await prisma.recipe.findMany({
-        where: {
-          isPublic: true,
-        },
-        include: {
-          ingredients: true,
-          steps: {
-            orderBy: {
-              order: 'asc',
-            },
-          },
-          brewingTips: true,
-        },
-        orderBy: {
-          createdAt: 'desc',
-        },
-      });
+      whereClause = {
+        ...whereClause,
+        brewingMethod: method,
+      };
     }
+
+    // 쿼리 최적화: 필요한 필드만 선택하고 관계 데이터는 제외
+    const recipes = await prisma.recipe.findMany({
+      where: whereClause,
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        preparationTime: true,
+        beanAmount: true,
+        waterAmount: true,
+        difficulty: true,
+        grindSize: true,
+        brewingMethod: true,
+        isPublic: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
 
     return recipes;
   } catch (error) {
     console.error('레시피 조회 오류:', error);
+    // 오류 메시지 개선
+    if (error instanceof Error) {
+      if (error.message.includes('P5010') || error.message.includes('fetch failed')) {
+        throw new Error('데이터베이스 연결에 실패했습니다. 네트워크 연결을 확인하거나 잠시 후 다시 시도해주세요.');
+      }
+    }
     throw new Error('레시피를 불러오는 중 오류가 발생했습니다.');
   }
 }

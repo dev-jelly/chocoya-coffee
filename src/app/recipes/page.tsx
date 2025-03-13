@@ -1,8 +1,13 @@
 import React from 'react';
 import Link from 'next/link';
-import { Coffee, Clock, Droplet, Scale } from 'lucide-react';
+import { Coffee, Clock, Droplet, Scale, AlertCircle, RefreshCw } from 'lucide-react';
 import { RecipesNav } from '@/components/layout/recipes-nav';
 import { getRecipes } from '@/lib/actions/recipe';
+import { checkDatabaseConnection } from '@/lib/db';
+
+// 동적 렌더링 설정
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 // Recipe 타입 정의
 interface Recipe {
@@ -34,8 +39,24 @@ export default async function RecipesPage({
   const methodParam = searchParams.method;
   const method = typeof methodParam === 'string' ? methodParam : undefined;
 
-  // 데이터베이스에서 레시피 가져오기
-  const recipes = await getRecipes(method);
+  // 데이터베이스 연결 확인
+  const dbConnection = await checkDatabaseConnection();
+  
+  // 데이터베이스에서 레시피 가져오기 (오류 처리 추가)
+  let recipes: Recipe[] = [];
+  let error = null;
+  
+  if (dbConnection.connected) {
+    try {
+      recipes = await getRecipes(method);
+    } catch (err) {
+      console.error('레시피 조회 오류:', err);
+      error = '레시피를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+    }
+  } else {
+    error = '데이터베이스 연결에 실패했습니다. 네트워크 연결을 확인하거나 잠시 후 다시 시도해주세요.';
+    console.error('데이터베이스 연결 오류:', dbConnection.error);
+  }
 
   return (
     <div className="container px-4 md:px-6 py-6 md:py-10">
@@ -65,38 +86,56 @@ export default async function RecipesPage({
 
       <RecipesNav />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-        {recipes.length > 0 ? (
-          recipes.map((recipe: Recipe) => (
-            <Link key={recipe.id} href={`/recipes/${recipe.id}`} passHref>
-              <div className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer bg-card">
-                <div className="p-4 md:p-6">
-                  <h2 className="text-lg md:text-xl font-semibold mb-2">{recipe.title}</h2>
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full flex items-center">
-                      <Clock size={12} className="mr-1" /> {recipe.preparationTime || '시간 정보 없음'}
-                    </span>
-                    <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full flex items-center">
-                      <Scale size={12} className="mr-1" /> {recipe.beanAmount || '원두량 정보 없음'}
-                    </span>
-                    <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full flex items-center">
-                      <Droplet size={12} className="mr-1" /> {recipe.waterAmount || '물 정보 없음'}
-                    </span>
-                  </div>
-                  <p className="text-muted-foreground text-sm">{recipe.description || '설명 없음'}</p>
-                  <div className="mt-4 text-xs text-muted-foreground">
-                    난이도: {recipe.difficulty || '정보 없음'} • 분쇄도: {recipe.grindSize || '정보 없음'}
+      {error ? (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 flex items-start">
+          <AlertCircle className="text-red-500 mr-2 mt-0.5 flex-shrink-0" size={18} />
+          <div className="flex-1">
+            <p className="text-red-700 font-medium">데이터베이스 연결 오류</p>
+            <p className="text-red-600 text-sm mt-1">{error}</p>
+            <div className="mt-3">
+              <Link
+                href="/recipes"
+                className="inline-flex items-center text-sm text-red-700 hover:text-red-800"
+              >
+                <RefreshCw size={14} className="mr-1" /> 새로고침
+              </Link>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          {recipes.length > 0 ? (
+            recipes.map((recipe: Recipe) => (
+              <Link key={recipe.id} href={`/recipes/${recipe.id}`} passHref>
+                <div className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer bg-card">
+                  <div className="p-4 md:p-6">
+                    <h2 className="text-lg md:text-xl font-semibold mb-2">{recipe.title}</h2>
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full flex items-center">
+                        <Clock size={12} className="mr-1" /> {recipe.preparationTime || '시간 정보 없음'}
+                      </span>
+                      <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full flex items-center">
+                        <Scale size={12} className="mr-1" /> {recipe.beanAmount || '원두량 정보 없음'}
+                      </span>
+                      <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full flex items-center">
+                        <Droplet size={12} className="mr-1" /> {recipe.waterAmount || '물 정보 없음'}
+                      </span>
+                    </div>
+                    <p className="text-muted-foreground text-sm">{recipe.description || '설명 없음'}</p>
+                    <div className="mt-4 text-xs text-muted-foreground">
+                      난이도: {recipe.difficulty || '정보 없음'} • 분쇄도: {recipe.grindSize || '정보 없음'}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Link>
-          ))
-        ) : (
-          <div className="col-span-full text-center py-10">
-            <p className="text-muted-foreground">해당 조건에 맞는 레시피가 없습니다.</p>
-          </div>
-        )}
-      </div>
+              </Link>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-10">
+              <p className="text-muted-foreground">해당 조건에 맞는 레시피가 없습니다.</p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 } 
