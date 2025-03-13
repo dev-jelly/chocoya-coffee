@@ -6,8 +6,7 @@ import {
 } from 'lucide-react';
 import { getBeanById } from '@/lib/actions/bean';
 import { notFound } from 'next/navigation';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { createClient } from '@/lib/supabase-server';
 import DeleteBeanButton from '@/components/bean/delete-bean-button';
 import { getOriginNameById } from '@/data/origins';
 import { flavorLabels } from '@/data/flavor-labels';
@@ -24,9 +23,11 @@ export default async function BeanDetailPage({
     notFound();
   }
 
-  // 세션에서 사용자 정보 가져오기
-  const session = await getServerSession(authOptions);
-  const isOwner = session?.user?.id === bean.userId;
+  // Supabase 클라이언트 생성 및 사용자 정보 가져오기
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  const isOwner = user?.id === bean.userId;
 
   return (
     <div className="container px-4 md:px-6 py-6 md:py-10">
@@ -43,7 +44,7 @@ export default async function BeanDetailPage({
             <Bean className="mr-2" /> {bean.name}
           </h1>
 
-          {isOwner && (
+          {isOwner && user?.id && (
             <div className="flex space-x-2">
               <Link
                 href={`/beans/${bean.id}/edit`}
@@ -51,7 +52,7 @@ export default async function BeanDetailPage({
               >
                 <Pencil size={16} />
               </Link>
-              <DeleteBeanButton beanId={bean.id} userId={session.user.id} />
+              <DeleteBeanButton beanId={bean.id} userId={user.id} />
             </div>
           )}
         </div>

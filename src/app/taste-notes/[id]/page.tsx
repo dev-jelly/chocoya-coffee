@@ -3,8 +3,7 @@ import Link from 'next/link';
 import { ArrowLeft, Coffee, BookOpen, Pencil, Trash2 } from 'lucide-react';
 import { getTasteNoteById, deleteTasteNote } from '@/lib/actions/taste-note';
 import { notFound } from 'next/navigation';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { createClient } from '@/lib/supabase-server';
 import { DeleteTasteNoteButton } from '@/components/taste-note/delete-taste-note-button';
 
 export default async function TasteNoteDetailPage({
@@ -12,15 +11,16 @@ export default async function TasteNoteDetailPage({
 }: {
     params: { id: string };
 }) {
-    // 세션에서 사용자 정보 가져오기
-    const session = await getServerSession(authOptions);
+    // Supabase 클라이언트 생성 및 사용자 정보 가져오기
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    if (!session?.user?.id) {
+    if (!user?.id) {
         notFound();
     }
 
     // 맛 노트 상세 정보 가져오기
-    const tasteNote = await getTasteNoteById(params.id, session.user.id);
+    const tasteNote = await getTasteNoteById(params.id, user.id);
 
     if (!tasteNote) {
         notFound();
@@ -60,7 +60,7 @@ export default async function TasteNoteDetailPage({
                         </Link>
                         <form action={async () => {
                             'use server';
-                            await deleteTasteNote(tasteNote.id, session.user.id);
+                            await deleteTasteNote(tasteNote.id, user.id);
                         }}>
                             <DeleteTasteNoteButton tasteNoteId={tasteNote.id} />
                         </form>

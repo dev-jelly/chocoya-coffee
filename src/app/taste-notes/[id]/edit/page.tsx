@@ -3,13 +3,12 @@ import Link from 'next/link';
 import { ArrowLeft, BookOpen } from 'lucide-react';
 import { getTasteNoteById } from '@/lib/actions/taste-note';
 import { notFound, redirect } from 'next/navigation';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { createClient } from '@/lib/supabase-server';
 import TasteNoteEditForm from '@/components/taste-note/taste-note-edit-form';
 
 export const metadata = {
     title: '맛 노트 수정 | 초코야 커피',
-    description: '맛 노트를 수정하고 업데이트하세요',
+    description: '커피 맛 노트를 수정하고 업데이트하세요',
 };
 
 export default async function EditTasteNotePage({
@@ -17,15 +16,16 @@ export default async function EditTasteNotePage({
 }: {
     params: { id: string };
 }) {
-    // 세션에서 사용자 정보 가져오기
-    const session = await getServerSession(authOptions);
+    // Supabase 클라이언트 생성 및 사용자 정보 가져오기
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    if (!session?.user?.id) {
+    if (!user?.id) {
         redirect('/auth/login?callbackUrl=/taste-notes');
     }
 
     // 맛 노트 상세 정보 가져오기
-    const tasteNote = await getTasteNoteById(params.id, session.user.id);
+    const tasteNote = await getTasteNoteById(params.id, user.id);
 
     if (!tasteNote) {
         notFound();
@@ -52,7 +52,7 @@ export default async function EditTasteNotePage({
             </div>
 
             <div className="bg-card border rounded-lg p-4 md:p-6 lg:p-8">
-                <TasteNoteEditForm tasteNote={tasteNote} userId={session.user.id} />
+                <TasteNoteEditForm tasteNote={tasteNote} userId={user.id} />
             </div>
         </div>
     );

@@ -1,14 +1,13 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
 import {
   User, Edit, Bookmark, Coffee, FileText,
   ChevronRight, Settings
 } from 'lucide-react';
+import { createClient } from '@/lib/supabase-server';
 
 export const metadata = {
   title: '내 프로필 | 초코야 커피',
@@ -16,22 +15,23 @@ export const metadata = {
 };
 
 export default async function ProfilePage() {
-  // 로그인 확인
-  const session = await getServerSession(authOptions);
+  // Supabase 클라이언트 생성 및 사용자 정보 가져오기
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  if (!session?.user?.id) {
+  if (!user?.id) {
     redirect('/auth/login?callbackUrl=/profile');
   }
 
   // 사용자 정보 가져오기
-  const user = await prisma.user.findUnique({
+  const userData = await prisma.user.findUnique({
     where: {
-      id: session.user.id,
+      id: user.id,
     },
     include: {
       recipes: {
         where: {
-          userId: session.user.id,
+          userId: user.id,
         },
         orderBy: {
           createdAt: 'desc',
@@ -56,7 +56,7 @@ export default async function ProfilePage() {
     },
   });
 
-  if (!user) {
+  if (!userData) {
     return <div className="container py-8">사용자 정보를 불러올 수 없습니다.</div>;
   }
 
@@ -67,11 +67,11 @@ export default async function ProfilePage() {
         <div className="w-full">
           <div className="bg-card border rounded-lg p-6">
             <div className="flex flex-col items-center mb-6">
-              {user.image ? (
+              {userData.image ? (
                 <div className="relative w-24 h-24 rounded-full overflow-hidden mb-4">
                   <Image
-                    src={user.image}
-                    alt={user.name || '프로필 이미지'}
+                    src={userData.image}
+                    alt={userData.name || '프로필 이미지'}
                     fill
                     className="object-cover"
                   />
@@ -81,8 +81,8 @@ export default async function ProfilePage() {
                   <User size={32} />
                 </div>
               )}
-              <h1 className="text-2xl font-bold">{user.name || '사용자'}</h1>
-              <p className="text-muted-foreground">{user.email}</p>
+              <h1 className="text-2xl font-bold">{userData.name || '사용자'}</h1>
+              <p className="text-muted-foreground">{userData.email}</p>
             </div>
 
             <div className="flex flex-wrap justify-center gap-2 sm:gap-4">
@@ -133,7 +133,7 @@ export default async function ProfilePage() {
               </Link>
             </div>
 
-            {user.recipes.length === 0 ? (
+            {userData.recipes.length === 0 ? (
               <div className="bg-card border rounded-lg p-4 text-center">
                 <p className="text-muted-foreground">아직 작성한 레시피가 없습니다.</p>
                 <Link
@@ -145,7 +145,7 @@ export default async function ProfilePage() {
               </div>
             ) : (
               <div className="grid gap-4">
-                {user.recipes.map((recipe: any) => (
+                {userData.recipes.map((recipe: any) => (
                   <Link key={recipe.id} href={`/recipes/${recipe.id}`} passHref>
                     <div className="bg-card border rounded-lg p-4 hover:shadow-md transition">
                       <div className="flex items-start">
@@ -161,7 +161,7 @@ export default async function ProfilePage() {
                   </Link>
                 ))}
 
-                {user.recipes.length > 3 && (
+                {userData.recipes.length > 3 && (
                   <Link
                     href="/profile/recipes"
                     className="text-center text-primary hover:underline py-2"
@@ -182,7 +182,7 @@ export default async function ProfilePage() {
               </Link>
             </div>
 
-            {user.tasteNotes.length === 0 ? (
+            {userData.tasteNotes.length === 0 ? (
               <div className="bg-card border rounded-lg p-4 text-center">
                 <p className="text-muted-foreground">아직 작성한 맛 노트가 없습니다.</p>
                 <Link
@@ -194,7 +194,7 @@ export default async function ProfilePage() {
               </div>
             ) : (
               <div className="grid gap-4">
-                {user.tasteNotes.map((note: any) => (
+                {userData.tasteNotes.map((note: any) => (
                   <Link key={note.id} href={`/taste-notes/${note.id}`} passHref>
                     <div className="bg-card border rounded-lg p-4 hover:shadow-md transition">
                       <div className="flex items-start">
@@ -211,7 +211,7 @@ export default async function ProfilePage() {
                   </Link>
                 ))}
 
-                {user.tasteNotes.length > 3 && (
+                {userData.tasteNotes.length > 3 && (
                   <Link
                     href="/profile/taste-notes"
                     className="text-center text-primary hover:underline py-2"
@@ -232,7 +232,7 @@ export default async function ProfilePage() {
               </Link>
             </div>
 
-            {user.favorites.length === 0 ? (
+            {userData.favorites.length === 0 ? (
               <div className="bg-card border rounded-lg p-4 text-center">
                 <p className="text-muted-foreground">아직 즐겨찾기한 레시피가 없습니다.</p>
                 <Link
@@ -244,7 +244,7 @@ export default async function ProfilePage() {
               </div>
             ) : (
               <div className="grid gap-4">
-                {user.favorites.map((favorite: any) => (
+                {userData.favorites.map((favorite: any) => (
                   <Link key={favorite.recipeId} href={`/recipes/${favorite.recipeId}`} passHref>
                     <div className="bg-card border rounded-lg p-4 hover:shadow-md transition">
                       <div className="flex items-start">
