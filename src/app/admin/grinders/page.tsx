@@ -5,6 +5,10 @@ import { ArrowLeft, Plus, Edit } from 'lucide-react';
 import { revalidatePath } from 'next/cache';
 import { DeleteGrinderButton } from '@/components/grinder/delete-grinder-button';
 
+// 동적 렌더링 설정
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const metadata = {
     title: '그라인더 관리 | 초코야 커피',
     description: '그라인더 정보를 관리합니다',
@@ -66,7 +70,7 @@ export default async function AdminGrindersPage() {
                                     <td className="px-4 py-3">{grinder.brand}</td>
                                     <td className="px-4 py-3">{grinder.type}</td>
                                     <td className="px-4 py-3">{grinder.adjustmentType}</td>
-                                    <td className="px-4 py-3">{grinder.settings?.length || 0}</td>
+                                    <td className="px-4 py-3">{grinder.settingsCount || 0}</td>
                                     <td className="px-4 py-3">
                                         <div className="flex items-center justify-center space-x-2">
                                             <Link

@@ -23,15 +23,25 @@ export async function getGrinders(search?: string) {
             };
         }
 
+        // 관리자 페이지에서는 설정 정보를 별도로 가져오지 않고 카운트만 가져오도록 최적화
         const grinders = await prisma.grinder.findMany({
             where: whereClause,
             include: {
-                settings: true,
+                _count: {
+                    select: {
+                        settings: true
+                    }
+                }
             },
             orderBy: { brand: 'asc' },
         });
 
-        return grinders;
+        // 결과 형식 변환
+        return grinders.map(grinder => ({
+            ...grinder,
+            settings: [], // 빈 배열로 설정
+            settingsCount: grinder._count.settings // 설정 수만 포함
+        }));
     } catch (error) {
         console.error('Error fetching grinders:', error);
         return [];
