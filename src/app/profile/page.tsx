@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
-import { prisma, checkDatabaseConnection } from '@/lib/db';
+import { prisma, withDatabase } from '@/lib/db';
 import {
   User, Edit, Bookmark, Coffee, FileText,
   ChevronRight, Settings, AlertCircle
@@ -27,15 +27,24 @@ export default async function ProfilePage() {
     redirect('/auth/login?callbackUrl=/profile');
   }
 
-  // 데이터베이스 연결 확인
-  const dbConnection = await checkDatabaseConnection();
-  let userData = null;
+  // 데이터베이스 연결 오류 상태 관리
   let dbError = null;
 
-  if (dbConnection.connected) {
-    try {
-      // 사용자 정보 가져오기
-      userData = await prisma.user.findUnique({
+  // 기본 사용자 정보 설정 (데이터베이스 연결 실패 시 사용)
+  const defaultUserData = {
+    id: user.id,
+    name: user.user_metadata?.name || '사용자',
+    email: user.email,
+    image: user.user_metadata?.avatar_url,
+    recipes: [],
+    favorites: [],
+    tasteNotes: []
+  };
+
+  // 데이터베이스에서 사용자 정보 가져오기 (오류 처리 포함)
+  const userData = await withDatabase(
+    async () => {
+      const dbUser = await prisma.user.findUnique({
         where: {
           id: user.id,
         },
@@ -66,27 +75,17 @@ export default async function ProfilePage() {
           },
         },
       });
-    } catch (error) {
+      
+      return dbUser || defaultUserData;
+    },
+    defaultUserData,
+    (error) => {
       console.error('사용자 정보 조회 오류:', error);
-      dbError = '사용자 정보를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+      dbError = error instanceof Error 
+        ? error.message 
+        : '사용자 정보를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
     }
-  } else {
-    dbError = '데이터베이스 연결에 실패했습니다. 네트워크 연결을 확인하거나 잠시 후 다시 시도해주세요.';
-    console.error('데이터베이스 연결 오류:', dbConnection.error);
-  }
-
-  // 데이터베이스 연결 오류가 있거나 사용자 정보가 없는 경우 기본 정보 사용
-  if (!userData) {
-    userData = {
-      id: user.id,
-      name: user.user_metadata?.name || '사용자',
-      email: user.email,
-      image: user.user_metadata?.avatar_url,
-      recipes: [],
-      favorites: [],
-      tasteNotes: []
-    };
-  }
+  );
 
   return (
     <div className="container px-4 md:px-6 py-6 md:py-10">

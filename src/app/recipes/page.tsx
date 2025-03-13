@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Coffee, Clock, Droplet, Scale, AlertCircle, RefreshCw } from 'lucide-react';
 import { RecipesNav } from '@/components/layout/recipes-nav';
 import { getRecipes } from '@/lib/actions/recipe';
-import { checkDatabaseConnection } from '@/lib/db';
+import { withDatabase } from '@/lib/db';
 
 // 동적 렌더링 설정
 export const dynamic = 'force-dynamic';
@@ -38,25 +38,23 @@ export default async function RecipesPage({
   // searchParams 직접 접근 (params 객체 제거)
   const methodParam = searchParams.method;
   const method = typeof methodParam === 'string' ? methodParam : undefined;
-
-  // 데이터베이스 연결 확인
-  const dbConnection = await checkDatabaseConnection();
   
-  // 데이터베이스에서 레시피 가져오기 (오류 처리 추가)
-  let recipes: Recipe[] = [];
+  // 데이터베이스 연결 오류 상태 관리
   let error = null;
   
-  if (dbConnection.connected) {
-    try {
-      recipes = await getRecipes(method);
-    } catch (err) {
+  // 데이터베이스에서 레시피 가져오기 (오류 처리 포함)
+  const recipes = await withDatabase<Recipe[]>(
+    async () => {
+      return await getRecipes(method);
+    },
+    [], // 오류 발생 시 빈 배열 반환
+    (err) => {
       console.error('레시피 조회 오류:', err);
-      error = '레시피를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+      error = err instanceof Error 
+        ? err.message 
+        : '레시피를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
     }
-  } else {
-    error = '데이터베이스 연결에 실패했습니다. 네트워크 연결을 확인하거나 잠시 후 다시 시도해주세요.';
-    console.error('데이터베이스 연결 오류:', dbConnection.error);
-  }
+  );
 
   return (
     <div className="container px-4 md:px-6 py-6 md:py-10">

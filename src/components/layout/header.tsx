@@ -6,7 +6,7 @@ import { MobileNavClient } from "./mobile-nav-client";
 import { CatCoffeeLogo } from "@/components/ui/cat-coffee-logo";
 import { CreateBeanButtonClient } from "@/components/bean/create-bean-button-client";
 import { createClient } from '@/lib/supabase-server';
-import { prisma, checkDatabaseConnection } from "@/lib/db";
+import { prisma, withDatabase } from "@/lib/db";
 
 export async function Header() {
   // 서버 컴포넌트에서 Supabase 클라이언트 생성 (Next.js 15 비동기 API 지원)
@@ -19,36 +19,29 @@ export async function Header() {
   // 사용자 정보 가져오기
   let userProfile = null;
   if (user) {
-    try {
-      // 데이터베이스 연결 확인
-      const dbConnection = await checkDatabaseConnection();
-      
-      if (dbConnection.connected) {
-        userProfile = await prisma.user.findUnique({
+    // 기본 사용자 정보 설정 (데이터베이스 연결 실패 시 사용)
+    const defaultUserProfile = {
+      id: user.id,
+      name: user.user_metadata?.name || '사용자',
+      email: user.email,
+      image: user.user_metadata?.avatar_url
+    };
+
+    // 데이터베이스에서 사용자 정보 가져오기 (오류 처리 포함)
+    userProfile = await withDatabase(
+      async () => {
+        const dbUser = await prisma.user.findUnique({
           where: { id: user.id },
           select: { id: true, name: true, email: true, image: true }
         });
+        
+        return dbUser || defaultUserProfile;
+      },
+      defaultUserProfile,
+      (error) => {
+        console.error('사용자 정보 조회 오류:', error);
       }
-
-      // Prisma DB에 사용자 정보가 없거나 DB 연결 오류가 있으면 기본 정보 사용
-      if (!userProfile) {
-        userProfile = {
-          id: user.id,
-          name: user.user_metadata?.name || '사용자',
-          email: user.email,
-          image: user.user_metadata?.avatar_url
-        };
-      }
-    } catch (error) {
-      console.error('사용자 정보 조회 오류:', error);
-      // 오류 발생 시 기본 정보 사용
-      userProfile = {
-        id: user.id,
-        name: user.user_metadata?.name || '사용자',
-        email: user.email,
-        image: user.user_metadata?.avatar_url
-      };
-    }
+    );
   }
 
   return (
