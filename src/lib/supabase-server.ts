@@ -7,7 +7,24 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
  */
 export async function createClient() {
   try {
-    const cookieStore = await cookies();
+    // 정적 렌더링 중에는 cookies() 호출이 실패할 수 있음
+    let cookieStore;
+    try {
+      cookieStore = await cookies();
+    } catch (error) {
+      // 정적 렌더링 중 cookies() 호출 실패 시 빈 쿠키 스토어 사용
+      console.warn('정적 렌더링 중 cookies() 호출 실패:', error);
+      return createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+        {
+          cookies: {
+            getAll: () => [],
+            setAll: () => {}
+          }
+        }
+      );
+    }
     
     return createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL || '',

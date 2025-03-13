@@ -8,6 +8,10 @@ import AuthSessionProvider from '@/providers/session-provider'
 
 const inter = Inter({ subsets: ['latin'] })
 
+// 동적 렌더링 설정 (항상 서버에서 렌더링)
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: '초코야 커피',
   description: '커피 브루잉 레시피와 맛 노트를 공유하는 플랫폼',
