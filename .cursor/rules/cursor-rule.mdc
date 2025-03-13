@@ -1,14 +1,8 @@
 ---
-description: 
-globs: 
-alwaysApply: false
----
----
-description: 
+description: 아래 룰 무조건 따르고 충돌날만한 거 있으면 아래 룰 따라주세요
 globs: **/*
 alwaysApply: false
 ---
-
 Key Principles
 - Write concise, technical TypeScript code with accurate examples.
 - Use functional and declarative programming patterns; avoid classes.

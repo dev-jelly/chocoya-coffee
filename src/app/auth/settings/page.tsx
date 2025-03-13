@@ -1,12 +1,11 @@
 import React from 'react';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { createClient } from '@/lib/supabase-server';
 import { redirect } from 'next/navigation';
 import PasswordChangeForm from '@/components/auth/password-change-form';
-import NotificationSettings from '@/components/auth/notification-settings';
 import DeleteAccountSection from '@/components/auth/delete-account-section';
+import NotificationSettings from '@/components/auth/notification-settings';
 
 export const metadata = {
   title: '계정 설정 | 초코야 커피',
@@ -14,16 +13,19 @@ export const metadata = {
 };
 
 export default async function SettingsPage() {
-  // 로그인 확인
-  const session = await getServerSession(authOptions);
+  // Supabase 클라이언트 생성
+  const supabase = await createClient();
+  
+  // 사용자 정보 가져오기
+  const { data: { user } } = await supabase.auth.getUser();
 
-  if (!session || !session.user) {
-    redirect('/auth/signin');
+  if (!user?.id) {
+    redirect('/auth/login?callbackUrl=/auth/settings');
   }
 
   // 사용자 ID와 이메일 가져오기
-  const userId = session.user.id;
-  const userEmail = session.user.email;
+  const userId = user.id;
+  const userEmail = user.email;
 
   return (
     <div className="container mx-auto py-10">

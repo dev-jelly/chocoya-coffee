@@ -2,8 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Plus, BookOpen, Coffee, ArrowUpDown } from 'lucide-react';
 import { getTasteNotes } from '@/lib/actions/taste-note';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { createClient } from '@/lib/supabase-server';
 import { redirect } from 'next/navigation';
 import { formatKoreanDate } from '@/lib/utils';
 
@@ -13,15 +12,18 @@ export const metadata = {
 };
 
 export default async function TasteNotesPage() {
-    // 세션에서 사용자 정보 가져오기
-    const session = await getServerSession(authOptions);
+    // Supabase 클라이언트 생성
+    const supabase = await createClient();
+    
+    // 사용자 정보 가져오기
+    const { data: { user } } = await supabase.auth.getUser();
 
-    if (!session?.user?.id) {
+    if (!user?.id) {
         redirect('/auth/login?callbackUrl=/taste-notes');
     }
 
     // 맛 노트 목록 가져오기
-    const tasteNotes = await getTasteNotes(session.user.id);
+    const tasteNotes = await getTasteNotes(user.id);
 
     return (
         <div className="container px-4 md:px-6 py-6 md:py-10">

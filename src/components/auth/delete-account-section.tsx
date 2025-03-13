@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Trash, AlertCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { signOut } from 'next-auth/react';
+import { signOut } from '@/lib/auth/supabase-auth';
 
 interface DeleteAccountSectionProps {
     userId: string;
@@ -44,7 +44,7 @@ export default function DeleteAccountSection({ userId }: DeleteAccountSectionPro
             if (response.ok) {
                 toast.success('계정이 성공적으로 삭제되었습니다');
                 // 로그아웃 후 홈으로 리디렉션
-                await signOut({ redirect: false });
+                await signOut();
                 router.push('/');
             } else {
                 const data = await response.json();

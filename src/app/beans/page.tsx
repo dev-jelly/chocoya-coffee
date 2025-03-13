@@ -1,9 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
-import { Bean, Plus, Search, Filter } from 'lucide-react';
+import { Bean, Plus, Search } from 'lucide-react';
 import { getBeans } from '@/lib/actions/bean';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { createClient } from '@/lib/supabase-server';
 import { getOriginNameById } from '@/data/origins';
 import { formatKoreanDate } from '@/lib/utils';
 
@@ -17,8 +16,12 @@ export default async function BeansPage({
 }: {
   searchParams?: { search?: string };
 }) {
-  // 세션에서 사용자 정보 가져오기
-  const session = await getServerSession(authOptions);
+  // Supabase 클라이언트 생성
+  const supabase = await createClient();
+  
+  // 사용자 정보 가져오기
+  const { data: { user } } = await supabase.auth.getUser();
+  const userId = user?.id;
 
   // 검색어 가져오기 - 객체 복사하여 사용
   const params = { ...searchParams };
@@ -35,7 +38,7 @@ export default async function BeansPage({
           원두 라이브러리
         </h1>
 
-        {session?.user && (
+        {userId && (
           <Link
             href="/beans/create"
             className="inline-flex items-center justify-center px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
@@ -77,7 +80,7 @@ export default async function BeansPage({
           <p className="text-muted-foreground mb-4">
             {search ? `'${search}' 검색 결과가 없습니다.` : '아직 등록된 원두 정보가 없습니다.'}
           </p>
-          {session?.user && (
+          {userId && (
             <Link
               href="/beans/create"
               className="inline-flex items-center justify-center px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
