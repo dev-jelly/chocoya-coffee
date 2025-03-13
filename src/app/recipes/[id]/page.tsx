@@ -4,8 +4,7 @@ import { ArrowLeft, Coffee, Clock, Droplet, Scale, ThumbsUp, User, Trash2, Lock,
 import { getRecipeById, deleteRecipe } from '@/lib/actions/recipe';
 import { notFound } from 'next/navigation';
 import { FavoriteButton } from '@/components/recipe/favorite-button';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { createClient } from '@/lib/supabase-server';
 import { prisma } from '@/lib/db';
 import { LikeButton } from '@/components/recipe/like-button';
 import { DeleteRecipeButton } from '@/components/recipe/delete-recipe-button';
@@ -23,10 +22,12 @@ export default async function RecipeDetailPage({
     notFound();
   }
 
-  // 현재 로그인한 사용자 정보 가져오기
-  const session = await getServerSession(authOptions);
+  // Supabase 클라이언트 생성 및 사용자 정보 가져오기
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  
   let isFavorite = false;
-  let userId = undefined;
+  let userId = user?.id;
 
   // 좋아요 수 계산
   let likesCount = 0;
@@ -40,15 +41,13 @@ export default async function RecipeDetailPage({
     console.error('좋아요 수 계산 오류:', error);
   }
 
-  if (session?.user?.id) {
-    userId = session.user.id;
-
+  if (userId) {
     // 즐겨찾기 여부 확인
     const favorite = await prisma.favorite.findUnique({
       where: {
         recipeId_userId: {
           recipeId: id,
-          userId: session.user.id,
+          userId: userId,
         },
       },
     });
@@ -162,7 +161,7 @@ export default async function RecipeDetailPage({
             />
           </div>
 
-          {session?.user?.id === recipe.userId && (
+          {userId === recipe.userId && (
             <div className="flex space-x-2">
               <Link
                 href={`/recipes/${recipe.id}/edit`}
@@ -173,8 +172,8 @@ export default async function RecipeDetailPage({
               </Link>
               <form action={async () => {
                 'use server';
-                if (session?.user?.id) {
-                  await deleteRecipe(recipe.id, session.user.id);
+                if (userId) {
+                  await deleteRecipe(recipe.id, userId);
                 }
               }}>
                 <DeleteRecipeButton recipeId={recipe.id} />

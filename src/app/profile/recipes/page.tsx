@@ -1,9 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
+import { createClient } from '@/lib/supabase-server';
 import { ArrowLeft, Coffee, Lock, Eye, Pencil, Trash2 } from 'lucide-react';
 import { DeleteRecipeButton } from '@/components/recipe/delete-recipe-button';
 
@@ -13,17 +12,18 @@ export const metadata = {
 };
 
 export default async function UserRecipesPage() {
-    // 로그인 확인
-    const session = await getServerSession(authOptions);
+    // Supabase 클라이언트 생성 및 사용자 정보 가져오기
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    if (!session?.user?.id) {
+    if (!user?.id) {
         redirect('/auth/login?callbackUrl=/profile/recipes');
     }
 
     // 사용자의 모든 레시피 가져오기
     const recipes = await prisma.recipe.findMany({
         where: {
-            userId: session.user.id,
+            userId: user.id,
         },
         orderBy: {
             createdAt: 'desc',
