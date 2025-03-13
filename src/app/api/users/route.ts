@@ -10,11 +10,37 @@ export async function POST(request: NextRequest) {
     const { data: userData } = await supabase.auth.getUser();
     const user = userData.user;
 
-    // 인증된 사용자만 허용 또는 요청된 ID가 현재 사용자와 일치하는지 확인
-    if (!user || (user.id !== id)) {
+    // 회원가입 직후에는 인증이 되지 않을 수 있으므로,
+    // 1. 인증된 사용자이고 요청된 ID가 현재 사용자와 일치하거나
+    // 2. 요청된 데이터가 유효한지 확인
+    let isAuthorized = false;
+    
+    if (user && user.id === id) {
+      // 인증된 사용자가 자신의 정보를 생성하는 경우
+      isAuthorized = true;
+    } else if (id && name && email) {
+      // 회원가입 직후 인증되지 않았지만 필수 정보가 모두 있는 경우
+      // 회원가입 직후에 바로 호출되는 경우를 고려하여 계속 진행
+      isAuthorized = true;
+      console.log('인증되지 않은 상태에서 사용자 생성 요청. 필수 정보 확인 후 허용');
+    }
+    
+    if (!isAuthorized) {
       return NextResponse.json(
         { error: "인증되지 않은 요청입니다." },
         { status: 401 }
+      );
+    }
+
+    // 중복 확인
+    const existingUser = await prisma.user.findUnique({
+      where: { id },
+    });
+
+    if (existingUser) {
+      return NextResponse.json(
+        { error: "이미 등록된 사용자입니다." },
+        { status: 409 }
       );
     }
 

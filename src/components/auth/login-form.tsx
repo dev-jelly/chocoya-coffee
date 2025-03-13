@@ -42,6 +42,31 @@ export function LoginForm() {
       const result = await signInWithEmail(data.email, data.password);
       
       if (result.success) {
+        if (result.data?.user) {
+          try {
+            const userCheckResponse = await fetch(`/api/users/${result.data.user.id}`, {
+              method: 'GET',
+            });
+            
+            if (userCheckResponse.status === 404) {
+              await fetch('/api/users', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  id: result.data.user.id,
+                  name: result.data.user.email?.split('@')[0] || '사용자',
+                  email: result.data.user.email,
+                }),
+              });
+              console.log('로그인 후 누락된 사용자 프로필 생성 완료');
+            }
+          } catch (error) {
+            console.error('사용자 프로필 확인/생성 오류:', error);
+          }
+        }
+
         router.push("/");
         router.refresh();
         toast.success("로그인되었습니다.");
