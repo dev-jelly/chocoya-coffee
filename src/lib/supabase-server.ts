@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import { createServerClient } from '@supabase/ssr';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 
 /**
  * Next.js 15 이상에서 비동기 cookies API를 사용하기 위한 서버 클라이언트 생성 함수
@@ -12,16 +12,21 @@ export async function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
     {
       cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
+        getAll() {
+          return cookieStore.getAll();
         },
-        set(name: string, value: string, options: any) {
-          cookieStore.set({ name, value, ...options });
-        },
-        remove(name: string, options: any) {
-          cookieStore.set({ name, value: '', ...options, maxAge: 0 });
-        },
-      },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set({ name, value, ...options });
+            });
+          } catch (error) {
+            // 서버 컴포넌트에서 호출 시 cookies는 읽기 전용이라 에러가 발생할 수 있음
+            // 미들웨어에서 쿠키 갱신이 처리되므로 이 오류는 무시 가능
+            console.warn('Warning: Failed to set cookies in a Server Component.', error);
+          }
+        }
+      }
     }
   );
 } 
