@@ -2,12 +2,16 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
-import { prisma } from '@/lib/db';
+import { prisma, checkDatabaseConnection } from '@/lib/db';
 import {
   User, Edit, Bookmark, Coffee, FileText,
-  ChevronRight, Settings
+  ChevronRight, Settings, AlertCircle
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase-server';
+
+// 동적 렌더링 설정
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export const metadata = {
   title: '내 프로필 | 초코야 커피',
@@ -23,46 +27,92 @@ export default async function ProfilePage() {
     redirect('/auth/login?callbackUrl=/profile');
   }
 
-  // 사용자 정보 가져오기
-  const userData = await prisma.user.findUnique({
-    where: {
-      id: user.id,
-    },
-    include: {
-      recipes: {
-        where: {
-          userId: user.id,
-        },
-        orderBy: {
-          createdAt: 'desc',
-        },
-        take: 3,
-      },
-      favorites: {
-        include: {
-          recipe: true,
-        },
-        orderBy: {
-          createdAt: 'desc',
-        },
-        take: 3,
-      },
-      tasteNotes: {
-        orderBy: {
-          createdAt: 'desc',
-        },
-        take: 3,
-      },
-    },
-  });
+  // 데이터베이스 연결 확인
+  const dbConnection = await checkDatabaseConnection();
+  let userData = null;
+  let dbError = null;
 
+  if (dbConnection.connected) {
+    try {
+      // 사용자 정보 가져오기
+      userData = await prisma.user.findUnique({
+        where: {
+          id: user.id,
+        },
+        include: {
+          recipes: {
+            where: {
+              userId: user.id,
+            },
+            orderBy: {
+              createdAt: 'desc',
+            },
+            take: 3,
+          },
+          favorites: {
+            include: {
+              recipe: true,
+            },
+            orderBy: {
+              createdAt: 'desc',
+            },
+            take: 3,
+          },
+          tasteNotes: {
+            orderBy: {
+              createdAt: 'desc',
+            },
+            take: 3,
+          },
+        },
+      });
+    } catch (error) {
+      console.error('사용자 정보 조회 오류:', error);
+      dbError = '사용자 정보를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+    }
+  } else {
+    dbError = '데이터베이스 연결에 실패했습니다. 네트워크 연결을 확인하거나 잠시 후 다시 시도해주세요.';
+    console.error('데이터베이스 연결 오류:', dbConnection.error);
+  }
+
+  // 데이터베이스 연결 오류가 있거나 사용자 정보가 없는 경우 기본 정보 사용
   if (!userData) {
-    return <div className="container py-8">사용자 정보를 불러올 수 없습니다.</div>;
+    userData = {
+      id: user.id,
+      name: user.user_metadata?.name || '사용자',
+      email: user.email,
+      image: user.user_metadata?.avatar_url,
+      recipes: [],
+      favorites: [],
+      tasteNotes: []
+    };
   }
 
   return (
     <div className="container px-4 md:px-6 py-6 md:py-10">
       <div className="flex flex-col gap-8">
+        {/* 데이터베이스 연결 오류 메시지 */}
+        {dbError && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 flex items-start">
+            <AlertCircle className="text-red-500 mr-2 mt-0.5 flex-shrink-0" size={18} />
+            <div className="flex-1">
+              <p className="text-red-700 font-medium">데이터베이스 연결 오류</p>
+              <p className="text-red-600 text-sm mt-1">{dbError}</p>
+              <div className="mt-3">
+                <Link
+                  href="/profile"
+                  className="inline-flex items-center text-sm text-red-700 hover:text-red-800"
+                >
+                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  새로고침
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* 프로필 정보 */}
         <div className="w-full">
           <div className="bg-card border rounded-lg p-6">
