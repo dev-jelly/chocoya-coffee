@@ -1,9 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
+import { createClient } from '@/lib/supabase-server';
 import { ArrowLeft, Coffee, Clock, Droplet, Scale } from 'lucide-react';
 
 export const metadata = {
@@ -12,17 +11,18 @@ export const metadata = {
 };
 
 export default async function FavoritesPage() {
-  // 로그인 확인
-  const session = await getServerSession(authOptions);
+  // Supabase 클라이언트 생성 및 사용자 정보 가져오기
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
   
-  if (!session?.user?.id) {
+  if (!user?.id) {
     redirect('/auth/login?callbackUrl=/profile/favorites');
   }
   
   // 즐겨찾기한 레시피 가져오기
   const favorites = await prisma.favorite.findMany({
     where: {
-      userId: session.user.id,
+      userId: user.id,
     },
     include: {
       recipe: true,

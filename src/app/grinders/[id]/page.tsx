@@ -5,17 +5,18 @@ import { ArrowLeft, Coffee, Settings, Pencil, Trash2 } from 'lucide-react';
 import { getGrinderById, deleteGrinder } from '@/lib/actions/grinder';
 import { grinderTypeNames, adjustmentTypeNames } from '@/data/grinders';
 import { notFound } from 'next/navigation';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { createClient } from '@/lib/supabase-server';
 import { DeleteGrinderButton } from '@/components/grinder/delete-grinder-button';
+import { prisma } from '@/lib/db';
 
 export default async function GrinderDetailPage({
     params,
 }: {
     params: { id: string };
 }) {
-    // 세션에서 사용자 정보 가져오기
-    const session = await getServerSession(authOptions);
+    // Supabase 클라이언트 생성 및 사용자 정보 가져오기
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
     // 그라인더 상세 정보 가져오기
     const grinder = await getGrinderById(params.id);
@@ -23,8 +24,22 @@ export default async function GrinderDetailPage({
     if (!grinder) {
         notFound();
     }
+    
+    // 그라인더 소유자 정보 가져오기
+    const grinderWithUser = await prisma.grinder.findUnique({
+        where: { id: params.id },
+        select: { userId: true }
+    });
+    
+    const isOwner = user?.id && grinderWithUser?.userId === user.id;
 
-    const isOwner = session?.user?.id === grinder.userId;
+    // 그라인더 삭제 핸들러
+    const handleDelete = async (id: string) => {
+        'use server';
+        if (user?.id) {
+            await deleteGrinder(id, user.id);
+        }
+    };
 
     return (
         <div className="container px-4 md:px-6 py-6 md:py-10">

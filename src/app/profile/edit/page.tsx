@@ -1,11 +1,10 @@
 import React from 'react';
 import Link from 'next/link';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
+import { createClient } from '@/lib/supabase-server';
 import { ArrowLeft } from 'lucide-react';
-import { ProfileEditForm } from '@/components/profile/profile-edit-form';
+import ProfileEditForm from '@/components/auth/profile-edit-form';
 
 export const metadata = {
   title: '프로필 수정 | 초코야 커피',
@@ -13,17 +12,18 @@ export const metadata = {
 };
 
 export default async function ProfileEditPage() {
-  // 로그인 확인
-  const session = await getServerSession(authOptions);
+  // Supabase 클라이언트 생성 및 사용자 정보 가져오기
+  const supabase = await createClient();
+  const { data: { user: authUser } } = await supabase.auth.getUser();
   
-  if (!session?.user?.id) {
+  if (!authUser?.id) {
     redirect('/auth/login?callbackUrl=/profile/edit');
   }
   
   // 사용자 정보 가져오기
   const user = await prisma.user.findUnique({
     where: {
-      id: session.user.id,
+      id: authUser.id,
     },
     select: {
       id: true,
