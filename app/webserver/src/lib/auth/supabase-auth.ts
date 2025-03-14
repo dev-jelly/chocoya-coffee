@@ -11,8 +11,7 @@ export async function getCurrentUser() {
   return user;
 }
 
-// 현재 세션 정보 가져오기 - 주의: 보안상 권장되지 않음
-// 대신 getCurrentUser()를 사용하는 것이 권장됩니다
+// 현재 세션 정보 가져오기
 export async function getCurrentSession() {
   const { data: { session }, error } = await supabase.auth.getSession();
   if (error) {
@@ -85,11 +84,9 @@ export async function signOut() {
   if (error) throw error;
 }
 
-// 인증 상태 변경 리스너 설정
+// 인증 상태 변경 리스너 설정 (간소화된 버전)
 export function onAuthStateChange(callback: (user: User | null) => void) {
   return supabase.auth.onAuthStateChange((event, session) => {
-    // 클라이언트 측 상태 변경은 UI 업데이트에만 사용하고,
-    // 중요한 인증 결정에는 getUser()를 다시 호출해야 합니다
     callback(session?.user || null);
   });
 }

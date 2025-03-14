@@ -39,42 +39,59 @@ export async function middleware(request: NextRequest) {
   });
 
   try {
+    // 최신 API를 사용한 쿠키 관리
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL || '',
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
       {
         cookies: {
-          getAll() {
-            return request.cookies.getAll().map(cookie => ({
-              name: cookie.name,
-              value: cookie.value,
-            }));
+          get(name) {
+            return request.cookies.get(name)?.value;
           },
-          setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value, options }) => {
-              request.cookies.set({
-                name,
-                value,
-                ...options,
-              });
-              response = NextResponse.next({
-                request: {
-                  headers: request.headers,
-                },
-              });
-              response.cookies.set({
-                name,
-                value,
-                ...options,
-              });
+          set(name, value, options) {
+            response.cookies.set({
+              name,
+              value,
+              ...options,
+            });
+          },
+          remove(name, options) {
+            response.cookies.delete({
+              name,
+              ...options,
             });
           }
         },
       }
     );
 
-    // 사용자 인증 확인 (보안 권장사항에 따라 getUser() 사용)
-    const { data: { user } } = await supabase.auth.getUser();
+    // 사용자 인증 확인
+    const { data, error } = await supabase.auth.getUser();
+    
+    // 인증 오류 처리
+    if (error) {
+      console.error('인증 오류:', error.message);
+      
+      // 세션 오류인 경우 세션 쿠키 제거
+      if (error.message.includes('session')) {
+        ['sb-access-token', 'sb-refresh-token'].forEach(cookieName => {
+          response.cookies.delete(cookieName);
+        });
+      }
+      
+      // 보호된 경로에 접근하려는 경우 로그인 페이지로 리다이렉트
+      const pathname = request.nextUrl.pathname;
+      if (protectedRoutes.some(route => pathname.startsWith(route))) {
+        const redirectUrl = new URL('/auth/login', request.url);
+        redirectUrl.searchParams.set('callbackUrl', pathname);
+        return NextResponse.redirect(redirectUrl);
+      }
+      
+      // 오류가 있지만 보호되지 않은 경로는 계속 진행
+      return response;
+    }
+    
+    const user = data.user;
     const pathname = request.nextUrl.pathname;
 
     // 보호된 경로에 인증되지 않은 사용자가 접근할 때
@@ -114,10 +131,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next();
     }
     
-    // 오류 페이지로 리다이렉트 (필요한 경우)
-    // return NextResponse.redirect(new URL('/error', request.url));
-    
-    // 오류가 발생해도 계속 진행 (대부분의 경우 이 방식이 더 나음)
+    // 오류가 발생해도 계속 진행
     return NextResponse.next();
   }
 }

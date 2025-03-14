@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { createServerClient } from '@supabase/ssr';
 
 /**
  * Next.js 15 이상에서 비동기 cookies API를 사용하기 위한 서버 클라이언트 생성 함수
@@ -19,8 +19,11 @@ export async function createClient() {
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
         {
           cookies: {
-            getAll: () => [],
-            setAll: () => {}
+            get(name) {
+              return '';
+            },
+            set(name, value, options) {},
+            remove(name, options) {}
           }
         }
       );
@@ -31,18 +34,22 @@ export async function createClient() {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
       {
         cookies: {
-          getAll() {
-            return cookieStore.getAll();
+          get(name) {
+            return cookieStore.get(name)?.value;
           },
-          setAll(cookiesToSet) {
+          set(name, value, options) {
             try {
-              cookiesToSet.forEach(({ name, value, options }) => {
-                cookieStore.set({ name, value, ...options });
-              });
+              cookieStore.set({ name, value, ...options });
             } catch (error) {
               // 서버 컴포넌트에서 호출 시 cookies는 읽기 전용이라 에러가 발생할 수 있음
-              // 미들웨어에서 쿠키 갱신이 처리되므로 이 오류는 무시 가능
-              console.warn('Warning: Failed to set cookies in a Server Component.', error);
+              console.warn('Warning: Failed to set cookie in a Server Component.', error);
+            }
+          },
+          remove(name, options) {
+            try {
+              cookieStore.delete({ name, ...options });
+            } catch (error) {
+              console.warn('Warning: Failed to remove cookie in a Server Component.', error);
             }
           }
         }
@@ -56,8 +63,11 @@ export async function createClient() {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
       {
         cookies: {
-          getAll: () => [],
-          setAll: () => {}
+          get(name) {
+            return '';
+          },
+          set(name, value, options) {},
+          remove(name, options) {}
         }
       }
     );

@@ -8,6 +8,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 // 클라이언트 사이드에서 사용할 Supabase 클라이언트
+// 브라우저 환경에서는 cookies 옵션을 제거하고 document.cookie API를 자동으로 사용
 export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey);
 
 // 서비스 롤 키를 사용한 관리자 클라이언트 (서버 사이드에서만 사용)
