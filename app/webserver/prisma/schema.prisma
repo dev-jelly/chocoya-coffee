@@ -1,0 +1,315 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+  schemas   = ["chocoya_coffee"]
+}
+
+model User {
+  id            String       @id @default(cuid())
+  name          String?
+  email         String?      @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  bio           String?
+  accounts      Account[]
+  beans         Bean[]
+  comments      Comment[]
+  favorites     Favorite[]
+  likes         Like[]
+  recipes       Recipe[]
+  recipeLikes   RecipeLike[]
+  reports       Report[]
+  sessions      Session[]
+  tasteNotes    TasteNote[]
+
+  @@schema("chocoya_coffee")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@schema("chocoya_coffee")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@schema("chocoya_coffee")
+}
+
+model Recipe {
+  id               String       @id @default(cuid())
+  title            String
+  description      String?
+  isPublic         Boolean      @default(true)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  userId           String
+  brewingMethod    String
+  difficulty       String?
+  preparationTime  String?
+  beanAmount       String?
+  waterAmount      String?
+  waterTemp        String?
+  grindSize        String?
+  tools            String?
+  grinderId        String?
+  grinderSetting   String?
+  acidity          String?
+  sweetness        String?
+  body             String?
+  recommendedBeans String?
+  beanId           String?
+  brewingTips      BrewingTip[]
+  comments         Comment[]
+  favorites        Favorite[]
+  ingredients      Ingredient[]
+  likes            Like[]
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bean             Bean?        @relation(fields: [beanId], references: [id])
+  grinder          Grinder?     @relation(fields: [grinderId], references: [id])
+  recipeLikes      RecipeLike[]
+  steps            Step[]
+  tasteNotes       TasteNote[]
+  
+  @@schema("chocoya_coffee")
+}
+
+model Ingredient {
+  id       String  @id @default(cuid())
+  recipeId String
+  name     String
+  amount   String?
+  recipe   Recipe  @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  
+  @@schema("chocoya_coffee")
+}
+
+model Step {
+  id          String  @id @default(cuid())
+  recipeId    String
+  order       Int
+  description String
+  time        String?
+  waterAmount String?
+  recipe      Recipe  @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  
+  @@schema("chocoya_coffee")
+}
+
+model BrewingTip {
+  id       String @id @default(cuid())
+  recipeId String
+  content  String
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  
+  @@schema("chocoya_coffee")
+}
+
+model Bean {
+  id           String      @id @default(cuid())
+  name         String
+  origin       String?
+  region       String?
+  farm         String?
+  altitude     String?
+  process      String?
+  variety      String?
+  roastLevel   String?
+  roaster      String?
+  roastDate    DateTime?
+  description  String?
+  isPublic     Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  userId       String
+  flavorColors String?
+  flavorLabels String?
+  flavorNotes  String?
+  primaryColor String?
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipes      Recipe[]
+  tasteNotes   TasteNote[]
+  
+  @@schema("chocoya_coffee")
+}
+
+model TasteNote {
+  id            String           @id @default(cuid())
+  userId        String
+  recipeId      String?
+  date          DateTime         @default(now())
+  coffeeName    String
+  origin        String?
+  roastLevel    String?
+  roaster       String?
+  brewingMethod String
+  grindSize     String?
+  beanAmount    String?
+  waterAmount   String?
+  waterTemp     String?
+  brewTime      String?
+  ratio         String?
+  overallRating Int?
+  acidity       Int?
+  sweetness     Int?
+  body          Int?
+  bitterness    Int?
+  flavorNotes   String?
+  notes         String?
+  flavorLabels  String?
+  flavorColors  String?
+  primaryColor  String?
+  beanId        String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  recipe        Recipe?          @relation(fields: [recipeId], references: [id])
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bean          Bean?            @relation(fields: [beanId], references: [id])
+  labels        TasteNoteLabel[] @relation("TasteNoteToTasteNoteLabel")
+  
+  @@schema("chocoya_coffee")
+}
+
+model TasteNoteLabel {
+  id          String      @id @default(cuid())
+  name        String      @unique
+  color       String
+  description String?
+  createdAt   DateTime    @default(now())
+  tasteNotes  TasteNote[] @relation("TasteNoteToTasteNoteLabel")
+  
+  @@schema("chocoya_coffee")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  recipeId  String
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  reports   Report[]
+  
+  @@schema("chocoya_coffee")
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  recipeId  String
+  userId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@unique([recipeId, userId])
+  @@schema("chocoya_coffee")
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  recipeId  String
+  userId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@unique([recipeId, userId])
+  @@schema("chocoya_coffee")
+}
+
+model Report {
+  id        String   @id @default(cuid())
+  reason    String
+  commentId String
+  userId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  
+  @@schema("chocoya_coffee")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@schema("chocoya_coffee")
+}
+
+model RecipeLike {
+  userId    String
+  recipeId  String
+  createdAt DateTime @default(now())
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, recipeId])
+  @@schema("chocoya_coffee")
+}
+
+model Grinder {
+  id             String           @id @default(cuid())
+  name           String
+  brand          String
+  type           String
+  burr           String?
+  burrSize       String?
+  adjustmentType String
+  description    String?
+  imageUrl       String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  description_ko String?
+  name_ko        String?
+  settings       GrinderSetting[]
+  recipes        Recipe[]
+  
+  @@schema("chocoya_coffee")
+}
+
+model GrinderSetting {
+  id             String   @id @default(cuid())
+  grinderId      String
+  name           String
+  value          String
+  brewingMethod  String
+  description    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  description_ko String?
+  name_ko        String?
+  grinder        Grinder  @relation(fields: [grinderId], references: [id], onDelete: Cascade)
+  
+  @@schema("chocoya_coffee")
+}

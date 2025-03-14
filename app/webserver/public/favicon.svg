@@ -1,0 +1,24 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 100 100"
+  width="32"
+  height="32"
+  fill="none"
+  stroke="#8b5cf6"
+  strokeWidth="2"
+  strokeLinecap="round"
+  strokeLinejoin="round"
+>
+  <!-- 커피 컵 -->
+  <path d="M30 40L35 80H65L70 40" fill="#8b5cf6" fillOpacity="0.1" stroke="#8b5cf6" strokeWidth="2" />
+  
+  <!-- 커피 표면 -->
+  <path d="M35 50H65" stroke="#8b5cf6" strokeWidth="1.5" />
+  
+  <!-- 고양이 꼬리 손잡이 -->
+  <path d="M70 50C75 50 82 45 85 50C88 55 82 65 85 70" stroke="#8b5cf6" strokeWidth="2" />
+  
+  <!-- 커피 스팀 -->
+  <path d="M45 35C45 30 40 30 40 25" stroke="#8b5cf6" strokeWidth="1.5" />
+  <path d="M55 35C55 30 60 30 60 25" stroke="#8b5cf6" strokeWidth="1.5" />
+</svg> 

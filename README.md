@@ -1,6 +1,96 @@
-# 초코야 커피 (Chocoya Coffee)
+# 초코야 커피 모노레포
 
-커피 레시피를 기록하고 공유하는 웹 애플리케이션입니다.
+이 프로젝트는 Turborepo를 사용한 모노레포 구조로 구성되어 있습니다.
+
+## 프로젝트 구조
+
+```
+chocoya-coffee/
+├── app/
+│   └── webserver/     # Next.js 웹 애플리케이션
+├── packages/
+│   └── ui/            # 공유 UI 컴포넌트 라이브러리
+├── package.json       # 루트 패키지 설정
+├── pnpm-workspace.yaml # pnpm 워크스페이스 설정
+└── turbo.json         # Turborepo 설정
+```
+
+## 시작하기
+
+### 필수 요구사항
+
+- Node.js 18.0.0 이상
+- pnpm 8.6.1 이상
+
+### 설치
+
+```bash
+# 의존성 설치
+pnpm install
+```
+
+### 개발 서버 실행
+
+```bash
+# 모든 프로젝트 개발 서버 실행
+pnpm dev
+
+# 특정 프로젝트만 실행
+pnpm --filter webserver dev
+```
+
+### 빌드
+
+```bash
+# 모든 프로젝트 빌드
+pnpm build
+
+# 특정 프로젝트만 빌드
+pnpm --filter webserver build
+```
+
+### 테스트
+
+```bash
+# 모든 프로젝트 테스트
+pnpm test
+
+# 특정 프로젝트만 테스트
+pnpm --filter webserver test
+```
+
+## 패키지 추가하기
+
+### 새 워크스페이스 패키지 생성
+
+1. `app/` 또는 `packages/` 디렉토리에 새 디렉토리 생성
+2. 해당 디렉토리에 `package.json` 파일 생성
+3. 루트 디렉토리에서 `pnpm install` 실행
+
+### 의존성 추가하기
+
+```bash
+# 특정 워크스페이스에 의존성 추가
+pnpm --filter <workspace-name> add <package-name>
+
+# 개발 의존성으로 추가
+pnpm --filter <workspace-name> add -D <package-name>
+
+# 워크스페이스 간 의존성 추가
+pnpm --filter <workspace-name> add <other-workspace-name>
+```
+
+## 기술 스택
+
+- **프레임워크**: Next.js
+- **언어**: TypeScript
+- **스타일링**: Tailwind CSS
+- **UI 컴포넌트**: Shadcn UI, Radix UI
+- **상태 관리**: Zustand
+- **데이터베이스**: Supabase (PostgreSQL)
+- **ORM**: Prisma
+- **테스트**: Vitest
+- **모노레포 도구**: Turborepo, pnpm 워크스페이스
 
 ## 기능
 
@@ -160,32 +250,6 @@ Prisma Studio를 사용하여 데이터베이스를 시각적으로 관리할 �
 
 ```bash
 npx prisma studio
-```
-
-## 프로젝트 구조
-
-```
-chocoya-coffee/
-├── prisma/               # Prisma 스키마 및 마이그레이션
-├── public/               # 정적 파일
-├── src/
-│   ├── app/              # Next.js App Router
-│   │   ├── api/          # API 라우트
-│   │   ├── auth/         # 인증 관련 페이지
-│   │   ├── recipes/      # 레시피 관련 페이지
-│   │   └── ...
-│   ├── components/       # React 컴포넌트
-│   │   ├── auth/         # 인증 관련 컴포넌트
-│   │   ├── layout/       # 레이아웃 컴포넌트
-│   │   ├── recipes/      # 레시피 관련 컴포넌트
-│   │   └── ui/           # UI 컴포넌트 (shadcn/ui)
-│   ├── lib/              # 유틸리티 및 헬퍼 함수
-│   │   ├── auth/         # 인증 관련 유틸리티
-│   │   ├── db/           # 데이터베이스 관련 유틸리티
-│   │   ├── store/        # Zustand 스토어
-│   │   └── validations/  # Zod 스키마
-│   └── ...
-└── ...
 ```
 
 ## 라이선스
