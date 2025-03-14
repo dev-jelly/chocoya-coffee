@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 async function main() {
   // 관리자 계정 생성 (이미 존재하는 경우 업데이트)
-  const adminEmail = 'admin@chocoya.coffee';
+  const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@chocoya.coffee';
 
   const hashedPassword = await bcrypt.hash('admin1234', 10);
 

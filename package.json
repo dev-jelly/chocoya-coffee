@@ -15,6 +15,7 @@
     "lint": "next lint",
     "prisma:seed": "pnpm prisma db seed",
     "seed:labels": "node prisma/seed-labels.js",
+    "seed:recipes": "ts-node -T prisma/seed-recipes.ts",
     "postinstall": "prisma generate",
     "test": "vitest run",
     "test:watch": "vitest",
