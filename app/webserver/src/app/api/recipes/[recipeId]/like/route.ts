@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase-server';
 // 좋아요 토글 API
 export async function POST(
     request: Request,
-    { params }: { params: { recipeId: string } }
+    context: any
 ) {
     try {
         // Supabase 클라이언트 생성 및 사용자 정보 가져오기
@@ -19,8 +19,8 @@ export async function POST(
             );
         }
 
-        // params를 await 처리하는 코드 제거
-        const recipeId = params.recipeId;
+        // recipeId 가져오기
+        const recipeId = context.params.recipeId;
         const userId = user.id;
 
         // 레시피가 존재하는지 확인
@@ -84,7 +84,7 @@ export async function POST(
 // 좋아요 상태 확인 API
 export async function GET(
     request: Request,
-    { params }: { params: { recipeId: string } }
+    context: any
 ) {
     try {
         // Supabase 클라이언트 생성 및 사용자 정보 가져오기
@@ -95,8 +95,8 @@ export async function GET(
             return NextResponse.json({ isLiked: false });
         }
 
-        // params를 await 처리하는 코드 제거
-        const recipeId = params.recipeId;
+        // recipeId 가져오기
+        const recipeId = context.params.recipeId;
         const userId = user.id;
 
         // 좋아요 여부 확인
