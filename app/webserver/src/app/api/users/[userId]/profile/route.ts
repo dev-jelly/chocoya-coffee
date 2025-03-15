@@ -4,18 +4,18 @@ import { createClient } from '@/lib/supabase-server';
 
 export async function PUT(
     request: Request,
-    { params }: { params: { userId: string } }
+    context: any
 ) {
     try {
         // Supabase 클라이언트 생성 및 사용자 정보 가져오기
         const supabase = await createClient();
         const { data: { user } } = await supabase.auth.getUser();
-        
+
         if (!user?.id) {
             return NextResponse.json({ error: '인증이 필요합니다' }, { status: 401 });
         }
 
-        const userId = params.userId;
+        const userId = context.params.userId;
 
         // 요청한 사용자가 본인인지 확인
         if (user.id !== userId) {
@@ -77,13 +77,13 @@ export async function PUT(
                 ...(imageUrl && { image: imageUrl }),
             },
         });
-        
+
         // Supabase 사용자 정보도 업데이트
         if (email !== user.email || name) {
             const updateData: any = {};
             if (email !== user.email) updateData.email = email;
             if (name) updateData.user_metadata = { ...user.user_metadata, full_name: name };
-            
+
             const { error } = await supabase.auth.updateUser(updateData);
             if (error) {
                 console.error('Supabase 사용자 정보 업데이트 오류:', error);
@@ -112,18 +112,18 @@ export async function PUT(
 
 export async function GET(
     request: Request,
-    { params }: { params: { userId: string } }
+    context: any
 ) {
     try {
         // Supabase 클라이언트 생성 및 사용자 정보 가져오기
         const supabase = await createClient();
         const { data: { user } } = await supabase.auth.getUser();
-        
+
         if (!user?.id) {
             return NextResponse.json({ error: '인증이 필요합니다' }, { status: 401 });
         }
 
-        const userId = params.userId;
+        const userId = context.params.userId;
 
         // 사용자 정보 가져오기
         const dbUser = await prisma.user.findUnique({

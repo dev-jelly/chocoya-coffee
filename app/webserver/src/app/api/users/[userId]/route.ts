@@ -4,19 +4,19 @@ import { createClient } from '@/lib/supabase-server';
 
 export async function DELETE(
     request: Request,
-    { params }: { params: { userId: string } }
+    context: any
 ) {
     try {
         // Supabase 클라이언트 생성
         const supabase = await createClient();
-        
+
         // 인증된 사용자 확인
         const { data: { user } } = await supabase.auth.getUser();
         if (!user?.id) {
             return NextResponse.json({ error: '인증이 필요합니다' }, { status: 401 });
         }
 
-        const userId = params.userId;
+        const userId = context.params.userId;
 
         // 요청한 사용자가 본인인지 확인
         if (user.id !== userId) {
@@ -55,21 +55,21 @@ export async function DELETE(
 
 export async function GET(
     request: Request,
-    { params }: { params: { userId: string } }
+    context: any
 ) {
     try {
-        const userId = params.userId;
-        
+        const userId = context.params.userId;
+
         // Supabase 클라이언트 생성
         const supabase = await createClient();
-        
+
         // 인증된 사용자 확인 (선택적으로 처리)
         const { data: { user } } = await supabase.auth.getUser();
-        
+
         // GET 요청은 인증 확인을 완화하여 로그인 직후에도 동작하도록 함
         // 1. 인증된 사용자가 있거나
         // 2. 단순히 사용자 ID를 기반으로 공개 정보만 조회하는 경우
-        
+
         // 사용자 정보 가져오기 (공개 정보만)
         const userInfo = await prisma.user.findUnique({
             where: { id: userId },
@@ -97,4 +97,15 @@ export async function GET(
             { status: 500 }
         );
     }
+}
+
+export async function PUT(
+    request: Request,
+    context: any
+) {
+    // ... existing code ...
+
+    const userId = context.params.userId;
+
+    // ... existing code ...
 } 
