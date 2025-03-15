@@ -11,14 +11,12 @@ export const metadata = {
   description: '다양한 원두 정보를 찾아보고, 나만의 원두 정보를 공유하세요',
 };
 
-export default async function BeansPage({
-  searchParams,
-}: {
-  searchParams?: { search?: string };
-}) {
+export default async function BeansPage(props: any) {
+  const searchParams = props.searchParams || {};
+
   // Supabase 클라이언트 생성
   const supabase = await createClient();
-  
+
   // 사용자 정보 가져오기
   const { data: { user } } = await supabase.auth.getUser();
   const userId = user?.id;
