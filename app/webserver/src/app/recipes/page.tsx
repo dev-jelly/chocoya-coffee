@@ -30,18 +30,15 @@ export const metadata = {
   description: '다양한 커피 브루잉 레시피를 찾아보세요',
 };
 
-export default async function RecipesPage({
-  searchParams = {},
-}: {
-  searchParams?: Record<string, string | string[] | undefined>;
-}) {
-  // searchParams 직접 접근 (params 객체 제거)
+export default async function RecipesPage(props: any) {
+  // searchParams 직접 접근
+  const searchParams = props.searchParams || {};
   const methodParam = searchParams.method;
   const method = typeof methodParam === 'string' ? methodParam : undefined;
-  
+
   // 데이터베이스 연결 오류 상태 관리
   let error = null;
-  
+
   // 데이터베이스에서 레시피 가져오기 (오류 처리 포함)
   const recipes = await withDatabase<Recipe[]>(
     async () => {
@@ -50,8 +47,8 @@ export default async function RecipesPage({
     [], // 오류 발생 시 빈 배열 반환
     (err) => {
       console.error('레시피 조회 오류:', err);
-      error = err instanceof Error 
-        ? err.message 
+      error = err instanceof Error
+        ? err.message
         : '레시피를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
     }
   );

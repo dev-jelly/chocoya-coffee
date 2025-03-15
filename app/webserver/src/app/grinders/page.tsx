@@ -10,13 +10,10 @@ export const metadata = {
     description: '다양한 그라인더 정보를 찾아보고 분쇄도 설정을 확인하세요',
 };
 
-export default async function GrindersPage({
-    searchParams,
-}: {
-    searchParams?: { search?: string };
-}) {
+export default async function GrindersPage(props: any) {
     // 검색어 가져오기
-    const search = searchParams?.search || '';
+    const searchParams = props.searchParams || {};
+    const search = searchParams.search || '';
 
     // 그라인더 목록 가져오기
     const grinders = await getGrinders(search);
