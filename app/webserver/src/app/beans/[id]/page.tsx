@@ -11,7 +11,7 @@ import DeleteBeanButton from '@/components/bean/delete-bean-button';
 import { getOriginNameById } from '@/data/origins';
 import { flavorLabels } from '@/data/flavor-labels';
 
-export default async function BeanDetailPage({ params }: { params: { id: string } }) {
+export default async function BeanDetailPage({ params }: any) {
   // 원두 상세 정보 가져오기
   const bean = await getBeanById(params.id);
 

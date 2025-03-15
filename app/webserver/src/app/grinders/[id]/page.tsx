@@ -9,7 +9,7 @@ import { createClient } from '@/lib/supabase-server';
 import { DeleteGrinderButton } from '@/components/grinder/delete-grinder-button';
 import { prisma } from '@/lib/db';
 
-export default async function GrinderDetailPage({ params }: { params: { id: string } }) {
+export default async function GrinderDetailPage({ params }: any) {
     // Supabase 클라이언트 생성 및 사용자 정보 가져오기
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();

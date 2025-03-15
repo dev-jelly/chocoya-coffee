@@ -13,7 +13,7 @@ export const metadata = {
   description: '커피 브루잉 레시피를 수정하세요',
 };
 
-export default async function EditRecipePage({ params }: { params: { id: string } }) {
+export default async function EditRecipePage({ params }: any) {
   const recipe = await getRecipeById(params.id);
 
   if (!recipe) {

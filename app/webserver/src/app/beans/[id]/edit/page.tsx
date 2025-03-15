@@ -11,7 +11,7 @@ export const metadata = {
   description: '등록한 원두 정보를 수정하세요',
 };
 
-export default async function EditBeanPage({ params }: { params: { id: string } }) {
+export default async function EditBeanPage({ params }: any) {
   // Supabase 인증 확인
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
