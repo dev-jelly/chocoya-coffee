@@ -9,7 +9,8 @@ chocoya-coffee/
 ├── app/
 │   └── webserver/     # Next.js 웹 애플리케이션
 ├── packages/
-│   └── ui/            # 공유 UI 컴포넌트 라이브러리
+│   ├── ui/            # 공유 UI 컴포넌트 라이브러리
+│   └── utils/         # 유틸리티 함수 및 도구
 ├── package.json       # 루트 패키지 설정
 ├── pnpm-workspace.yaml # pnpm 워크스페이스 설정
 └── turbo.json         # Turborepo 설정
@@ -20,13 +21,21 @@ chocoya-coffee/
 ### 필수 요구사항
 
 - Node.js 18.0.0 이상
-- pnpm 8.6.1 이상
+- pnpm 8.6.1 이상 (프로젝트 전체에서 pnpm만 사용해야 함)
 
 ### 설치
 
 ```bash
+# 저장소 클론
+git clone https://github.com/yourusername/chocoya-coffee.git
+cd chocoya-coffee
+
 # 의존성 설치
 pnpm install
+
+# 환경 변수 설정
+cp .env.example .env.local
+# .env.local 파일을 편집하여 필요한 환경 변수 설정
 ```
 
 ### 개발 서버 실행
@@ -91,6 +100,9 @@ pnpm --filter <workspace-name> add <other-workspace-name>
 - **ORM**: Prisma
 - **테스트**: Vitest
 - **모노레포 도구**: Turborepo, pnpm 워크스페이스
+- **인증**: NextAuth.js
+- **데이터 검증**: Zod
+- **배포**: Vercel
 
 ## 기능
 
@@ -101,66 +113,29 @@ pnpm --filter <workspace-name> add <other-workspace-name>
 - SCA 기준 맛 평가 및 기록
 - 맛 노트 등록
 
-## 기술 스택
-
-- **프론트엔드**: Next.js, React, TypeScript
-- **백엔드**: Next.js API Routes
-- **데이터베이스**: 
-  - 개발 및 프로덕션: Supabase (PostgreSQL)
-- **ORM**: Prisma
-- **인증**: NextAuth.js
-- **상태 관리**: Zustand
-- **데이터 검증**: Zod
-- **스타일링**: Tailwind CSS, shadcn/ui
-- **배포**: Vercel
-- **패키지 관리**: pnpm (npm 사용 금지)
-
-## 시작하기
-
-### 필수 조건
-
-- Node.js 18.0.0 이상
-- pnpm (프로젝트 전체에서 pnpm만 사용해야 함)
-
-### 설치
-
-```bash
-# 저장소 클론
-git clone https://github.com/yourusername/chocoya-coffee.git
-cd chocoya-coffee
-
-# 의존성 설치 (반드시 pnpm 사용)
-pnpm install
-
-# 환경 변수 설정
-cp .env.example .env.local
-# .env.local 파일을 편집하여 필요한 환경 변수 설정
-
-# 개발 서버 실행
-pnpm dev
-```
-
-### 데이터베이스 설정
+## 데이터베이스 설정
 
 이 프로젝트는 Supabase PostgreSQL 데이터베이스를 사용합니다. 
 
-#### 1. Supabase 설정 (프로덕션 또는 공유 개발 환경용)
+### 1. Supabase 설정 (프로덕션 또는 공유 개발 환경용)
 
 1. [Supabase](https://supabase.com)에 가입하고 새 프로젝트를 생성합니다.
 2. 대시보드에서 `Settings` > `Database` 메뉴로 이동하여 PostgreSQL 연결 정보를 확인합니다.
 3. `.env` 파일을 생성하고 다음 환경 변수를 설정합니다:
    ```
    DATABASE_URL=postgresql://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-REF].supabase.co:5432/postgres
+   DIRECT_URL=postgresql://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-REF].supabase.co:5432/postgres
    NEXT_PUBLIC_SUPABASE_URL=https://[YOUR-PROJECT-REF].supabase.co
    NEXT_PUBLIC_SUPABASE_ANON_KEY=[YOUR-ANON-KEY]
    SUPABASE_SERVICE_ROLE_KEY=[YOUR-SERVICE-ROLE-KEY]
    ```
 
-#### 2. 로컬 개발 환경 설정
+### 2. 로컬 개발 환경 설정
 
 1. `.env` 파일에 다음 환경 변수를 설정합니다:
    ```
    DATABASE_URL=postgresql://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-REF].supabase.co:5432/postgres
+   DIRECT_URL=postgresql://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-REF].supabase.co:5432/postgres
    NEXTAUTH_SECRET="랜덤_문자열"
    NEXTAUTH_URL="http://localhost:3000"
    ```
