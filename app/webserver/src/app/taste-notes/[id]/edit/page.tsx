@@ -11,11 +11,7 @@ export const metadata = {
     description: '커피 맛 노트를 수정하고 업데이트하세요',
 };
 
-export default async function EditTasteNotePage({
-    params,
-}: {
-    params: { id: string };
-}) {
+export default async function EditTasteNotePage({ params }: { params: { id: string } }) {
     // Supabase 클라이언트 생성 및 사용자 정보 가져오기
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();

@@ -8,18 +8,12 @@ import { notFound } from 'next/navigation';
 // 대신 간단한 타입 정의 추가
 type Recipe = any; // 또는 필요한 속성만 정의
 
-type Props = {
-  params: {
-    id: string;
-  };
-}
-
 export const metadata = {
   title: '초코야 커피 - 레시피 수정',
   description: '커피 브루잉 레시피를 수정하세요',
 };
 
-export default async function EditRecipePage({ params }: Props) {
+export default async function EditRecipePage({ params }: { params: { id: string } }) {
   const recipe = await getRecipeById(params.id);
 
   if (!recipe) {
