@@ -6,11 +6,13 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import { DeleteTasteNoteButton } from '@/components/taste-note/delete-taste-note-button';
 
-export default async function TasteNoteDetailPage({
-    params,
-}: {
-    params: { id: string };
-}) {
+type Props = {
+    params: {
+        id: string;
+    };
+}
+
+export default async function TasteNoteDetailPage({ params }: Props) {
     // Supabase 클라이언트 생성 및 사용자 정보 가져오기
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();

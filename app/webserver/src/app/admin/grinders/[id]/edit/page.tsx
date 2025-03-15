@@ -9,11 +9,13 @@ export const metadata = {
     description: '그라인더 정보를 수정합니다',
 };
 
-export default async function EditGrinderPage({
-    params,
-}: {
-    params: { id: string };
-}) {
+type Props = {
+    params: {
+        id: string;
+    };
+}
+
+export default async function EditGrinderPage({ params }: Props) {
     const grinder = await getGrinderById(params.id);
 
     if (!grinder) {

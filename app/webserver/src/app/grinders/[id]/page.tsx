@@ -9,11 +9,13 @@ import { createClient } from '@/lib/supabase-server';
 import { DeleteGrinderButton } from '@/components/grinder/delete-grinder-button';
 import { prisma } from '@/lib/db';
 
-export default async function GrinderDetailPage({
-    params,
-}: {
-    params: { id: string };
-}) {
+type Props = {
+    params: {
+        id: string;
+    };
+}
+
+export default async function GrinderDetailPage({ params }: Props) {
     // Supabase 클라이언트 생성 및 사용자 정보 가져오기
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -24,13 +26,13 @@ export default async function GrinderDetailPage({
     if (!grinder) {
         notFound();
     }
-    
+
     // 그라인더 소유자 정보 가져오기
     const grinderWithUser = await prisma.grinder.findUnique({
         where: { id: params.id },
         select: { userId: true }
     });
-    
+
     const isOwner = user?.id && grinderWithUser?.userId === user.id;
 
     // 그라인더 삭제 핸들러

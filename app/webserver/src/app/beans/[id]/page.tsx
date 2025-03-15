@@ -11,11 +11,13 @@ import DeleteBeanButton from '@/components/bean/delete-bean-button';
 import { getOriginNameById } from '@/data/origins';
 import { flavorLabels } from '@/data/flavor-labels';
 
-export default async function BeanDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+type Props = {
+  params: {
+    id: string;
+  };
+}
+
+export default async function BeanDetailPage({ params }: Props) {
   // 원두 상세 정보 가져오기
   const bean = await getBeanById(params.id);
 
@@ -26,7 +28,7 @@ export default async function BeanDetailPage({
   // Supabase 클라이언트 생성 및 사용자 정보 가져오기
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  
+
   const isOwner = user?.id === bean.userId;
 
   return (
