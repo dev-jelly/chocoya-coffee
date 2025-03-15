@@ -6,7 +6,7 @@ import { cookies } from 'next/headers';
 // 좋아요 상태 확인 API
 export async function GET(
     request: Request,
-    { params }: { params: Promise<{ recipeId: string }> | { recipeId: string } }
+    { params }: { params: { recipeId: string } }
 ) {
     try {
         // Supabase 클라이언트 생성
@@ -29,7 +29,7 @@ export async function GET(
                 },
             }
         );
-        
+
         // 사용자 정보 가져오기
         const { data: { user } } = await supabase.auth.getUser();
 
@@ -37,9 +37,8 @@ export async function GET(
             return NextResponse.json({ isLiked: false });
         }
 
-        // params를 await 처리
-        const resolvedParams = params instanceof Promise ? await params : params;
-        const recipeId = resolvedParams.recipeId;
+        // recipeId 가져오기
+        const recipeId = params.recipeId;
         const userId = user.id;
 
         // 좋아요 여부 확인

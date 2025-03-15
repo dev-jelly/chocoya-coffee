@@ -9,13 +9,9 @@ import { prisma } from '@/lib/db';
 import { LikeButton } from '@/components/recipe/like-button';
 import { DeleteRecipeButton } from '@/components/recipe/delete-recipe-button';
 
-export default async function RecipeDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }> | { id: string };
-}) {
-  // params가 Promise인 경우 await
-  const id = params instanceof Promise ? (await params).id : params.id;
+export default async function RecipeDetailPage({ params }: any) {
+  // params에서 id 직접 가져오기
+  const id = params.id;
   const recipe = await getRecipeById(id) as any;
 
   if (!recipe) {
@@ -25,7 +21,7 @@ export default async function RecipeDetailPage({
   // Supabase 클라이언트 생성 및 사용자 정보 가져오기
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  
+
   let isFavorite = false;
   let userId = user?.id;
 

@@ -4,12 +4,11 @@ import { prisma } from '@/lib/db';
 // 좋아요 수 조회 API
 export async function GET(
     request: Request,
-    { params }: { params: Promise<{ recipeId: string }> | { recipeId: string } }
+    { params }: { params: { recipeId: string } }
 ) {
     try {
-        // params를 await 처리
-        const resolvedParams = params instanceof Promise ? await params : params;
-        const recipeId = resolvedParams.recipeId;
+        // params를 await 처리하는 코드 제거
+        const recipeId = params.recipeId;
 
         // 좋아요 수 카운트
         const count = await prisma.recipeLike.count({
