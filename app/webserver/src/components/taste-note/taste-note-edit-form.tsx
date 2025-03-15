@@ -471,14 +471,9 @@ export default function TasteNoteEditForm({ tasteNote, userId }: TasteNoteEditFo
                             플레이버 휠
                         </label>
                         <FlavorWheelSelector
-                            selectedIds={selectedLabelIds}
-                            onSelect={(id) => {
-                                if (!selectedLabelIds.includes(id)) {
-                                    setSelectedLabelIds([...selectedLabelIds, id]);
-                                }
-                            }}
-                            onRemove={(id) => {
-                                setSelectedLabelIds(selectedLabelIds.filter((labelId) => labelId !== id));
+                            selectedLabels={selectedLabelIds}
+                            onChange={(labels) => {
+                                setSelectedLabelIds(labels);
                             }}
                         />
                     </div>

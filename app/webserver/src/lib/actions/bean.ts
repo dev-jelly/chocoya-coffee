@@ -3,7 +3,6 @@
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
-import { auth } from '@/lib/auth';
 
 // 원두 스키마 정의
 const beanSchema = z.object({

@@ -4,7 +4,20 @@ import { redirect } from 'next/navigation';
 import { AdminDashboard } from '@/components/admin/admin-dashboard';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { useEffect, useState } from 'react';
-import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from "@/lib/utils";
+
+// 인라인 스켈레톤 컴포넌트 구현
+function Skeleton({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div
+      className={cn("animate-pulse rounded-md bg-muted", className)}
+      {...props}
+    />
+  )
+}
 
 export default function AdminClient() {
   const { user, loading } = useAuth();
@@ -14,7 +27,7 @@ export default function AdminClient() {
     if (!loading) {
       // 관리자 이메일 체크
       const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@chocoya.coffee';
-      
+
       if (!user || user.email !== adminEmail) {
         redirect('/');
       } else {

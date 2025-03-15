@@ -18,6 +18,16 @@ interface FlavorWheelSelectorProps {
   onChange: (labels: string[]) => void;
 }
 
+// 카테고리 타입 정의
+interface FlavorCategory {
+  name: {
+    en: string;
+    ko: string;
+  };
+  colorCode: string;
+  subcategories: any[];
+}
+
 export function FlavorWheelSelector({ selectedLabels, onChange }: FlavorWheelSelectorProps) {
   const [selected, setSelected] = useState<string[]>(selectedLabels || []);
   const [activeTab, setActiveTab] = useState<string>(flavorWheel.categories[0].name.en);
@@ -59,7 +69,7 @@ export function FlavorWheelSelector({ selectedLabels, onChange }: FlavorWheelSel
   };
 
   // 대분류 라벨 정보 가져오기
-  const getCategoryInfo = (category) => {
+  const getCategoryInfo = (category: FlavorCategory) => {
     const id = categoryIdMap.get(category.name.en);
     return {
       id,
@@ -152,7 +162,7 @@ export function FlavorWheelSelector({ selectedLabels, onChange }: FlavorWheelSel
               <TabsList className="w-full h-auto flex flex-wrap bg-transparent gap-1">
                 {flavorWheel.categories.map(category => {
                   const categoryInfo = getCategoryInfo(category);
-                  const isSelected = selected.includes(categoryInfo.id);
+                  const isSelected = categoryInfo.id ? selected.includes(categoryInfo.id) : false;
 
                   return (
                     <TabsTrigger
@@ -166,7 +176,7 @@ export function FlavorWheelSelector({ selectedLabels, onChange }: FlavorWheelSel
                       }}
                       onClick={(e) => {
                         // 클릭 시 탭 변경하면서 카테고리도 선택
-                        if (e.ctrlKey || e.metaKey) {
+                        if ((e.ctrlKey || e.metaKey) && categoryInfo.id) {
                           e.preventDefault();
                           handleLabelClick(categoryInfo.id);
                         }
@@ -186,7 +196,7 @@ export function FlavorWheelSelector({ selectedLabels, onChange }: FlavorWheelSel
 
           {flavorWheel.categories.map(category => {
             const categoryInfo = getCategoryInfo(category);
-            const isSelected = selected.includes(categoryInfo.id);
+            const isSelected = categoryInfo.id ? selected.includes(categoryInfo.id) : false;
 
             return (
               <TabsContent
@@ -199,7 +209,7 @@ export function FlavorWheelSelector({ selectedLabels, onChange }: FlavorWheelSel
                   type="button"
                   className={`w-full p-2 mb-3 rounded-md transition-colors cursor-pointer flex items-center 
                     ${isSelected ? 'bg-primary text-primary-foreground' : 'bg-secondary/20 hover:bg-secondary/40'}`}
-                  onClick={() => handleLabelClick(categoryInfo.id)}
+                  onClick={() => categoryInfo.id && handleLabelClick(categoryInfo.id)}
                 >
                   <div
                     className="w-4 h-4 rounded-full mr-2"
@@ -254,7 +264,7 @@ export function FlavorWheelSelector({ selectedLabels, onChange }: FlavorWheelSel
                         {hasSubItems && (
                           <div className="p-2 border-t bg-background/50">
                             <div className="flex flex-wrap gap-1">
-                              {subcategory.flavors.map(flavor => {
+                              {subcategory.flavors?.map(flavor => {
                                 const flavorLabel = flavorLabels.find(
                                   label => label.name === flavor.ko || label.englishName === flavor.en
                                 );

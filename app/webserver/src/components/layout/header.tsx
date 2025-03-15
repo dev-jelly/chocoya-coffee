@@ -34,7 +34,7 @@ export async function Header() {
           where: { id: user.id },
           select: { id: true, name: true, email: true, image: true }
         });
-        
+
         return dbUser || defaultUserProfile;
       },
       defaultUserProfile,
@@ -105,7 +105,7 @@ export async function Header() {
               <div className="hidden md:block">
                 <CreateBeanButtonClient variant="outline" size="sm" />
               </div>
-              <UserNav user={userProfile} />
+              {userProfile && <UserNav user={userProfile} />}
             </div>
           ) : (
             <div className="flex gap-2">

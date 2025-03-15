@@ -109,8 +109,8 @@ export async function createRecipe(
     let stepsText = '';
     const stepsCount = parseInt(formData.get('stepsCount')?.toString() || '0', 10);
 
+    let stepsArray = [];
     if (stepsCount > 0) {
-      const stepsArray = [];
       for (let i = 0; i < stepsCount; i++) {
         const step = formData.get(`step-${i}`)?.toString();
         if (step?.trim()) {
@@ -137,7 +137,12 @@ export async function createRecipe(
         sweetness,
         body,
         recommendedBeans,
-        steps: stepsText,
+        steps: {
+          create: stepsArray.map((description, index) => ({
+            order: index + 1,
+            description
+          }))
+        },
         isPublic,
         userId: actualUserId,
         grinderId,
@@ -195,7 +200,11 @@ export async function createRecipe(
 // 레시피 목록 조회 액션
 export async function getRecipes(method?: string) {
   try {
-    let whereClause = {
+    // Prisma의 Recipe 모델에 맞는 where 조건 타입 정의
+    let whereClause: {
+      isPublic: boolean;
+      brewingMethod?: string;
+    } = {
       isPublic: true,
     };
 

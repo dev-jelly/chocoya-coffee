@@ -9,6 +9,12 @@ import { createClient } from '@/lib/supabase-server';
 import { DeleteGrinderButton } from '@/components/grinder/delete-grinder-button';
 import { prisma } from '@/lib/db';
 
+// 서버 액션 정의
+async function deleteGrinderAction(id: string) {
+    'use server';
+    return deleteGrinder(id);
+}
+
 export default async function GrinderDetailPage({ params }: any) {
     // Supabase 클라이언트 생성 및 사용자 정보 가져오기
     const supabase = await createClient();
@@ -21,21 +27,8 @@ export default async function GrinderDetailPage({ params }: any) {
         notFound();
     }
 
-    // 그라인더 소유자 정보 가져오기
-    const grinderWithUser = await prisma.grinder.findUnique({
-        where: { id: params.id },
-        select: { userId: true }
-    });
-
-    const isOwner = user?.id && grinderWithUser?.userId === user.id;
-
-    // 그라인더 삭제 핸들러
-    const handleDelete = async (id: string) => {
-        'use server';
-        if (user?.id) {
-            await deleteGrinder(id, user.id);
-        }
-    };
+    // 관리자 여부 확인 (임시 방법)
+    const isAdmin = user?.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL;
 
     return (
         <div className="container px-4 md:px-6 py-6 md:py-10">
@@ -75,7 +68,7 @@ export default async function GrinderDetailPage({ params }: any) {
                         <div className="flex justify-between items-center mb-4">
                             <p className="text-xl text-primary font-medium">{grinder.brand}</p>
 
-                            {isOwner && (
+                            {isAdmin && (
                                 <div className="flex space-x-2">
                                     <Link
                                         href={`/grinders/${grinder.id}/edit`}
@@ -83,11 +76,14 @@ export default async function GrinderDetailPage({ params }: any) {
                                     >
                                         <Pencil size={16} />
                                     </Link>
-                                    <form action={async () => {
-                                        'use server';
-                                        await deleteGrinder(grinder.id);
-                                    }}>
-                                        <DeleteGrinderButton grinderId={grinder.id} />
+                                    <form>
+                                        <DeleteGrinderButton
+                                            grinderId={grinder.id}
+                                            onDelete={async (id) => {
+                                                await deleteGrinderAction(id);
+                                                window.location.href = '/grinders';
+                                            }}
+                                        />
                                     </form>
                                 </div>
                             )}

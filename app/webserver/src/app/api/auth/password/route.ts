@@ -7,24 +7,25 @@ import bcrypt from 'bcryptjs';
 export async function POST(request: Request) {
     try {
         // Supabase 클라이언트 생성
-        const cookieStore = cookies();
+        const cookieStore = await cookies();
         const supabase = createServerClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL || '',
             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
             {
                 cookies: {
-                    get(name: string) {
-                        return cookieStore.get(name)?.value;
+                    async get(name: string) {
+                        const cookie = await cookieStore.get(name);
+                        return cookie?.value;
                     },
-                    set() {},
-                    remove() {},
+                    set() { },
+                    remove() { },
                 },
             }
         );
-        
+
         // 사용자 정보 가져오기
         const { data: { user } } = await supabase.auth.getUser();
-        
+
         if (!user?.id) {
             return NextResponse.json({ error: '인증이 필요합니다' }, { status: 401 });
         }
@@ -63,12 +64,12 @@ export async function POST(request: Request) {
             where: { id: userId },
             data: { password: hashedPassword },
         });
-        
+
         // Supabase 비밀번호도 업데이트
         const { error } = await supabase.auth.updateUser({
             password: newPassword
         });
-        
+
         if (error) {
             console.error('Supabase 비밀번호 업데이트 오류:', error);
             // DB 비밀번호는 업데이트되었으므로 오류를 반환하지 않고 계속 진행

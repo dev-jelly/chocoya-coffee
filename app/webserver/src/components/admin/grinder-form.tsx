@@ -13,7 +13,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Toast } from '@/components/ui/toast';
 import { useToast } from '@/components/ui/use-toast';
 
 const grinderSchema = z.object({
@@ -153,7 +152,6 @@ export function GrinderForm({ grinder }: GrinderFormProps) {
                         <Input
                             id="name"
                             {...register('name')}
-                            error={errors.name?.message}
                         />
                         {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
                     </div>
@@ -163,7 +161,6 @@ export function GrinderForm({ grinder }: GrinderFormProps) {
                         <Input
                             id="name_ko"
                             {...register('name_ko')}
-                            error={errors.name_ko?.message}
                         />
                         {errors.name_ko && <p className="text-sm text-red-500">{errors.name_ko.message}</p>}
                     </div>
@@ -173,7 +170,6 @@ export function GrinderForm({ grinder }: GrinderFormProps) {
                         <Input
                             id="brand"
                             {...register('brand')}
-                            error={errors.brand?.message}
                         />
                         {errors.brand && <p className="text-sm text-red-500">{errors.brand.message}</p>}
                     </div>
@@ -298,7 +294,6 @@ export function GrinderForm({ grinder }: GrinderFormProps) {
                                     <Input
                                         id={`settings.${index}.name`}
                                         {...register(`settings.${index}.name` as const)}
-                                        error={errors.settings?.[index]?.name?.message}
                                     />
                                     {errors.settings?.[index]?.name && (
                                         <p className="text-sm text-red-500">{errors.settings[index]?.name?.message}</p>
@@ -310,7 +305,6 @@ export function GrinderForm({ grinder }: GrinderFormProps) {
                                     <Input
                                         id={`settings.${index}.name_ko`}
                                         {...register(`settings.${index}.name_ko` as const)}
-                                        error={errors.settings?.[index]?.name_ko?.message}
                                     />
                                     {errors.settings?.[index]?.name_ko && (
                                         <p className="text-sm text-red-500">{errors.settings[index]?.name_ko?.message}</p>
@@ -322,7 +316,6 @@ export function GrinderForm({ grinder }: GrinderFormProps) {
                                     <Input
                                         id={`settings.${index}.value`}
                                         {...register(`settings.${index}.value` as const)}
-                                        error={errors.settings?.[index]?.value?.message}
                                     />
                                     {errors.settings?.[index]?.value && (
                                         <p className="text-sm text-red-500">{errors.settings[index]?.value?.message}</p>

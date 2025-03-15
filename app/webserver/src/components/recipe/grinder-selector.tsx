@@ -27,22 +27,33 @@ interface GrinderSelectorProps {
     onGrinderSettingChange: (setting: string) => void;
 }
 
+interface GrinderSetting {
+    id: string;
+    name: string;
+    name_ko?: string | null;
+    value: string;
+    brewingMethod: string;
+    description?: string | null;
+    description_ko?: string | null;
+}
+
 interface Grinder {
     id: string;
     name: string;
-    name_ko?: string;
+    name_ko?: string | null;
     brand: string;
     type: string;
     adjustmentType: string;
-    settings: {
-        id: string;
-        name: string;
-        name_ko?: string;
-        value: string;
-        brewingMethod: string;
-        description: string;
-        description_ko?: string;
-    }[];
+    burr?: string | null;
+    burrSize?: string | null;
+    description?: string | null;
+    description_ko?: string | null;
+    imageUrl?: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+    settings: GrinderSetting[];
+    settingsCount?: number;
+    _count?: { settings: number };
 }
 
 export function GrinderSelector({

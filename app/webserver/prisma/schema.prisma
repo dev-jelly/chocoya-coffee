@@ -30,6 +30,7 @@ model User {
   reports       Report[]
   sessions      Session[]
   tasteNotes    TasteNote[]
+  notificationSettings NotificationSettings[]
 
   @@schema("chocoya_coffee")
 }
@@ -310,6 +311,18 @@ model GrinderSetting {
   description_ko String?
   name_ko        String?
   grinder        Grinder  @relation(fields: [grinderId], references: [id], onDelete: Cascade)
+  
+  @@schema("chocoya_coffee")
+}
+
+model NotificationSettings {
+  id                     String  @id @default(cuid())
+  userId                 String  @unique
+  emailNotifications     Boolean @default(true)
+  newRecipeNotifications Boolean @default(true)
+  marketingNotifications Boolean @default(false)
+  securityNotifications  Boolean @default(true)
+  user                   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   @@schema("chocoya_coffee")
 }

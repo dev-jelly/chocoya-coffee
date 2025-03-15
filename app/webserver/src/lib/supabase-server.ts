@@ -22,20 +22,21 @@ export async function createClient() {
             get(name) {
               return '';
             },
-            set(name, value, options) {},
-            remove(name, options) {}
+            set(name, value, options) { },
+            remove(name, options) { }
           }
         }
       );
     }
-    
+
     return createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL || '',
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
       {
         cookies: {
-          get(name) {
-            return cookieStore.get(name)?.value;
+          async get(name) {
+            const cookie = await cookieStore.get(name);
+            return cookie?.value;
           },
           set(name, value, options) {
             try {
@@ -66,8 +67,8 @@ export async function createClient() {
           get(name) {
             return '';
           },
-          set(name, value, options) {},
-          remove(name, options) {}
+          set(name, value, options) { },
+          remove(name, options) { }
         }
       }
     );

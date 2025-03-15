@@ -203,7 +203,7 @@ export default async function TasteNoteDetailPage({ params }: any) {
                                 {Array.from({ length: 5 }).map((_, i) => (
                                     <svg
                                         key={i}
-                                        className={`w-5 h-5 ${i < tasteNote.overallRating
+                                        className={`w-5 h-5 ${i < (tasteNote.overallRating || 0)
                                             ? 'text-primary'
                                             : 'text-muted-foreground'
                                             }`}
